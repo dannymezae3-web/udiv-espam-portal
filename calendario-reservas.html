@@ -1,0 +1,1516 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Reservas - UDIV ESPAM MFL</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <!-- Fuentes institucionales ESPAM MFL -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Variables de colores ESPAM MFL */
+        :root {
+            --espam-primary: #005846;    /* Verde principal */
+            --espam-secondary: #39b54a;   /* Verde secundario */
+            --espam-accent: #cbdb2a;      /* Amarillo-verde */
+            --espam-light: #08b89d;       /* Verde claro */
+            --espam-bg-light: #F8F8F2;    /* Fondo claro */
+            --espam-font-primary: 'Libertad Mono', 'Work Sans', monospace;
+            --espam-font-secondary: 'Work Sans', sans-serif;
+        }
+
+        /* Estilos generales con identidad ESPAM */
+        body {
+            font-family: var(--espam-font-secondary);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--espam-font-primary);
+            color: var(--espam-primary);
+        }
+
+        /* Banner de modo prueba */
+        .test-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, var(--espam-primary), var(--espam-secondary));
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-family: var(--espam-font-secondary);
+            font-weight: 600;
+            z-index: 99999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .test-banner-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .test-close-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .test-close-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Ajustar contenido para el banner */
+        body.has-test-banner {
+            margin-top: 60px;
+        }
+
+        /* Calendario estilo agencia ESPAM */
+        .calendar-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 88, 70, 0.1);
+            border-left: 5px solid var(--espam-primary);
+            font-family: var(--espam-font-secondary);
+            margin: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--espam-bg-light);
+        }
+
+        .calendar-title {
+            color: var(--espam-primary);
+            font-size: 1.5rem;
+            font-family: var(--espam-font-primary);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calendar-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-calendar {
+            padding: 10px 20px;
+            background-color: var(--espam-primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--espam-font-primary);
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-calendar:hover {
+            background-color: #004637;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 88, 70, 0.2);
+        }
+
+        .current-month {
+            font-weight: 600;
+            color: var(--espam-primary);
+            font-size: 1.1rem;
+            font-family: var(--espam-font-secondary);
+            min-width: 150px;
+            text-align: center;
+        }
+
+        /* Calendario tipo agencia */
+        .agency-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #e0e0e0;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-day-header {
+            background-color: var(--espam-primary);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            font-family: var(--espam-font-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .calendar-day {
+            background-color: white;
+            min-height: 120px;
+            padding: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .calendar-day:hover {
+            background-color: var(--espam-bg-light);
+            transform: scale(1.02);
+            z-index: 1;
+            box-shadow: 0 4px 12px rgba(0, 88, 70, 0.15);
+        }
+
+        .calendar-day.empty {
+            background-color: var(--espam-bg-light);
+            cursor: default;
+        }
+
+        .calendar-day.empty:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+        }
+
+        /* Estados del día con colores ESPAM */
+        .day-disponible {
+            background-color: var(--espam-secondary) !important; /* Verde claro */
+            color: white;
+        }
+
+        .day-ocupado {
+            background-color: #dc3545 !important; /* Rojo (contraste) */
+            color: white;
+        }
+
+        .day-feriado {
+            background-color: var(--espam-accent) !important; /* Amarillo-verde */
+            color: var(--espam-primary);
+        }
+
+        .day-mantenimiento {
+            background-color: #6c757d !important; /* Gris (neutral) */
+            color: white;
+        }
+
+        .day-reservado {
+            background-color: var(--espam-light) !important; /* Verde claro alternativo */
+            color: white;
+        }
+
+        .day-events {
+            margin-top: 10px;
+            font-size: 0.75rem;
+        }
+
+        .event-item {
+            padding: 3px 6px;
+            margin-bottom: 3px;
+            border-radius: 3px;
+            background-color: rgba(255,255,255,0.2);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: var(--espam-font-secondary);
+        }
+
+        /* Modal de reserva ESPAM */
+        .reserva-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 88, 70, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 88, 70, 0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--espam-primary) 0%, #004637 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--espam-font-primary);
+        }
+
+        .modal-header h3 {
+            color: white;
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            transform: scale(1.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        /* Formularios ESPAM */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--espam-primary);
+            font-weight: 600;
+            font-family: var(--espam-font-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: var(--espam-font-secondary);
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--espam-primary);
+            box-shadow: 0 0 0 3px rgba(0, 88, 70, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        /* Turnos estilo agencia ESPAM */
+        .turnos-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .turno-slot {
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .turno-slot:hover {
+            border-color: var(--espam-primary);
+            background-color: var(--espam-bg-light);
+        }
+
+        .turno-slot.disponible {
+            background-color: var(--espam-secondary);
+            color: white;
+            border-color: var(--espam-secondary);
+        }
+
+        .turno-slot.ocupado {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .turno-slot.seleccionado {
+            background-color: var(--espam-primary);
+            color: white;
+            border-color: var(--espam-primary);
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 88, 70, 0.2);
+        }
+
+        .turno-hora {
+            font-weight: 600;
+            display: block;
+            font-family: var(--espam-font-primary);
+            font-size: 0.9rem;
+        }
+
+        .turno-estado {
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        /* Checkboxes ESPAM */
+        .equipos-checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .checkbox-container:hover {
+            background-color: var(--espam-bg-light);
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--espam-primary);
+        }
+
+        /* Leyenda ESPAM */
+        .calendar-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--espam-bg-light);
+            font-family: var(--espam-font-secondary);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .legend-disponible { background-color: var(--espam-secondary); }
+        .legend-ocupado { background-color: #dc3545; }
+        .legend-feriado { background-color: var(--espam-accent); }
+        .legend-mantenimiento { background-color: #6c757d; }
+        .legend-reservado { background-color: var(--espam-light); }
+
+        /* Información del laboratorio */
+        .lab-info-card {
+            background: var(--espam-bg-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 25px;
+            border-left: 4px solid var(--espam-accent);
+        }
+
+        .lab-info-card h3 {
+            color: var(--espam-primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--espam-font-primary);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .info-item strong {
+            color: var(--espam-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Botones de acción */
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .modal-actions .btn-calendar {
+            flex: 1;
+        }
+
+        .modal-actions .btn-calendar:last-child {
+            background-color: #6c757d;
+        }
+
+        .modal-actions .btn-calendar:last-child:hover {
+            background-color: #5a6268;
+        }
+
+        /* Estilos simplificados sin sidebar */
+        .simple-header {
+            background: linear-gradient(135deg, var(--espam-primary) 0%, #004637 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 60px; /* Para el banner */
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .simple-header h1 {
+            color: white;
+            margin: 0;
+            font-family: var(--espam-font-primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--espam-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--espam-primary);
+            font-size: 1.2rem;
+        }
+
+        .user-details h4 {
+            color: white;
+            margin: 0;
+            font-family: var(--espam-font-primary);
+        }
+
+        .user-details p {
+            color: rgba(255,255,255,0.8);
+            margin: 2px 0 0 0;
+            font-size: 0.9rem;
+        }
+
+        /* Contenido principal ajustado */
+        .main-content {
+            margin-top: 140px; /* Header + banner */
+            padding: 20px;
+        }
+
+        /* Selector de laboratorio */
+        #labSelector {
+            background-color: white;
+            color: var(--espam-primary);
+            border: 1px solid var(--espam-primary);
+            font-family: var(--espam-font-secondary);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+
+        #labSelector:focus {
+            outline: none;
+            border-color: var(--espam-secondary);
+            box-shadow: 0 0 0 3px rgba(57, 181, 74, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .agency-calendar {
+                grid-template-columns: repeat(7, 1fr);
+            }
+            
+            .calendar-day {
+                min-height: 100px;
+                padding: 8px;
+            }
+            
+            .day-number {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .calendar-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .simple-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 15px;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .agency-calendar {
+                grid-template-columns: repeat(1, 1fr);
+            }
+            
+            .calendar-day-header {
+                display: none;
+            }
+            
+            .calendar-day {
+                min-height: auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px;
+            }
+            
+            .day-number {
+                margin-bottom: 0;
+                font-size: 1.2rem;
+                min-width: 40px;
+            }
+            
+            .day-events {
+                margin-top: 0;
+                flex: 1;
+                margin-left: 15px;
+            }
+            
+            .turnos-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-legend {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .current-month {
+                order: -1;
+                text-align: center;
+            }
+            
+            .btn-calendar {
+                justify-content: center;
+            }
+            
+            .turnos-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .test-banner {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+        }
+
+        /* Animaciones adicionales */
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .calendar-day {
+            animation: slideIn 0.3s ease;
+            animation-fill-mode: both;
+        }
+
+        .calendar-day:nth-child(n) {
+            animation-delay: calc(var(--day-index) * 0.02s);
+        }
+
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            background: var(--espam-secondary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            font-family: var(--espam-font-secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <!-- Banner de modo prueba -->
+    <div class="test-banner" id="testBanner">
+        <div class="test-banner-content">
+            <i class="fas fa-user-check" style="color: var(--espam-accent);"></i>
+            <span>MODO PRUEBA - Acceso directo activado</span>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="test-badge" id="userTypeBadge">DOCENTE</div>
+            <button class="test-close-btn" onclick="document.getElementById('testBanner').remove()">
+                ✕ Cerrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Header simplificado -->
+    <header class="simple-header">
+        <h1>📅 Calendario de Reservas - UDIV ESPAM MFL</h1>
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-details">
+                <h4 id="userName">Dr. Carlos Mendoza</h4>
+                <p id="userCareer">Ingeniería de la Producción</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="calendar-container">
+            <!-- Header del Calendario -->
+            <div class="calendar-header">
+                <h2 class="calendar-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    Calendario de Laboratorios
+                </h2>
+                <div class="calendar-controls">
+                    <button class="btn-calendar" onclick="changeMonth(-1)">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                    <span class="current-month" id="currentMonth">Enero 2024</span>
+                    <button class="btn-calendar" onclick="changeMonth(1)">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <select id="labSelector" class="btn-calendar" style="font-family: var(--espam-font-secondary);">
+                        <option value="bromatologia">Laboratorio de Bromatología</option>
+                        <option value="biologia">Laboratorio de Biología</option>
+                        <option value="produccion">Laboratorio de Producción</option>
+                        <option value="quimica">Laboratorio de Química</option>
+                        <option value="microbiologia">Laboratorio de Microbiología</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Calendario tipo agencia -->
+            <div class="agency-calendar" id="agencyCalendar">
+                <!-- Días de la semana -->
+                <div class="calendar-day-header">Lunes</div>
+                <div class="calendar-day-header">Martes</div>
+                <div class="calendar-day-header">Miércoles</div>
+                <div class="calendar-day-header">Jueves</div>
+                <div class="calendar-day-header">Viernes</div>
+                <div class="calendar-day-header">Sábado</div>
+                <div class="calendar-day-header">Domingo</div>
+
+                <!-- Días del mes (se generan con JavaScript) -->
+            </div>
+
+            <!-- Leyenda -->
+            <div class="calendar-legend">
+                <div class="legend-item">
+                    <div class="legend-color legend-disponible"></div>
+                    <span>Disponible</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-ocupado"></div>
+                    <span>Ocupado</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-feriado"></div>
+                    <span>Feriado</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-mantenimiento"></div>
+                    <span>Mantenimiento</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-reservado"></div>
+                    <span>Reservado por mí</span>
+                </div>
+            </div>
+
+            <!-- Información del laboratorio seleccionado -->
+            <div class="lab-info-card">
+                <div class="section-header">
+                    <h3>
+                        <i class="fas fa-flask"></i>
+                        <span id="labNombre">Laboratorio de Bromatología</span> - Información
+                    </h3>
+                </div>
+                <div class="info-grid" id="labInfoGrid">
+                    <div class="info-item">
+                        <strong><i class="fas fa-user-tie"></i> Técnico Encargado:</strong>
+                        <span id="labTecnico">Ing. Wellington Espinoza</span>
+                    </div>
+                    <div class="info-item">
+                        <strong><i class="fas fa-phone"></i> Contacto:</strong>
+                        <span id="labContacto">05-301-5000 ext. 123</span>
+                    </div>
+                    <div class="info-item">
+                        <strong><i class="fas fa-clock"></i> Horario de Atención:</strong>
+                        <span id="labHorario">08:00 - 18:00 (Lun-Vie)</span>
+                    </div>
+                    <div class="info-item">
+                        <strong><i class="fas fa-users"></i> Capacidad:</strong>
+                        <span id="labCapacidad">25 estudiantes máximo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para reservar turno -->
+    <div class="reserva-modal" id="reservaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Reservar Laboratorio</h3>
+                <button class="close-modal" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modalDateInfo">
+                    <h4 style="font-family: var(--espam-font-primary); color: var(--espam-primary); margin-bottom: 20px;">
+                        <i class="fas fa-calendar-day"></i> Fecha seleccionada: 
+                        <span id="selectedDate" style="font-weight: normal; font-family: var(--espam-font-secondary);">15/01/2024</span>
+                    </h4>
+                </div>
+
+                <div class="form-group">
+                    <label for="reservaAsignatura">
+                        <i class="fas fa-book"></i> Asignatura *
+                    </label>
+                    <input type="text" id="reservaAsignatura" 
+                           placeholder="Nombre de la asignatura" required
+                           style="font-family: var(--espam-font-secondary);">
+                </div>
+
+                <div class="form-group">
+                    <label for="reservaEstudiantes">
+                        <i class="fas fa-users"></i> Número de Estudiantes *
+                    </label>
+                    <input type="number" id="reservaEstudiantes" 
+                           min="1" max="25" value="20" required
+                           style="font-family: var(--espam-font-secondary);">
+                    <small>Máximo 25 estudiantes por sesión</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="reservaObjetivo">
+                        <i class="fas fa-bullseye"></i> Objetivo de la Práctica
+                    </label>
+                    <textarea id="reservaObjetivo" rows="3" 
+                              placeholder="Describa brevemente la práctica a realizar"
+                              style="font-family: var(--espam-font-secondary);"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-clock"></i> Seleccionar Turno *
+                    </label>
+                    <div class="turnos-container" id="turnosContainer">
+                        <!-- Turnos se generan con JavaScript -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-vial"></i> Equipos Especiales Necesarios
+                    </label>
+                    <div class="equipos-checklist">
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="equipo" value="microscopio">
+                            <span>Microscopio</span>
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="equipo" value="centrifuga">
+                            <span>Centrífuga</span>
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="equipo" value="estufa">
+                            <span>Estufa de incubación</span>
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="equipo" value="balanza">
+                            <span>Balanza analítica</span>
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="equipo" value="phmetro">
+                            <span>pH-metro</span>
+                        </label>
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="equipo" value="autoclave">
+                            <span>Autoclave</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-calendar" onclick="solicitarReserva()">
+                        <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                    </button>
+                    <button class="btn-calendar" style="background-color: #6c757d;" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIGURACIÓN DE ACCESO DIRECTO =====
+        // Configuración de usuario por defecto (puedes cambiar esto)
+        const DEFAULT_USER_CONFIG = {
+            loggedIn: true,
+            tipo: 'docente',  // Opciones: 'docente', 'tecnico', 'estudiante'
+            nombre: 'Dr. Carlos Mendoza',
+            carrera: 'Ingeniería de la Producción',
+            email: 'carlos.mendoza@espam.edu.ec',
+            cedula: '0912345678',
+            facultad: 'Ciencias Agropecuarias'
+        };
+
+        // Cambia aquí para probar diferentes tipos de usuario
+        // DEFAULT_USER_CONFIG.tipo = 'tecnico';
+        // DEFAULT_USER_CONFIG.nombre = 'Ing. Wellington Espinoza';
+        // DEFAULT_USER_CONFIG.carrera = '';
+
+        // Variables globales
+        let usuarioActual = { ...DEFAULT_USER_CONFIG };
+        let mesActual = new Date().getMonth();
+        let añoActual = new Date().getFullYear();
+        
+        // Feriados nacionales Ecuador 2024
+        const feriados = [
+            '2024-01-01', '2024-01-06', '2024-02-12', '2024-02-13',
+            '2024-03-28', '2024-03-29', '2024-05-01', '2024-05-24',
+            '2024-08-10', '2024-10-09', '2024-11-02', '2024-11-03',
+            '2024-12-25'
+        ];
+
+        // Datos de reservas (simulación)
+        const reservasExistentes = {
+            '2024-01-15': [
+                { hora: '08:00-10:00', docente: 'Dr. Carlos Mendoza', asignatura: 'Análisis de Alimentos', estado: 'confirmada' },
+                { hora: '10:00-12:00', docente: 'Ing. María López', asignatura: 'Control de Calidad', estado: 'confirmada' }
+            ],
+            '2024-01-16': [
+                { hora: '08:00-12:00', docente: 'Dra. Ana Torres', asignatura: 'Bromatología', estado: 'confirmada' }
+            ],
+            '2024-01-17': [
+                { hora: '14:00-18:00', docente: 'Dr. Carlos Mendoza', asignatura: 'Control de Calidad', estado: 'confirmada' }
+            ]
+        };
+
+        // Días de mantenimiento programado
+        const mantenimiento = ['2024-01-22', '2024-01-23'];
+
+        // Información de laboratorios ESPAM MFL
+        const laboratoriosESPAM = {
+            bromatologia: {
+                nombre: 'Laboratorio de Bromatología',
+                tecnico: 'Ing. Wellington Espinoza',
+                contacto: '05-301-5000 ext. 123',
+                horario: '08:00 - 18:00 (Lunes a Viernes)',
+                capacidad: '25 estudiantes máximo'
+            },
+            biologia: {
+                nombre: 'Laboratorio de Biología',
+                tecnico: 'Lic. Ana Rodríguez',
+                contacto: '05-301-5000 ext. 124',
+                horario: '08:00 - 17:00 (Lunes a Viernes)',
+                capacidad: '20 estudiantes'
+            },
+            produccion: {
+                nombre: 'Laboratorio de Procesos Industriales',
+                tecnico: 'Ing. Roberto Martínez',
+                contacto: '05-301-5000 ext. 125',
+                horario: '07:00 - 19:00 (Lunes a Sábado)',
+                capacidad: '30 estudiantes'
+            },
+            quimica: {
+                nombre: 'Laboratorio de Química Analítica',
+                tecnico: 'Q.F. Laura González',
+                contacto: '05-301-5000 ext. 126',
+                horario: '08:00 - 17:00 (Lunes a Viernes)',
+                capacidad: '15 estudiantes'
+            },
+            microbiologia: {
+                nombre: 'Laboratorio de Microbiología',
+                tecnico: 'Biól. Diego Morales',
+                contacto: '05-301-5000 ext. 127',
+                horario: '08:00 - 16:00 (Lunes a Viernes)',
+                capacidad: '18 estudiantes'
+            }
+        };
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Asegurar que el usuario está configurado
+            if (!localStorage.getItem('userSession')) {
+                localStorage.setItem('userSession', JSON.stringify(usuarioActual));
+                sessionStorage.setItem('userSession', JSON.stringify(usuarioActual));
+            } else {
+                usuarioActual = JSON.parse(localStorage.getItem('userSession'));
+            }
+            
+            // Actualizar UI
+            actualizarInfoUsuario();
+            
+            // Generar calendario inicial
+            generarCalendario(mesActual, añoActual);
+            
+            // Configurar eventos
+            document.getElementById('labSelector').addEventListener('change', function() {
+                actualizarInfoLaboratorio(this.value);
+            });
+            
+            // Inicializar información del primer laboratorio
+            actualizarInfoLaboratorio('bromatologia');
+            
+            console.log('✅ Calendario cargado exitosamente');
+            console.log('Usuario:', usuarioActual.nombre);
+            console.log('Tipo:', usuarioActual.tipo);
+        });
+
+        // Función para actualizar información del usuario
+        function actualizarInfoUsuario() {
+            document.getElementById('userName').textContent = usuarioActual.nombre;
+            document.getElementById('userCareer').textContent = usuarioActual.carrera;
+            
+            // Actualizar badge en el banner
+            const badge = document.getElementById('userTypeBadge');
+            const tipoTexto = usuarioActual.tipo === 'tecnico' ? 'TÉCNICO' : 
+                            usuarioActual.tipo === 'docente' ? 'DOCENTE' : 'ESTUDIANTE';
+            badge.textContent = tipoTexto;
+            
+            // Actualizar badge color según tipo
+            badge.style.background = usuarioActual.tipo === 'tecnico' ? 'var(--espam-light)' :
+                                   usuarioActual.tipo === 'docente' ? 'var(--espam-secondary)' :
+                                   'var(--espam-accent)';
+            badge.style.color = usuarioActual.tipo === 'tecnico' ? 'white' : 
+                              usuarioActual.tipo === 'docente' ? 'white' : 'var(--espam-primary)';
+        }
+
+        // Función para generar el calendario
+        function generarCalendario(mes, año) {
+            const calendar = document.getElementById('agencyCalendar');
+            const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            
+            // Limpiar días existentes (mantener headers)
+            const existingDays = document.querySelectorAll('.calendar-day');
+            existingDays.forEach(day => day.remove());
+            
+            // Obtener información del mes
+            const primerDia = new Date(año, mes, 1);
+            const ultimoDia = new Date(año, mes + 1, 0);
+            const totalDias = ultimoDia.getDate();
+            
+            // Calcular día de la semana del primer día
+            let primerDiaSemana = primerDia.getDay();
+            primerDiaSemana = primerDiaSemana === 0 ? 6 : primerDiaSemana - 1;
+            
+            // Rellenar días vacíos al inicio
+            for (let i = 0; i < primerDiaSemana; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day empty';
+                calendar.appendChild(emptyDay);
+            }
+            
+            // Generar días del mes
+            for (let dia = 1; dia <= totalDias; dia++) {
+                const fechaStr = `${año}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                const fechaObj = new Date(año, mes, dia);
+                const diaElement = document.createElement('div');
+                diaElement.className = 'calendar-day';
+                diaElement.dataset.fecha = fechaStr;
+                diaElement.dataset.dia = dia;
+                diaElement.style.setProperty('--day-index', dia);
+                
+                // Determinar estado del día
+                let estado = 'disponible';
+                let claseEstado = 'day-disponible';
+                
+                // Verificar si es fin de semana
+                const diaSemana = fechaObj.getDay();
+                const esFinDeSemana = diaSemana === 0 || diaSemana === 6;
+                if (esFinDeSemana) {
+                    estado = 'ocupado';
+                    claseEstado = 'day-ocupado';
+                }
+                
+                // Verificar feriados
+                if (feriados.includes(fechaStr)) {
+                    estado = 'feriado';
+                    claseEstado = 'day-feriado';
+                }
+                
+                // Verificar mantenimiento
+                if (mantenimiento.includes(fechaStr)) {
+                    estado = 'mantenimiento';
+                    claseEstado = 'day-mantenimiento';
+                }
+                
+                // Verificar reservas existentes
+                if (reservasExistentes[fechaStr]) {
+                    estado = 'ocupado';
+                    claseEstado = 'day-ocupado';
+                    
+                    // Verificar si el usuario tiene reserva en este día
+                    const tieneReserva = reservasExistentes[fechaStr].some(
+                        reserva => reserva.docente === usuarioActual.nombre
+                    );
+                    
+                    if (tieneReserva) {
+                        estado = 'reservado';
+                        claseEstado = 'day-reservado';
+                    }
+                }
+                
+                diaElement.classList.add(claseEstado);
+                
+                // Contenido del día
+                const numeroDia = `<div class="day-number">${dia}</div>`;
+                const eventosDia = `<div class="day-events">${generarEventosDia(fechaStr)}</div>`;
+                diaElement.innerHTML = numeroDia + eventosDia;
+                
+                // Agregar evento click según tipo de usuario
+                if (usuarioActual.tipo !== 'estudiante' && estado === 'disponible') {
+                    diaElement.style.cursor = 'pointer';
+                    diaElement.addEventListener('click', () => abrirModalReserva(fechaStr, dia, mes, año));
+                } else if (usuarioActual.tipo === 'estudiante') {
+                    diaElement.style.cursor = 'default';
+                    diaElement.title = 'Solo para docentes y técnicos';
+                } else if (estado !== 'disponible') {
+                    diaElement.title = 'No disponible para reservas';
+                }
+                
+                calendar.appendChild(diaElement);
+            }
+            
+            // Actualizar título del mes
+            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            document.getElementById('currentMonth').textContent = `${meses[mes]} ${año}`;
+        }
+
+        // Función para generar eventos de un día
+        function generarEventosDia(fechaStr) {
+            if (!reservasExistentes[fechaStr]) return '';
+            
+            let eventosHTML = '';
+            const eventos = reservasExistentes[fechaStr].slice(0, 3);
+            
+            eventos.forEach(evento => {
+                const esMiReserva = evento.docente === usuarioActual.nombre;
+                const icono = esMiReserva ? '<i class="fas fa-user" style="margin-left: 3px;"></i>' : '';
+                const horaCorta = evento.hora.split('-')[0].replace(':00', '');
+                
+                eventosHTML += `
+                    <div class="event-item" title="${evento.docente}: ${evento.asignatura} (${evento.hora})">
+                        ${horaCorta}h ${icono}
+                    </div>
+                `;
+            });
+            
+            if (reservasExistentes[fechaStr].length > 3) {
+                eventosHTML += `<div class="event-item">+${reservasExistentes[fechaStr].length - 3} más</div>`;
+            }
+            
+            return eventosHTML;
+        }
+
+        // Función para cambiar de mes
+        function changeMonth(delta) {
+            let nuevoMes = mesActual + delta;
+            let nuevoAño = añoActual;
+            
+            if (nuevoMes < 0) {
+                nuevoMes = 11;
+                nuevoAño--;
+            } else if (nuevoMes > 11) {
+                nuevoMes = 0;
+                nuevoAño++;
+            }
+            
+            mesActual = nuevoMes;
+            añoActual = nuevoAño;
+            generarCalendario(nuevoMes, nuevoAño);
+        }
+
+        // Función para actualizar información del laboratorio
+        function actualizarInfoLaboratorio(labId) {
+            const lab = laboratoriosESPAM[labId] || laboratoriosESPAM.bromatologia;
+            
+            // Actualizar información del laboratorio
+            document.getElementById('labNombre').textContent = lab.nombre;
+            document.getElementById('labTecnico').textContent = lab.tecnico;
+            document.getElementById('labContacto').textContent = lab.contacto;
+            document.getElementById('labHorario').innerHTML = lab.horario;
+            document.getElementById('labCapacidad').textContent = lab.capacidad;
+        }
+
+        // Función para abrir modal de reserva
+        function abrirModalReserva(fechaStr, dia, mes, año) {
+            const fecha = new Date(año, mes, dia);
+            const fechaFormateada = fecha.toLocaleDateString('es-EC', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            document.getElementById('selectedDate').textContent = fechaFormateada;
+            document.getElementById('reservaModal').style.display = 'flex';
+            document.getElementById('modalTitle').textContent = 'Nueva Reserva';
+            document.getElementById('reservaAsignatura').value = '';
+            document.getElementById('reservaEstudiantes').value = '20';
+            document.getElementById('reservaObjetivo').value = '';
+            
+            // Generar turnos disponibles para esta fecha
+            generarTurnosParaFecha(fechaStr);
+        }
+
+        // Función para cerrar modal
+        function closeModal() {
+            document.getElementById('reservaModal').style.display = 'none';
+            // Deseleccionar todos los turnos
+            document.querySelectorAll('.turno-slot.seleccionado').forEach(slot => {
+                slot.classList.remove('seleccionado');
+            });
+        }
+
+        // Función para generar turnos disponibles
+        function generarTurnosParaFecha(fechaStr) {
+            const turnosContainer = document.getElementById('turnosContainer');
+            const todosTurnos = [
+                { hora: '08:00-10:00', label: 'Matutino 1' },
+                { hora: '10:00-12:00', label: 'Matutino 2' },
+                { hora: '12:00-14:00', label: 'Mediodía' },
+                { hora: '14:00-16:00', label: 'Vespertino 1' },
+                { hora: '16:00-18:00', label: 'Vespertino 2' }
+            ];
+            
+            // Verificar qué turnos están ocupados para esta fecha
+            const reservasFecha = reservasExistentes[fechaStr] || [];
+            const horasOcupadas = reservasFecha.map(r => r.hora);
+            
+            let turnosHTML = '';
+            todosTurnos.forEach((turno) => {
+                const estaOcupado = horasOcupadas.includes(turno.hora);
+                const esMiReserva = reservasFecha.some(r => 
+                    r.hora === turno.hora && r.docente === usuarioActual.nombre
+                );
+                
+                const clase = estaOcupado ? 'ocupado' : 'disponible';
+                const onclick = estaOcupado && !esMiReserva ? '' : `seleccionarTurno(this, '${turno.hora}')`;
+                
+                turnosHTML += `
+                    <div class="turno-slot ${clase}" 
+                         data-hora="${turno.hora}"
+                         ${onclick ? `onclick="${onclick}"` : ''}
+                         title="${turno.label} ${estaOcupado ? '(Ocupado)' : '(Disponible)'}">
+                        <span class="turno-hora">${turno.hora}</span>
+                        <span class="turno-estado">${estaOcupado ? 'Ocupado' : 'Disponible'}</span>
+                        ${esMiReserva ? '<i class="fas fa-user" style="margin-top: 3px;"></i>' : ''}
+                    </div>
+                `;
+            });
+            
+            turnosContainer.innerHTML = turnosHTML;
+        }
+
+        // Función para seleccionar turno
+        function seleccionarTurno(element, hora) {
+            // Verificar si ya está seleccionado
+            if (element.classList.contains('seleccionado')) {
+                element.classList.remove('seleccionado');
+                return;
+            }
+            
+            // Deseleccionar todos
+            document.querySelectorAll('.turno-slot').forEach(slot => {
+                slot.classList.remove('seleccionado');
+            });
+            
+            // Seleccionar este
+            element.classList.add('seleccionado');
+        }
+
+        // Función para solicitar reserva
+        function solicitarReserva() {
+            const asignatura = document.getElementById('reservaAsignatura').value.trim();
+            const estudiantes = document.getElementById('reservaEstudiantes').value;
+            const objetivo = document.getElementById('reservaObjetivo').value.trim();
+            const turnoSeleccionado = document.querySelector('.turno-slot.seleccionado');
+            const fechaSeleccionada = document.querySelector('#selectedDate').textContent;
+            
+            // Validaciones
+            if (!asignatura) {
+                mostrarNotificacion('Por favor ingrese el nombre de la asignatura', 'error');
+                document.getElementById('reservaAsignatura').focus();
+                return;
+            }
+            
+            if (!estudiantes || estudiantes < 1 || estudiantes > 25) {
+                mostrarNotificacion('El número de estudiantes debe estar entre 1 y 25', 'error');
+                document.getElementById('reservaEstudiantes').focus();
+                return;
+            }
+            
+            if (!turnoSeleccionado) {
+                mostrarNotificacion('Por favor seleccione un turno disponible', 'error');
+                return;
+            }
+            
+            const hora = turnoSeleccionado.dataset.hora;
+            
+            // Obtener equipos seleccionados
+            const equiposSeleccionados = [];
+            document.querySelectorAll('input[name="equipo"]:checked').forEach(checkbox => {
+                equiposSeleccionados.push(checkbox.value);
+            });
+            
+            // Mostrar mensaje de éxito
+            mostrarNotificacion('¡Reserva enviada exitosamente! El técnico la revisará pronto.', 'success');
+            
+            // Simular cierre del modal
+            setTimeout(() => {
+                closeModal();
+                // En una implementación real, aquí actualizarías el calendario
+            }, 1500);
+        }
+
+        // Función para mostrar notificaciones
+        function mostrarNotificacion(mensaje, tipo) {
+            // Crear elemento de notificación
+            const notificacion = document.createElement('div');
+            notificacion.className = 'notification';
+            notificacion.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${mensaje}</span>
+            `;
+            
+            document.body.appendChild(notificacion);
+            
+            // Eliminar después de 3 segundos
+            setTimeout(() => {
+                notificacion.remove();
+            }, 3000);
+        }
+
+        // ===== FUNCIONES ADICIONALES PARA PRUEBAS =====
+        
+        // Función para cambiar el tipo de usuario (útil para pruebas)
+        function cambiarTipoUsuario(nuevoTipo) {
+            if (['docente', 'tecnico', 'estudiante'].includes(nuevoTipo)) {
+                usuarioActual.tipo = nuevoTipo;
+                
+                // Actualizar nombres según tipo
+                if (nuevoTipo === 'tecnico') {
+                    usuarioActual.nombre = 'Ing. Wellington Espinoza';
+                    usuarioActual.carrera = '';
+                } else if (nuevoTipo === 'docente') {
+                    usuarioActual.nombre = 'Dr. Carlos Mendoza';
+                    usuarioActual.carrera = 'Ingeniería de la Producción';
+                } else {
+                    usuarioActual.nombre = 'Juan Pérez Rodríguez';
+                    usuarioActual.carrera = 'Ingeniería en Alimentos (5to Semestre)';
+                }
+                
+                // Guardar cambios
+                localStorage.setItem('userSession', JSON.stringify(usuarioActual));
+                
+                // Actualizar UI
+                actualizarInfoUsuario();
+                generarCalendario(mesActual, añoActual);
+                
+                mostrarNotificacion(`Cambiado a modo: ${nuevoTipo}`, 'info');
+            }
+        }
+
+        // Agregar controles para cambiar tipo de usuario
+        document.addEventListener('DOMContentLoaded', function() {
+            // Crear controles de prueba
+            const controls = document.createElement('div');
+            controls.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: white;
+                padding: 15px;
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 999;
+                font-family: var(--espam-font-secondary);
+                border: 2px solid var(--espam-primary);
+            `;
+            
+            controls.innerHTML = `
+                <div style="margin-bottom: 10px; font-weight: bold; color: var(--espam-primary);">
+                    🔧 Cambiar modo de prueba
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="cambiarTipoUsuario('docente')" 
+                            style="padding: 8px 12px; background: var(--espam-primary); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Docente
+                    </button>
+                    <button onclick="cambiarTipoUsuario('tecnico')" 
+                            style="padding: 8px 12px; background: var(--espam-light); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Técnico
+                    </button>
+                    <button onclick="cambiarTipoUsuario('estudiante')" 
+                            style="padding: 8px 12px; background: var(--espam-accent); color: var(--espam-primary); border: none; border-radius: 5px; cursor: pointer;">
+                        Estudiante
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(controls);
+        });
+    </script>
+</body>
+</html>

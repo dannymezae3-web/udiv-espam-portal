@@ -1,0 +1,467 @@
+/* Estilos Generales - UNIVERSIDAD ESPAM MFL */
+:root {
+    /* PALETA CROMÁTICA OFICIAL ESPAM MFL */
+    --color-primario: #005846;              /* Color principal - HEX #005846 */
+    --color-primario-rgb: 0, 88, 70;        /* RGB para gradientes */
+    --color-secundario-1: #39b54a;          /* Verde - HEX #39b54a */
+    --color-secundario-2: #cbdb2a;          /* Amarillo verdoso - HEX #cbdb2a */
+    --color-secundario-3: #08b89d;          /* Turquesa - HEX #08b89d */
+    --color-fondo-claro: #F8F8F2;           /* Fondo claro / Pantone 663 C */
+    
+    /* COLORES FUNCIONALES */
+    --success: var(--color-secundario-1);   /* #39b54a */
+    --warning: var(--color-secundario-2);   /* #cbdb2a */
+    --danger: #dc3545;                      /* Mantenido para alertas críticas */
+    --info: var(--color-secundario-3);      /* #08b89d */
+    
+    /* TIPOGRAFÍAS OFICIALES */
+    --font-primary: 'Work Sans', sans-serif;        /* Fuente alternativa para digital */
+    --font-secondary: 'Libertad Mono', monospace;   /* Fuente principal para títulos */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);       /* Work Sans para textos */
+    color: #343a40;
+    background-color: var(--color-fondo-claro); /* #F8F8F2 */
+    line-height: 1.6; /* Interlineado óptimo */
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, var(--color-primario) 0%, rgba(0, 88, 70, 0.9) 100%); /* #005846 */
+    color: white;
+    padding: 20px 0; /* Más padding para área de protección */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 25px; /* Área de protección aumentada */
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+/* LOGOTIPO - Cumpliendo con especificaciones */
+.logo {
+    height: 80px; /* Tamaño adecuado para visibilidad */
+    width: auto;
+    min-height: 80px; /* Garantiza visibilidad */
+}
+
+.title-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    font-family: var(--font-secondary); /* Libertad Mono para títulos */
+    font-weight: 700; /* Bold */
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    font-family: var(--font-primary); /* Work Sans para subtítulos */
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 25px;
+}
+
+.main-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 10px 18px; /* Más padding para mejor interacción */
+    border-radius: 4px;
+    transition: all 0.3s;
+    font-family: var(--font-primary); /* Work Sans para navegación */
+}
+
+.main-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.btn-login {
+    background-color: var(--color-secundario-1); /* #39b54a */
+    color: white !important;
+    padding: 10px 30px !important;
+    border-radius: 5px;
+    font-weight: 600;
+}
+
+.btn-login:hover {
+    background-color: #2d9a3b; /* Variante más oscura */
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(rgba(0, 88, 70, 0.9), rgba(57, 181, 74, 0.8)), /* #005846 y #39b54a */
+                url('../images/bg-login.jpg') center/cover;
+    color: white;
+    padding: 100px 0; /* Más padding para impacto visual */
+    text-align: center;
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero h2 {
+    font-size: 2.8rem;
+    margin-bottom: 25px;
+    font-family: var(--font-secondary); /* Libertad Mono */
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.hero p {
+    font-size: 1.3rem;
+    margin-bottom: 40px;
+    opacity: 0.95;
+    font-family: var(--font-primary); /* Work Sans */
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 14px 35px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-family: var(--font-primary); /* Work Sans */
+    font-size: 1.1rem;
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background-color: var(--color-secundario-1); /* #39b54a */
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2d9a3b; /* Variante más oscura */
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(57, 181, 74, 0.3); /* #39b54a con transparencia */
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: white;
+    border-color: white;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+}
+
+/* Laboratorios Section */
+.laboratorios {
+    padding: 80px 0; /* Más padding para sección */
+    background-color: white;
+}
+
+.section-title {
+    text-align: center;
+    color: var(--color-primario); /* #005846 */
+    margin-bottom: 50px;
+    font-size: 2.2rem;
+    font-family: var(--font-secondary); /* Libertad Mono */
+    font-weight: 700;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background-color: var(--color-secundario-2); /* #cbdb2a */
+    margin: 15px auto 0;
+    border-radius: 2px;
+}
+
+.lab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 35px;
+}
+
+.lab-card {
+    background: white;
+    border-radius: 12px;
+    padding: 35px 30px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s;
+    border: 1px solid rgba(0, 88, 70, 0.1); /* Borde sutil con #005846 */
+}
+
+.lab-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 88, 70, 0.15); /* #005846 con transparencia */
+    border-color: var(--color-secundario-3); /* #08b89d */
+}
+
+.lab-icon {
+    font-size: 3rem;
+    color: var(--color-primario); /* #005846 */
+    margin-bottom: 25px;
+}
+
+.lab-card h3 {
+    color: var(--color-primario); /* #005846 */
+    margin-bottom: 18px;
+    font-family: var(--font-secondary); /* Libertad Mono */
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+.lab-card p {
+    color: #555;
+    margin-bottom: 20px;
+    font-family: var(--font-primary); /* Work Sans */
+    line-height: 1.7;
+}
+
+.btn-lab {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 25px;
+    background-color: var(--color-secundario-3); /* #08b89d */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s;
+    font-family: var(--font-primary); /* Work Sans */
+    font-weight: 600;
+    border: 2px solid transparent;
+}
+
+.btn-lab:hover {
+    background-color: transparent;
+    color: var(--color-secundario-3); /* #08b89d */
+    border-color: var(--color-secundario-3);
+    transform: translateY(-2px);
+}
+
+/* Footer */
+.footer {
+    background-color: var(--color-primario); /* #005846 */
+    color: white;
+    padding: 60px 0 25px;
+    margin-top: 60px;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 45px;
+    margin-bottom: 40px;
+}
+
+.footer-section h4 {
+    color: var(--color-secundario-2); /* #cbdb2a */
+    margin-bottom: 25px;
+    font-family: var(--font-secondary); /* Libertad Mono */
+    font-weight: 700;
+    font-size: 1.3rem;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.footer-section h4::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 3px;
+    background-color: var(--color-secundario-2); /* #cbdb2a */
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin-bottom: 12px;
+}
+
+.footer-section ul li a {
+    color: #ddd;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-family: var(--font-primary); /* Work Sans */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-section ul li a:hover {
+    color: white;
+    transform: translateX(5px);
+}
+
+.footer-section ul li a i {
+    color: var(--color-secundario-3); /* #08b89d */
+    width: 20px;
+    text-align: center;
+}
+
+.footer-section p {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    font-family: var(--font-primary); /* Work Sans */
+}
+
+.footer-section p i {
+    color: var(--color-secundario-2); /* #cbdb2a */
+    min-width: 20px;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    font-family: var(--font-primary); /* Work Sans */
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .hero h2 {
+        font-size: 2.3rem;
+    }
+    
+    .lab-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .logo-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .logo {
+        height: 70px;
+        min-height: 70px;
+    }
+    
+    .main-nav ul {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+    
+    .main-nav a {
+        display: block;
+        padding: 12px;
+    }
+    
+    .hero {
+        padding: 70px 0;
+    }
+    
+    .hero h2 {
+        font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+    }
+    
+    .lab-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 35px;
+        text-align: center;
+    }
+    
+    .footer-section h4::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .footer-section ul li a {
+        justify-content: center;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .hero h2 {
+        font-size: 1.8rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.6rem;
+        margin-bottom: 35px;
+    }
+    
+    .lab-card {
+        padding: 25px 20px;
+    }
+    
+    .footer {
+        padding: 40px 0 20px;
+    }
+}

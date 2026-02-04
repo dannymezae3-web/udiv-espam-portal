@@ -1,0 +1,1346 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Técnico - UDIV ESPAM MFL</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <!-- Fuentes institucionales ESPAM MFL -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <style>
+        /* Variables de colores ESPAM MFL */
+        :root {
+            --espam-primary: #005846;    /* Verde principal */
+            --espam-secondary: #39b54a;   /* Verde secundario */
+            --espam-accent: #cbdb2a;      /* Amarillo-verde */
+            --espam-light: #08b89d;       /* Verde claro */
+            --espam-bg-light: #F8F8F2;    /* Fondo claro */
+            --espam-font-primary: 'Libertad Mono', 'Work Sans', monospace;
+            --espam-font-secondary: 'Work Sans', sans-serif;
+        }
+
+        /* Estilos generales con identidad ESPAM */
+        body {
+            font-family: var(--espam-font-secondary);
+            color: #333;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--espam-font-primary);
+            color: var(--espam-primary);
+        }
+
+        /* Grid de estadísticas ESPAM */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(0, 88, 70, 0.1);
+            border-left: 5px solid var(--espam-primary);
+            transition: all 0.3s;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 88, 70, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* Colores específicos para iconos */
+        .stat-card:nth-child(1) .stat-icon {
+            background-color: var(--espam-secondary) !important;
+        }
+
+        .stat-card:nth-child(2) .stat-icon {
+            background-color: var(--espam-primary) !important;
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            background-color: var(--espam-accent) !important;
+        }
+
+        .stat-card:nth-child(4) .stat-icon {
+            background-color: var(--espam-light) !important;
+        }
+
+        .stat-info h3 {
+            font-size: 1rem;
+            color: var(--espam-primary);
+            margin-bottom: 5px;
+            font-family: var(--espam-font-primary);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+            line-height: 1;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .stat-change.positive {
+            color: var(--espam-secondary);
+        }
+
+        .stat-change.negative {
+            color: #dc3545;
+        }
+
+        .stat-change.warning {
+            color: var(--espam-accent);
+        }
+
+        /* Acciones rápidas ESPAM */
+        .quick-actions {
+            margin-bottom: 30px;
+        }
+
+        .quick-actions h2 {
+            margin-bottom: 20px;
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 88, 70, 0.1);
+            border: 1px solid var(--espam-bg-light);
+            font-family: var(--espam-font-secondary);
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 88, 70, 0.15);
+            border-color: var(--espam-primary);
+        }
+
+        .action-card i {
+            font-size: 2.5rem;
+            color: var(--espam-primary);
+            margin-bottom: 15px;
+        }
+
+        .action-card span {
+            font-weight: 600;
+            color: var(--espam-primary);
+            margin-bottom: 8px;
+            font-family: var(--espam-font-primary);
+        }
+
+        .action-card p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+        }
+
+        /* Sección de reservas ESPAM */
+        .reservas-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 88, 70, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+            margin: 0;
+        }
+
+        .btn-view-all {
+            color: var(--espam-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-family: var(--espam-font-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background: var(--espam-bg-light);
+        }
+
+        .btn-view-all:hover {
+            background: var(--espam-primary);
+            color: white;
+        }
+
+        .btn-mark-all {
+            background: var(--espam-primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: var(--espam-font-secondary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-mark-all:hover {
+            background: #004637;
+        }
+
+        .reservas-table {
+            overflow-x: auto;
+        }
+
+        .reservas-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .reservas-table th {
+            background-color: var(--espam-primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-family: var(--espam-font-primary);
+            white-space: nowrap;
+        }
+
+        .reservas-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--espam-bg-light);
+            white-space: nowrap;
+        }
+
+        .reservas-table tr:hover {
+            background-color: var(--espam-bg-light);
+        }
+
+        /* Estados de reserva */
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .status.confirmed {
+            background-color: var(--espam-secondary);
+            color: white;
+        }
+
+        .status.pending {
+            background-color: var(--espam-accent);
+            color: var(--espam-primary);
+        }
+
+        .status.cancelled {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Botones de acción */
+        .btn-action {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--espam-primary);
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
+
+        .btn-action:hover {
+            background-color: var(--espam-primary);
+            color: white;
+            border-color: var(--espam-primary);
+        }
+
+        .btn-action i {
+            font-size: 0.9rem;
+        }
+
+        /* Alertas y notificaciones ESPAM */
+        .alertas-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 88, 70, 0.1);
+        }
+
+        .alertas-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .alerta-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .alerta-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .alerta-urgente {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 4px solid #dc3545;
+        }
+
+        .alerta-warning {
+            background-color: rgba(203, 219, 42, 0.1);
+            border-left: 4px solid var(--espam-accent);
+        }
+
+        .alerta-info {
+            background-color: rgba(8, 184, 157, 0.1);
+            border-left: 4px solid var(--espam-light);
+        }
+
+        .alerta-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .alerta-urgente .alerta-icon {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        .alerta-warning .alerta-icon {
+            background-color: rgba(203, 219, 42, 0.2);
+            color: var(--espam-accent);
+        }
+
+        .alerta-info .alerta-icon {
+            background-color: rgba(8, 184, 157, 0.2);
+            color: var(--espam-light);
+        }
+
+        .alerta-content {
+            flex: 1;
+        }
+
+        .alerta-content h4 {
+            color: var(--espam-primary);
+            margin-bottom: 8px;
+            font-family: var(--espam-font-primary);
+        }
+
+        .alerta-content p {
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .alerta-time {
+            font-size: 0.8rem;
+            color: var(--espam-light);
+        }
+
+        .btn-alerta {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            padding: 5px;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-alerta:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            color: #dc3545;
+        }
+
+        /* Estadísticas ESPAM */
+        .estadisticas-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 88, 70, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .stat-chart {
+            background: var(--espam-bg-light);
+            border-radius: 8px;
+            padding: 20px;
+            height: 300px;
+        }
+
+        .stat-chart h3 {
+            color: var(--espam-primary);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            font-family: var(--espam-font-primary);
+            text-align: center;
+        }
+
+        /* Header ESPAM */
+        .top-bar {
+            background: linear-gradient(135deg, var(--espam-primary) 0%, #004637 100%);
+            color: white;
+        }
+
+        .top-bar h1 {
+            color: white;
+            font-family: var(--espam-font-primary);
+        }
+
+        /* Sidebar ESPAM */
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--espam-primary) 0%, #004637 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            border-bottom: 3px solid var(--espam-accent);
+        }
+
+        .sidebar-header h3 {
+            color: white !important;
+            margin: 10px 0 5px 0;
+            font-family: var(--espam-font-primary);
+            font-weight: bold;
+        }
+
+        .user-role {
+            color: var(--espam-accent);
+            font-size: 0.9rem;
+            margin: 0;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .sidebar-menu li.active a {
+            background: var(--espam-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(0, 88, 70, 0.1);
+            color: var(--espam-primary);
+        }
+
+        .sidebar-menu .submenu {
+            background: var(--espam-bg-light);
+            margin-left: 20px;
+            border-left: 2px solid var(--espam-primary);
+        }
+
+        .sidebar-menu .submenu li a {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+
+        .user-profile h4 {
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+        }
+
+        .user-profile p {
+            font-family: var(--espam-font-secondary);
+        }
+
+        .badge {
+            background-color: var(--espam-secondary);
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Barra de búsqueda */
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-box input {
+            color: white;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-notification {
+            background: var(--espam-accent);
+            color: var(--espam-primary);
+        }
+
+        .notification-count {
+            background: var(--espam-secondary);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-chart {
+                height: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .actions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .btn-view-all, .btn-mark-all {
+                align-self: stretch;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .alerta-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .btn-alerta {
+                align-self: flex-end;
+            }
+            
+            .reservas-table {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .reservas-table th,
+            .reservas-table td {
+                padding: 10px 5px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Logo ESPAM */
+        .sidebar-logo {
+            max-height: 60px;
+            margin-bottom: 10px;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Iconos con colores ESPAM */
+        .fa-tachometer-alt, .fa-flask, .fa-calendar-alt, .fa-cogs, 
+        .fa-vial, .fa-chart-bar, .fa-users, .fa-file-alt, .fa-star, 
+        .fa-bell, .fa-user-cog, .fa-list, .fa-wrench, .fa-clipboard-check,
+        .fa-calendar-check, .fa-tools, .fa-question-circle, .fa-arrow-up,
+        .fa-exclamation-circle, .fa-exclamation-triangle, .fa-check-double,
+        .fa-times, .fa-check, .fa-eye, .fa-edit {
+            color: var(--espam-primary);
+        }
+
+        .sidebar-menu li.active a i,
+        .sidebar-menu li a:hover i {
+            color: var(--espam-accent);
+        }
+
+        .action-card i,
+        .stat-icon i {
+            color: white !important;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-card {
+            animation: fadeIn 0.5s ease;
+            animation-fill-mode: both;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .action-card {
+            animation: fadeIn 0.5s ease;
+            animation-fill-mode: both;
+        }
+
+        .action-card:nth-child(1) { animation-delay: 0.2s; }
+        .action-card:nth-child(2) { animation-delay: 0.3s; }
+        .action-card:nth-child(3) { animation-delay: 0.4s; }
+        .action-card:nth-child(4) { animation-delay: 0.5s; }
+        .action-card:nth-child(5) { animation-delay: 0.6s; }
+        .action-card:nth-child(6) { animation-delay: 0.7s; }
+    </style>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <!-- Logo ESPAM MFL -->
+            <div class="sidebar-logo" style="font-family: 'Libertad Mono', monospace; font-size: 1.5rem; font-weight: bold; color: white;">
+                ESPAM MFL
+            </div>
+            <h3>UNIVERSIDAD ESPAM MFL</h3>
+            <p class="user-role">Técnico Encargado</p>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-info">
+                <h4 style="font-family: var(--espam-font-primary);">Wellington Espinoza</h4>
+                <p style="font-family: var(--espam-font-secondary);">Laboratorio de Bromatología</p>
+                <span class="user-status online"></span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            <ul>
+                <li class="active">
+                    <a href="dashboard-tecnico.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-laboratorios.html">
+                        <i class="fas fa-flask"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Gestión de Laboratorio</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="calendario-reservas.html">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Calendario de Reservas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-cogs"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Maquinaria y Equipos</span>
+                    </a>
+                    <ul class="submenu">
+                        <li><a href="inventario-equipos.html"><i class="fas fa-list"></i> Inventario</a></li>
+                        <li><a href="mantenimiento-equipos.html"><i class="fas fa-wrench"></i> Mantenimiento</a></li>
+                        <li><a href="estado-equipos.html"><i class="fas fa-clipboard-check"></i> Estado</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="sustancias-reactivos.html">
+                        <i class="fas fa-vial"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Sustancias y Reactivos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="reportes.html">
+                        <i class="fas fa-chart-bar"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Reportes y Estadísticas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="usuarios-registrados.html">
+                        <i class="fas fa-users"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Usuarios Registrados</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="hoja-guia.html">
+                        <i class="fas fa-file-alt"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Hojas Guía</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="calificaciones.html">
+                        <i class="fas fa-star"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Calificaciones</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="notificaciones.html">
+                        <i class="fas fa-bell"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Notificaciones</span>
+                        <span class="badge">5</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="perfil.html">
+                        <i class="fas fa-user-cog"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Configuración</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 style="font-family: var(--espam-font-primary);">Dashboard del Técnico</h1>
+            </div>
+            <div class="top-bar-right">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar reservas, equipos, sustancias..." 
+                           style="font-family: var(--espam-font-secondary);">
+                </div>
+                <div class="top-bar-actions">
+                    <button class="btn-notification">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">3</span>
+                    </button>
+                    <div class="user-dropdown">
+                        <button class="btn-user">
+                            <i class="fas fa-user-circle"></i>
+                            <span style="font-family: var(--espam-font-secondary);">Wellington Espinoza</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="perfil.html"><i class="fas fa-user"></i> Perfil</a>
+                            <a href="configuracion.html"><i class="fas fa-cog"></i> Configuración</a>
+                            <a href="ayuda.html"><i class="fas fa-question-circle"></i> Ayuda</a>
+                            <div class="divider"></div>
+                            <a href="login.html" class="logout">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Reservas Hoy</h3>
+                        <p class="stat-number">8</p>
+                        <span class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> 12%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Usuarios Activos</h3>
+                        <p class="stat-number">42</p>
+                        <span class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> 5%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Mantenimientos Pendientes</h3>
+                        <p class="stat-number">3</p>
+                        <span class="stat-change negative">
+                            <i class="fas fa-exclamation-circle"></i> Urgente
+                        </span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Sustancias Críticas</h3>
+                        <p class="stat-number">5</p>
+                        <span class="stat-change warning">
+                            <i class="fas fa-exclamation-triangle"></i> Reabastecer
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Acciones Rápidas</h2>
+                <div class="actions-grid">
+                    <a href="admin-laboratorios.html" class="action-card">
+                        <i class="fas fa-flask"></i>
+                        <span>Gestionar Laboratorio</span>
+                        <p>Configurar horarios y disponibilidad</p>
+                    </a>
+                    <a href="calendario-reservas.html" class="action-card">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Ver Calendario</span>
+                        <p>Revisar reservas y solicitudes</p>
+                    </a>
+                    <a href="mantenimiento-equipos.html" class="action-card">
+                        <i class="fas fa-wrench"></i>
+                        <span>Registrar Mantenimiento</span>
+                        <p>Reportar equipos con problemas</p>
+                    </a>
+                    <a href="reportes.html" class="action-card">
+                        <i class="fas fa-file-signature"></i>
+                        <span>Generar Reportes</span>
+                        <p>Estadísticas y análisis</p>
+                    </a>
+                    <a href="notificaciones.html" class="action-card">
+                        <i class="fas fa-bell"></i>
+                        <span>Notificaciones</span>
+                        <p>Ver alertas del sistema</p>
+                    </a>
+                    <a href="intercambios-tecnico.html" class="action-card">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Intercambios</span>
+                        <p>Gestionar cambios de horarios</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Próximas Reservas -->
+            <div class="reservas-section">
+                <div class="section-header">
+                    <h2>Próximas Reservas - Laboratorio de Bromatología</h2>
+                    <a href="calendario-reservas.html" class="btn-view-all">
+                        Ver todas <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="reservas-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Docente</th>
+                                <th>Carrera</th>
+                                <th>Laboratorio</th>
+                                <th>Asignatura</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-family: var(--espam-font-secondary);">08:00 - 10:00</td>
+                                <td style="font-family: var(--espam-font-secondary);">Dr. Carlos Mendoza</td>
+                                <td style="font-family: var(--espam-font-secondary);">Ing. Producción</td>
+                                <td style="font-family: var(--espam-font-secondary);">Bromatología</td>
+                                <td style="font-family: var(--espam-font-secondary);">Análisis de Alimentos</td>
+                                <td><span class="status confirmed">Confirmada</span></td>
+                                <td>
+                                    <button class="btn-action" onclick="verDetallesReserva(1)"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-action" onclick="editarReserva(1)"><i class="fas fa-edit"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: var(--espam-font-secondary);">10:00 - 12:00</td>
+                                <td style="font-family: var(--espam-font-secondary);">Ing. María López</td>
+                                <td style="font-family: var(--espam-font-secondary);">Ing. Alimentos</td>
+                                <td style="font-family: var(--espam-font-secondary);">Bromatología</td>
+                                <td style="font-family: var(--espam-font-secondary);">Control Calidad</td>
+                                <td><span class="status pending">Pendiente</span></td>
+                                <td>
+                                    <button class="btn-action" onclick="confirmarReserva(2)"><i class="fas fa-check"></i></button>
+                                    <button class="btn-action" onclick="rechazarReserva(2)"><i class="fas fa-times"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: var(--espam-font-secondary);">14:00 - 16:00</td>
+                                <td style="font-family: var(--espam-font-secondary);">Lic. Pedro Gómez</td>
+                                <td style="font-family: var(--espam-font-secondary);">Biotecnología</td>
+                                <td style="font-family: var(--espam-font-secondary);">Bromatología</td>
+                                <td style="font-family: var(--espam-font-secondary);">Microbiología</td>
+                                <td><span class="status confirmed">Confirmada</span></td>
+                                <td>
+                                    <button class="btn-action" onclick="verDetallesReserva(3)"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-action" onclick="editarReserva(3)"><i class="fas fa-edit"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: var(--espam-font-secondary);">16:00 - 18:00</td>
+                                <td style="font-family: var(--espam-font-secondary);">Dra. Ana Torres</td>
+                                <td style="font-family: var(--espam-font-secondary);">Ing. Agroindustrial</td>
+                                <td style="font-family: var(--espam-font-secondary);">Bromatología</td>
+                                <td style="font-family: var(--espam-font-secondary);">Química de Alimentos</td>
+                                <td><span class="status pending">Pendiente</span></td>
+                                <td>
+                                    <button class="btn-action" onclick="confirmarReserva(4)"><i class="fas fa-check"></i></button>
+                                    <button class="btn-action" onclick="rechazarReserva(4)"><i class="fas fa-times"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Alertas y Notificaciones -->
+            <div class="alertas-section">
+                <div class="section-header">
+                    <h2>Alertas del Sistema</h2>
+                    <button class="btn-mark-all" onclick="marcarTodasLeidas()">
+                        <i class="fas fa-check-double"></i> Marcar todas como leídas
+                    </button>
+                </div>
+                <div class="alertas-list">
+                    <div class="alerta-item alerta-urgente">
+                        <div class="alerta-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="alerta-content">
+                            <h4>Mantenimiento Urgente</h4>
+                            <p style="font-family: var(--espam-font-secondary);">La centrífuga del Laboratorio de Bromatología requiere mantenimiento inmediato</p>
+                            <span class="alerta-time" style="font-family: var(--espam-font-secondary);">Hace 2 horas</span>
+                        </div>
+                        <button class="btn-alerta" onclick="eliminarAlerta(1)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="alerta-item alerta-warning">
+                        <div class="alerta-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="alerta-content">
+                            <h4>Sustancia Crítica</h4>
+                            <p style="font-family: var(--espam-font-secondary);">Ácido clorhídrico en inventario bajo (solo 2 unidades disponibles)</p>
+                            <span class="alerta-time" style="font-family: var(--espam-font-secondary);">Ayer, 15:30</span>
+                        </div>
+                        <button class="btn-alerta" onclick="eliminarAlerta(2)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="alerta-item alerta-info">
+                        <div class="alerta-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="alerta-content">
+                            <h4>Nueva Solicitud</h4>
+                            <p style="font-family: var(--espam-font-secondary);">El Dr. Ricardo Torres ha solicitado el laboratorio para el viernes 26/01</p>
+                            <span class="alerta-time" style="font-family: var(--espam-font-secondary);">Hoy, 08:15</span>
+                        </div>
+                        <button class="btn-alerta" onclick="eliminarAlerta(3)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas Rápidas -->
+            <div class="estadisticas-section">
+                <div class="stats-row">
+                    <div class="stat-chart">
+                        <h3>Uso del Laboratorio por Carrera</h3>
+                        <canvas id="carreraChart"></canvas>
+                    </div>
+                    <div class="stat-chart">
+                        <h3>Reservas por Día de la Semana</h3>
+                        <canvas id="diasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar datos del usuario
+            const sessionData = JSON.parse(localStorage.getItem('userSession') || sessionStorage.getItem('userSession') || '{}');
+            if (sessionData.loggedIn) {
+                const nombre = sessionData.nombre || 'Técnico ESPAM';
+                const laboratorio = sessionData.laboratorio || 'Laboratorio General';
+                
+                // Actualizar interfaz
+                document.querySelector('.user-info h4').textContent = nombre;
+                document.querySelector('.user-info p').textContent = laboratorio;
+                document.querySelector('.btn-user span').textContent = nombre;
+            }
+            
+            // Configurar búsqueda
+            document.querySelector('.search-box input').addEventListener('input', function(e) {
+                const termino = e.target.value.toLowerCase();
+                buscarContenido(termino);
+            });
+            
+            // Crear gráficos con colores ESPAM
+            crearGraficos();
+        });
+
+        // Funciones para manejar reservas
+        function verDetallesReserva(id) {
+            alert(`Ver detalles de reserva #${id}\n\nEn una implementación real, esto mostraría un modal con toda la información de la reserva.`);
+        }
+
+        function editarReserva(id) {
+            alert(`Editar reserva #${id}\n\nPermite modificar horarios, equipos solicitados, etc.`);
+        }
+
+        function confirmarReserva(id) {
+            if (confirm(`¿Confirmar reserva #${id}?`)) {
+                mostrarNotificacion(`Reserva #${id} confirmada exitosamente`, 'success');
+                // Actualizar estado en la tabla
+                const fila = document.querySelector(`tr:nth-child(${id})`);
+                if (fila) {
+                    const statusCell = fila.querySelector('.status');
+                    statusCell.textContent = 'Confirmada';
+                    statusCell.className = 'status confirmed';
+                }
+            }
+        }
+
+        function rechazarReserva(id) {
+            if (confirm(`¿Rechazar reserva #${id}?`)) {
+                mostrarNotificacion(`Reserva #${id} rechazada`, 'info');
+                // Actualizar estado en la tabla
+                const fila = document.querySelector(`tr:nth-child(${id})`);
+                if (fila) {
+                    const statusCell = fila.querySelector('.status');
+                    statusCell.textContent = 'Rechazada';
+                    statusCell.className = 'status cancelled';
+                }
+            }
+        }
+
+        // Funciones para manejar alertas
+        function eliminarAlerta(id) {
+            const alerta = document.querySelector(`.alerta-item:nth-child(${id})`);
+            if (alerta) {
+                alerta.style.opacity = '0';
+                alerta.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    alerta.remove();
+                    actualizarContadorNotificaciones();
+                }, 300);
+            }
+        }
+
+        function marcarTodasLeidas() {
+            const alertas = document.querySelectorAll('.alerta-item');
+            alertas.forEach(alerta => {
+                alerta.style.opacity = '0.5';
+            });
+            mostrarNotificacion('Todas las alertas marcadas como leídas', 'success');
+            actualizarContadorNotificaciones();
+        }
+
+        function actualizarContadorNotificaciones() {
+            const alertasActivas = document.querySelectorAll('.alerta-item').length;
+            document.querySelector('.notification-count').textContent = alertasActivas;
+        }
+
+        // Función de búsqueda
+        function buscarContenido(termino) {
+            // Buscar en reservas
+            const filasReservas = document.querySelectorAll('.reservas-table tbody tr');
+            filasReservas.forEach(fila => {
+                const texto = fila.textContent.toLowerCase();
+                fila.style.display = termino === '' || texto.includes(termino) ? '' : 'none';
+            });
+            
+            // Buscar en alertas
+            const alertas = document.querySelectorAll('.alerta-item');
+            alertas.forEach(alerta => {
+                const texto = alerta.textContent.toLowerCase();
+                alerta.style.display = termino === '' || texto.includes(termino) ? 'flex' : 'none';
+            });
+        }
+
+        // Función para crear gráficos con colores ESPAM
+        function crearGraficos() {
+            // Gráfico de uso por carrera
+            const ctxCarrera = document.getElementById('carreraChart').getContext('2d');
+            if (ctxCarrera) {
+                new Chart(ctxCarrera, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Ing. Producción', 'Ing. Alimentos', 'Biotecnología', 'Ing. Agroindustrial', 'Otras'],
+                        datasets: [{
+                            data: [35, 25, 20, 15, 5],
+                            backgroundColor: [
+                                'var(--espam-primary)',
+                                'var(--espam-secondary)',
+                                'var(--espam-accent)',
+                                'var(--espam-light)',
+                                '#6c757d'
+                            ],
+                            borderWidth: 1,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        family: 'var(--espam-font-secondary)'
+                                    },
+                                    padding: 20
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico de reservas por día
+            const ctxDias = document.getElementById('diasChart').getContext('2d');
+            if (ctxDias) {
+                new Chart(ctxDias, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+                        datasets: [{
+                            label: 'Reservas',
+                            data: [12, 15, 10, 18, 22, 5],
+                            backgroundColor: 'var(--espam-primary)',
+                            borderColor: 'var(--espam-primary)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    font: {
+                                        family: 'var(--espam-font-secondary)'
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        family: 'var(--espam-font-secondary)'
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    font: {
+                                        family: 'var(--espam-font-primary)'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Función para mostrar notificaciones
+        function mostrarNotificacion(mensaje, tipo) {
+            // Crear elemento de notificación
+            const notificacion = document.createElement('div');
+            notificacion.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-family: var(--espam-font-secondary);
+                font-weight: 600;
+                background: ${tipo === 'success' ? 'var(--espam-secondary)' : 
+                           tipo === 'warning' ? 'var(--espam-accent)' : 
+                           tipo === 'info' ? 'var(--espam-primary)' : '#6c757d'};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                max-width: 400px;
+                border-left: 4px solid ${tipo === 'success' ? '#2da341' : 
+                                 tipo === 'warning' ? '#b9c925' : '#004637'};
+            `;
+            
+            const icono = tipo === 'success' ? 'fas fa-check-circle' :
+                        tipo === 'warning' ? 'fas fa-exclamation-triangle' :
+                        'fas fa-info-circle';
+            
+            notificacion.innerHTML = `
+                <i class="${icono}" style="font-size: 1.2rem;"></i>
+                <span>${mensaje}</span>
+            `;
+            
+            document.body.appendChild(notificacion);
+            
+            // Eliminar después de 5 segundos
+            setTimeout(() => {
+                notificacion.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notificacion.remove(), 300);
+            }, 5000);
+        }
+
+        // Agregar animaciones CSS si no existen
+        if (!document.querySelector('style#animations')) {
+            const style = document.createElement('style');
+            style.id = 'animations';
+            style.textContent = `
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes slideOut {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    </script>
+</body>
+</html>

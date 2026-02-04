@@ -1,0 +1,1615 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - UDIV ESPAM MFL</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fuente Work Sans según manual de identidad -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100;0,300;0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <style>
+        /* PALETA CROMÁTICA ESPAM MFL */
+        :root {
+            --espam-primary: #005846;      /* Verde principal */
+            --espam-secondary: #39b54a;    /* Verde secundario claro */
+            --espam-accent: #cbdb2a;       /* Verde amarillo */
+            --espam-teal: #08b89d;         /* Verde aguamarina */
+            --espam-light: #F8F8F2;        /* Fondo claro */
+            --espam-white: #FFFFFF;
+            --espam-dark: #1a1a1a;
+            --espam-gray: #666666;
+            --espam-light-gray: #e0e0e0;
+        }
+
+        /* FUENTES ESPAM según manual */
+        body {
+            font-family: 'Work Sans', sans-serif;
+            color: var(--espam-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Estilos específicos para perfil */
+        .profile-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--espam-primary) 0%, #004035 100%);
+            color: var(--espam-white);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            box-shadow: 0 4px 15px rgba(0, 88, 70, 0.2);
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 4px solid var(--espam-white);
+            color: var(--espam-white);
+        }
+
+        .profile-info h1 {
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: var(--espam-white);
+        }
+
+        .profile-role {
+            background-color: var(--espam-secondary);
+            color: var(--espam-white);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .profile-stat {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            min-width: 80px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--espam-accent);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            color: var(--espam-white);
+        }
+
+        /* Tabs de perfil */
+        .profile-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--espam-light-gray);
+            margin-bottom: 25px;
+            background-color: var(--espam-white);
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        .profile-tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--espam-gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .profile-tab:hover {
+            color: var(--espam-primary);
+            background-color: rgba(0, 88, 70, 0.05);
+        }
+
+        .profile-tab.active {
+            color: var(--espam-primary);
+            border-bottom-color: var(--espam-primary);
+            background-color: rgba(0, 88, 70, 0.1);
+        }
+
+        .profile-tab-content {
+            display: none;
+        }
+
+        .profile-tab-content.active {
+            display: block;
+        }
+
+        /* Formularios de perfil */
+        .profile-form {
+            background: var(--espam-white);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border: 1px solid var(--espam-light-gray);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            color: var(--espam-primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--espam-light-gray);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .form-section h3 i {
+            color: var(--espam-secondary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--espam-primary);
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .form-group label i {
+            color: var(--espam-secondary);
+            margin-right: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--espam-light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--espam-secondary);
+            box-shadow: 0 0 0 3px rgba(57, 181, 74, 0.1);
+        }
+
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background-color: var(--espam-light);
+            color: var(--espam-gray);
+            cursor: not-allowed;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--espam-secondary);
+        }
+
+        .password-strength {
+            margin-top: 10px;
+        }
+
+        .strength-bar {
+            height: 5px;
+            background-color: var(--espam-light-gray);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .strength-text {
+            font-size: 0.8rem;
+            color: var(--espam-gray);
+            font-weight: 500;
+        }
+
+        /* Tarjetas de información */
+        .info-card {
+            background: var(--espam-white);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid var(--espam-light-gray);
+        }
+
+        .info-card h3 {
+            color: var(--espam-primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        .info-card h3 i {
+            color: var(--espam-secondary);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            background-color: var(--espam-light);
+            border-radius: 5px;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--espam-gray);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--espam-primary);
+        }
+
+        /* Configuración de notificaciones */
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .notification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--espam-light-gray);
+            border-radius: 8px;
+            background-color: var(--espam-light);
+        }
+
+        .notification-info {
+            flex-grow: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--espam-primary);
+        }
+
+        .notification-desc {
+            font-size: 0.9rem;
+            color: var(--espam-gray);
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--espam-secondary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        /* Botones de acción */
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--espam-light-gray);
+        }
+
+        .btn-save {
+            background-color: var(--espam-primary);
+            color: var(--espam-white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .btn-save:hover {
+            background-color: var(--espam-teal);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(8, 184, 157, 0.3);
+        }
+
+        .btn-cancel {
+            background-color: var(--espam-gray);
+            color: var(--espam-white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: var(--espam-white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .btn-small {
+            background-color: var(--espam-secondary);
+            color: var(--espam-white);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Avatar upload */
+        .avatar-upload {
+            position: relative;
+            display: inline-block;
+        }
+
+        .avatar-change {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: var(--espam-secondary);
+            color: var(--espam-white);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid var(--espam-white);
+            transition: all 0.3s;
+        }
+
+        .avatar-change:hover {
+            background-color: var(--espam-teal);
+            transform: scale(1.1);
+        }
+
+        #avatarInput {
+            display: none;
+        }
+
+        /* Tablas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: var(--espam-primary);
+            color: var(--espam-white);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--espam-light-gray);
+        }
+
+        tr:hover {
+            background-color: var(--espam-light);
+        }
+
+        /* Mensajes de estado */
+        .match-status {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .profile-tabs {
+                flex-wrap: wrap;
+                border-radius: 8px;
+            }
+            
+            .profile-tab {
+                flex: 1 0 calc(50% - 10px);
+                min-width: 120px;
+                justify-content: center;
+                padding: 12px 15px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+            
+            .btn-save, .btn-cancel, .btn-delete {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-tab {
+                flex: 1 0 100%;
+            }
+            
+            .profile-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .profile-stat {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        /* Estilos para sidebar (deberían estar en dashboard.css) */
+        .sidebar {
+            background: linear-gradient(180deg, var(--espam-primary) 0%, #004035 100%);
+            color: var(--espam-white);
+        }
+
+        .sidebar-logo {
+            max-height: 60px;
+            width: auto;
+        }
+
+        .user-role {
+            background-color: var(--espam-secondary);
+            color: var(--espam-white);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .sidebar-menu a.active {
+            background-color: var(--espam-secondary);
+            color: var(--espam-white);
+        }
+
+        .sidebar-menu a:hover {
+            background-color: rgba(57, 181, 74, 0.2);
+        }
+
+        /* Top bar */
+        .top-bar {
+            background-color: var(--espam-white);
+            border-bottom: 1px solid var(--espam-light-gray);
+        }
+
+        .btn-user {
+            color: var(--espam-primary);
+            border: 1px solid var(--espam-light-gray);
+        }
+
+        .btn-user:hover {
+            background-color: var(--espam-light);
+        }
+    </style>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="images/logo-espam.png" alt="Logo ESPAM MFL" class="sidebar-logo">
+            <h3>UDIV ESPAM MFL</h3>
+            <p class="user-role" id="sidebarRole">Docente</p>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-info">
+                <h4 id="sidebarName">Dr. Carlos Mendoza</h4>
+                <p id="sidebarCareer">Ingeniería de la Producción</p>
+                <span class="user-status online"></span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            <ul>
+                <li><a href="dashboard-docente.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+                <li><a href="calendario-reservas.html"><i class="fas fa-calendar-alt"></i>Calendario</a></li>
+                <li><a href="hoja-guia.html"><i class="fas fa-file-alt"></i>Hoja Guía</a></li>
+                <li class="active"><a href="perfil.html"><i class="fas fa-user-cog"></i>Mi Perfil</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Mi Perfil</h1>
+            </div>
+            <div class="top-bar-right">
+                <div class="top-bar-actions">
+                    <div class="user-dropdown">
+                        <button class="btn-user">
+                            <i class="fas fa-user-circle"></i>
+                            <span id="topBarName">Dr. Carlos Mendoza</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="perfil.html"><i class="fas fa-user"></i> Perfil</a>
+                            <a href="#"><i class="fas fa-cog"></i> Configuración</a>
+                            <div class="divider"></div>
+                            <a href="login.html" class="logout">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <div class="profile-container">
+                <!-- Header del Perfil -->
+                <div class="profile-header">
+                    <div class="avatar-upload">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <label for="avatarInput" class="avatar-change" title="Cambiar foto">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="avatarInput" accept="image/*">
+                    </div>
+                    
+                    <div class="profile-info">
+                        <h1 id="profileName">Dr. Carlos Mendoza</h1>
+                        <div class="profile-role" id="profileRole">Docente</div>
+                        <p id="profileCareer">Ingeniería de la Producción • 5 años en la ESPAM</p>
+                        
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <div class="stat-number" id="statReservas">24</div>
+                                <div class="stat-label">Reservas Activas</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="stat-number" id="statEstudiantes">142</div>
+                                <div class="stat-label">Estudiantes</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="stat-number" id="statRating">4.8</div>
+                                <div class="stat-label">Calificación</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs de Perfil -->
+                <div class="profile-tabs">
+                    <button class="profile-tab active" onclick="openProfileTab('tab-info')">
+                        <i class="fas fa-user"></i> Información Personal
+                    </button>
+                    <button class="profile-tab" onclick="openProfileTab('tab-security')">
+                        <i class="fas fa-shield-alt"></i> Seguridad
+                    </button>
+                    <button class="profile-tab" onclick="openProfileTab('tab-notifications')">
+                        <i class="fas fa-bell"></i> Notificaciones
+                    </button>
+                    <button class="profile-tab" onclick="openProfileTab('tab-preferences')">
+                        <i class="fas fa-sliders-h"></i> Preferencias
+                    </button>
+                    <button class="profile-tab" onclick="openProfileTab('tab-history')">
+                        <i class="fas fa-history"></i> Historial
+                    </button>
+                </div>
+
+                <!-- Tab: Información Personal -->
+                <div id="tab-info" class="profile-tab-content active">
+                    <form class="profile-form" id="personalInfoForm">
+                        <div class="form-section">
+                            <h3><i class="fas fa-id-card"></i> Datos Personales</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">
+                                        <i class="fas fa-user"></i> Nombres *
+                                    </label>
+                                    <input type="text" id="firstName" value="Carlos" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">
+                                        <i class="fas fa-user"></i> Apellidos *
+                                    </label>
+                                    <input type="text" id="lastName" value="Mendoza" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cedula">
+                                        <i class="fas fa-id-card"></i> Cédula *
+                                    </label>
+                                    <input type="text" id="cedula" value="1312345678" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="birthDate">
+                                        <i class="fas fa-birthday-cake"></i> Fecha de Nacimiento
+                                    </label>
+                                    <input type="date" id="birthDate" value="1985-05-15">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="gender">
+                                        <i class="fas fa-venus-mars"></i> Sexo *
+                                    </label>
+                                    <select id="gender" required>
+                                        <option value="masculino" selected>Masculino</option>
+                                        <option value="femenino">Femenino</option>
+                                        <option value="otro">Otro</option>
+                                        <option value="prefiero-no-decir">Prefiero no decir</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">
+                                        <i class="fas fa-phone"></i> Teléfono *
+                                    </label>
+                                    <input type="tel" id="phone" value="0987654321" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="address">
+                                    <i class="fas fa-map-marker-alt"></i> Dirección
+                                </label>
+                                <textarea id="address" rows="2" placeholder="Dirección de residencia"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3><i class="fas fa-graduation-cap"></i> Información Académica</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="userType">
+                                        <i class="fas fa-user-tag"></i> Tipo de Usuario *
+                                    </label>
+                                    <select id="userType" required disabled>
+                                        <option value="docente" selected>Docente</option>
+                                        <option value="tecnico">Técnico</option>
+                                        <option value="estudiante">Estudiante</option>
+                                    </select>
+                                    <small>Este campo no se puede modificar. Contacte al administrador para cambios.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="career">
+                                        <i class="fas fa-book"></i> Carrera/Especialidad *
+                                    </label>
+                                    <input type="text" id="career" value="Ingeniería de la Producción" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="emailInstitutional">
+                                        <i class="fas fa-envelope"></i> Correo Institucional *
+                                    </label>
+                                    <input type="email" id="emailInstitutional" value="carlos.mendoza@espam.edu.ec" required disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="emailPersonal">
+                                        <i class="fas fa-envelope"></i> Correo Personal
+                                    </label>
+                                    <input type="email" id="emailPersonal" value="carlos.mendoza.personal@gmail.com">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="laboratory">
+                                    <i class="fas fa-flask"></i> Laboratorio Asignado
+                                </label>
+                                <select id="laboratory">
+                                    <option value="">No asignado</option>
+                                    <option value="bromatologia" selected>Laboratorio de Bromatología</option>
+                                    <option value="biologia">Laboratorio de Biología</option>
+                                    <option value="produccion">Laboratorio de Producción</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3><i class="fas fa-heartbeat"></i> Información de Salud</h3>
+                            
+                            <div class="form-group">
+                                <label for="healthConditions">
+                                    <i class="fas fa-file-medical"></i> Condiciones de Salud o Discapacidad
+                                </label>
+                                <textarea id="healthConditions" rows="3" placeholder="Describa cualquier condición de salud o discapacidad relevante..."></textarea>
+                                <small>Esta información se utiliza solo para proveer acomodaciones adecuadas en el laboratorio.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="emergencyContact">
+                                    <i class="fas fa-phone-alt"></i> Contacto de Emergencia
+                                </label>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <input type="text" placeholder="Nombre" id="emergencyName">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="tel" placeholder="Teléfono" id="emergencyPhone">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" placeholder="Parentesco" id="emergencyRelationship">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                            <button type="button" class="btn-cancel" onclick="resetForm()">
+                                <i class="fas fa-undo"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tab: Seguridad -->
+                <div id="tab-security" class="profile-tab-content">
+                    <form class="profile-form" id="securityForm">
+                        <div class="form-section">
+                            <h3><i class="fas fa-lock"></i> Cambiar Contraseña</h3>
+                            
+                            <div class="form-group">
+                                <label for="currentPassword">
+                                    <i class="fas fa-key"></i> Contraseña Actual *
+                                </label>
+                                <div style="position: relative;">
+                                    <input type="password" id="currentPassword" required>
+                                    <span class="password-toggle" onclick="togglePassword('currentPassword', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newPassword">
+                                    <i class="fas fa-lock"></i> Nueva Contraseña *
+                                </label>
+                                <div style="position: relative;">
+                                    <input type="password" id="newPassword" required oninput="checkPasswordStrength(this.value)">
+                                    <span class="password-toggle" onclick="togglePassword('newPassword', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                                <div class="password-strength">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill" id="strengthFill"></div>
+                                    </div>
+                                    <div class="strength-text" id="strengthText">Seguridad: Ingrese una contraseña</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword">
+                                    <i class="fas fa-lock"></i> Confirmar Nueva Contraseña *
+                                </label>
+                                <div style="position: relative;">
+                                    <input type="password" id="confirmPassword" required>
+                                    <span class="password-toggle" onclick="togglePassword('confirmPassword', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                                <div id="passwordMatch" class="match-status"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Requisitos de Seguridad:</label>
+                                <ul style="font-size: 0.9rem; color: var(--espam-gray); list-style: none; padding: 0;">
+                                    <li id="reqLength"><i class="fas fa-check"></i> Mínimo 8 caracteres</li>
+                                    <li id="reqUpper"><i class="fas fa-check"></i> Una letra mayúscula</li>
+                                    <li id="reqLower"><i class="fas fa-check"></i> Una letra minúscula</li>
+                                    <li id="reqNumber"><i class="fas fa-check"></i> Un número</li>
+                                    <li id="reqSpecial"><i class="fas fa-check"></i> Un carácter especial</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3><i class="fas fa-shield-alt"></i> Seguridad de la Cuenta</h3>
+                            
+                            <div class="info-card">
+                                <h3><i class="fas fa-clock"></i> Sesiones Activas</h3>
+                                <div class="notifications-list">
+                                    <div class="notification-item">
+                                        <div class="notification-info">
+                                            <div class="notification-title">Este dispositivo</div>
+                                            <div class="notification-desc">Chrome en Windows • Último acceso: Hoy 10:30 AM</div>
+                                        </div>
+                                        <button class="btn-save" style="padding: 8px 15px;">
+                                            <i class="fas fa-sign-out-alt"></i> Cerrar
+                                        </button>
+                                    </div>
+                                    <div class="notification-item">
+                                        <div class="notification-info">
+                                            <div class="notification-title">Dispositivo móvil</div>
+                                            <div class="notification-desc">Safari en iPhone • Último acceso: Ayer 15:45 PM</div>
+                                        </div>
+                                        <button class="btn-save" style="padding: 8px 15px;">
+                                            <i class="fas fa-sign-out-alt"></i> Cerrar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-card">
+                                <h3><i class="fas fa-history"></i> Historial de Inicios de Sesión</h3>
+                                <table style="width: 100%; font-size: 0.9rem;">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Dispositivo</th>
+                                        <th>IP</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                    <tr>
+                                        <td>15/01/2024 10:30</td>
+                                        <td>Chrome, Windows</td>
+                                        <td>192.168.1.100</td>
+                                        <td><span style="color: var(--espam-secondary);">Exitoso</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>14/01/2024 15:45</td>
+                                        <td>Safari, iPhone</td>
+                                        <td>192.168.1.101</td>
+                                        <td><span style="color: var(--espam-secondary);">Exitoso</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="twoFactorAuth">
+                                    <span class="checkmark"></span>
+                                    Habilitar autenticación de dos factores (2FA)
+                                </label>
+                                <small>Agrega una capa extra de seguridad a tu cuenta</small>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-shield-alt"></i> Actualizar Seguridad
+                            </button>
+                            <button type="button" class="btn-cancel">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tab: Notificaciones -->
+                <div id="tab-notifications" class="profile-tab-content">
+                    <form class="profile-form" id="notificationsForm">
+                        <div class="form-section">
+                            <h3><i class="fas fa-bell"></i> Preferencias de Notificaciones</h3>
+                            
+                            <div class="info-card">
+                                <h3><i class="fas fa-envelope"></i> Notificaciones por Email</h3>
+                                <div class="notifications-list">
+                                    <div class="notification-item">
+                                        <div class="notification-info">
+                                            <div class="notification-title">Reservas confirmadas</div>
+                                            <div class="notification-desc">Recibir email cuando se confirme una reserva</div>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="notification-item">
+                                        <div class="notification-info">
+                                            <div class="notification-title">Recordatorios de prácticas</div>
+                                            <div class="notification-desc">Email recordatorio 24h antes de cada práctica</div>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="notification-item">
+                                        <div class="notification-info">
+                                            <div class="notification-title">Cambios en el laboratorio</div>
+                                            <div class="notification-desc">Notificar cambios en horarios o equipos</div>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="notification-item">
+                                        <div class="notification-info">
+                                            <div class="notification-title">Solicitudes de intercambio</div>
+                                            <div class="notification-desc">Notificar cuando otro docente solicite intercambiar horario</div>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-card">
+                                <h3><i class="fas fa-mobile-alt"></i> Notificaciones Push</h3>
+                                <div class="notifications-list">
+                                    <div class="notification-item">
+                                        <div class="notification-info">
+                                            <div class="notification-title">Alertas urgentes</div>
+                                            <div class="notification-desc">Notificaciones sobre cierres o emergencias del laboratorio</div>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="notification-item">
+                                        <div class="notification-info">
+                                            <div class="notification-title">Mensajes del técnico</div>
+                                            <div class="notification-desc">Notificaciones directas del técnico del laboratorio</div>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notificationFrequency">
+                                    <i class="fas fa-clock"></i> Frecuencia de Notificaciones
+                                </label>
+                                <select id="notificationFrequency">
+                                    <option value="immediate">Inmediatas</option>
+                                    <option value="hourly" selected>Resumen cada hora</option>
+                                    <option value="daily">Resumen diario</option>
+                                    <option value="weekly">Resumen semanal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-bell"></i> Guardar Preferencias
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tab: Preferencias -->
+                <div id="tab-preferences" class="profile-tab-content">
+                    <form class="profile-form" id="preferencesForm">
+                        <div class="form-section">
+                            <h3><i class="fas fa-palette"></i> Apariencia</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="theme">
+                                        <i class="fas fa-moon"></i> Tema
+                                    </label>
+                                    <select id="theme">
+                                        <option value="light" selected>Claro</option>
+                                        <option value="dark">Oscuro</option>
+                                        <option value="auto">Automático (según sistema)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="language">
+                                        <i class="fas fa-language"></i> Idioma
+                                    </label>
+                                    <select id="language">
+                                        <option value="es" selected>Español</option>
+                                        <option value="en">English</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="density">
+                                    <i class="fas fa-compress-alt"></i> Densidad de la Interfaz
+                                </label>
+                                <select id="density">
+                                    <option value="comfortable">Cómoda</option>
+                                    <option value="compact" selected>Compacta</option>
+                                    <option value="spacious">Espaciosa</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3><i class="fas fa-sliders-h"></i> Preferencias del Sistema</h3>
+                            
+                            <div class="notifications-list">
+                                <div class="notification-item">
+                                    <div class="notification-info">
+                                        <div class="notification-title">Auto-guardado</div>
+                                        <div class="notification-desc">Guardar automáticamente formularios en progreso</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="notification-info">
+                                        <div class="notification-title">Inicio de sesión automático</div>
+                                        <div class="notification-desc">Recordar sesión en este dispositivo</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="notification-info">
+                                        <div class="notification-title">Mostrar tutoriales</div>
+                                        <div class="notification-desc">Mostrar guías para nuevas funcionalidades</div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i> Guardar Preferencias
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tab: Historial -->
+                <div id="tab-history" class="profile-tab-content">
+                    <div class="profile-form">
+                        <div class="form-section">
+                            <h3><i class="fas fa-history"></i> Historial de Actividad</h3>
+                            
+                            <div class="info-card">
+                                <h3><i class="fas fa-calendar-check"></i> Últimas Reservas</h3>
+                                <table style="width: 100%; font-size: 0.9rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Laboratorio</th>
+                                            <th>Hora</th>
+                                            <th>Estado</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>15/01/2024</td>
+                                            <td>Bromatología</td>
+                                            <td>08:00-12:00</td>
+                                            <td><span style="color: var(--espam-secondary);">Confirmada</span></td>
+                                            <td><button class="btn-small"><i class="fas fa-eye"></i></button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>14/01/2024</td>
+                                            <td>Producción</td>
+                                            <td>14:00-16:00</td>
+                                            <td><span style="color: var(--espam-accent);">Pendiente</span></td>
+                                            <td><button class="btn-small"><i class="fas fa-eye"></i></button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>12/01/2024</td>
+                                            <td>Bromatología</td>
+                                            <td>10:00-12:00</td>
+                                            <td><span style="color: var(--espam-secondary);">Confirmada</span></td>
+                                            <td><button class="btn-small"><i class="fas fa-eye"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="info-card">
+                                <h3><i class="fas fa-chart-line"></i> Estadísticas de Uso</h3>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <div class="info-label">Total de Reservas</div>
+                                        <div class="info-value">24</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Horas Totales</div>
+                                        <div class="info-value">96</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Laboratorio Favorito</div>
+                                        <div class="info-value">Bromatología</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">Día Más Activo</div>
+                                        <div class="info-value">Jueves</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-card">
+                                <h3><i class="fas fa-file-export"></i> Exportar Datos</h3>
+                                <p>Puedes exportar todos tus datos personales y actividad en el sistema.</p>
+                                <div class="profile-actions">
+                                    <button type="button" class="btn-save">
+                                        <i class="fas fa-file-pdf"></i> Exportar como PDF
+                                    </button>
+                                    <button type="button" class="btn-save">
+                                        <i class="fas fa-file-excel"></i> Exportar como Excel
+                                    </button>
+                                    <button type="button" class="btn-save">
+                                        <i class="fas fa-file-csv"></i> Exportar como CSV
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="info-card" style="border-left: 4px solid #dc3545;">
+                                <h3><i class="fas fa-exclamation-triangle"></i> Zona de Peligro</h3>
+                                <p>Estas acciones no se pueden deshacer. Procede con precaución.</p>
+                                <div class="profile-actions">
+                                    <button type="button" class="btn-delete" onclick="deleteAccount()">
+                                        <i class="fas fa-trash-alt"></i> Eliminar Mi Cuenta
+                                    </button>
+                                    <button type="button" class="btn-cancel">
+                                        <i class="fas fa-download"></i> Descargar Todos Mis Datos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos del usuario (simulación)
+        const userData = {
+            firstName: "Carlos",
+            lastName: "Mendoza",
+            cedula: "1312345678",
+            birthDate: "1985-05-15",
+            gender: "masculino",
+            phone: "0987654321",
+            address: "",
+            userType: "docente",
+            career: "Ingeniería de la Producción",
+            emailInstitutional: "carlos.mendoza@espam.edu.ec",
+            emailPersonal: "carlos.mendoza.personal@gmail.com",
+            laboratory: "bromatologia",
+            healthConditions: "",
+            emergencyName: "",
+            emergencyPhone: "",
+            emergencyRelationship: ""
+        };
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            setupFormValidation();
+            setupEventListeners();
+        });
+
+        // Cargar datos del usuario
+        function loadUserData() {
+            // Cargar desde localStorage si existe
+            const savedData = localStorage.getItem('userProfileData');
+            if (savedData) {
+                Object.assign(userData, JSON.parse(savedData));
+            }
+
+            // Actualizar formularios
+            Object.keys(userData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = userData[key];
+                }
+            });
+
+            // Actualizar UI
+            updateProfileUI();
+        }
+
+        // Actualizar interfaz con datos del usuario
+        function updateProfileUI() {
+            const fullName = `${userData.firstName} ${userData.lastName}`;
+            const roleText = userData.userType === 'docente' ? 'Docente' : 
+                           userData.userType === 'tecnico' ? 'Técnico' : 'Estudiante';
+            
+            // Actualizar elementos en toda la página
+            document.getElementById('profileName').textContent = fullName;
+            document.getElementById('profileRole').textContent = roleText;
+            document.getElementById('profileCareer').textContent = userData.career;
+            
+            document.getElementById('sidebarName').textContent = fullName;
+            document.getElementById('sidebarRole').textContent = roleText;
+            document.getElementById('sidebarCareer').textContent = userData.career;
+            
+            document.getElementById('topBarName').textContent = fullName;
+            
+            // Actualizar avatar si existe
+            const avatar = localStorage.getItem('userAvatar');
+            if (avatar) {
+                const avatarElement = document.querySelector('.profile-avatar');
+                avatarElement.innerHTML = `<img src="${avatar}" alt="Avatar" style="width: 100%; height: 100%; border-radius: 50%;">`;
+            }
+        }
+
+        // Funciones para tabs
+        function openProfileTab(tabName) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.profile-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Desactivar todos los botones
+            document.querySelectorAll('.profile-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar tab seleccionado
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activar botón correspondiente
+            event.currentTarget.classList.add('active');
+        }
+
+        // Configurar validación de formularios
+        function setupFormValidation() {
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveFormData(form.id);
+                });
+            });
+
+            // Validar coincidencia de contraseñas
+            const confirmPassword = document.getElementById('confirmPassword');
+            if (confirmPassword) {
+                confirmPassword.addEventListener('input', function() {
+                    const newPassword = document.getElementById('newPassword').value;
+                    const matchElement = document.getElementById('passwordMatch');
+                    
+                    if (this.value === newPassword) {
+                        matchElement.textContent = "✓ Las contraseñas coinciden";
+                        matchElement.style.color = "var(--espam-secondary)";
+                    } else {
+                        matchElement.textContent = "✗ Las contraseñas no coinciden";
+                        matchElement.style.color = "#dc3545";
+                    }
+                });
+            }
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Avatar upload
+            const avatarInput = document.getElementById('avatarInput');
+            if (avatarInput) {
+                avatarInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            localStorage.setItem('userAvatar', e.target.result);
+                            updateProfileUI();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            // Verificar requisitos de contraseña
+            const newPassword = document.getElementById('newPassword');
+            if (newPassword) {
+                newPassword.addEventListener('input', function() {
+                    checkPasswordStrength(this.value);
+                });
+            }
+        }
+
+        // Verificar fortaleza de contraseña
+        function checkPasswordStrength(password) {
+            const requirements = {
+                length: password.length >= 8,
+                upper: /[A-Z]/.test(password),
+                lower: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+
+            // Actualizar indicadores visuales
+            Object.keys(requirements).forEach(req => {
+                const element = document.getElementById('req' + req.charAt(0).toUpperCase() + req.slice(1));
+                if (element) {
+                    const icon = element.querySelector('i');
+                    if (requirements[req]) {
+                        icon.className = 'fas fa-check';
+                        icon.style.color = 'var(--espam-secondary)';
+                    } else {
+                        icon.className = 'fas fa-times';
+                        icon.style.color = '#dc3545';
+                    }
+                }
+            });
+
+            // Calcular fuerza
+            const passed = Object.values(requirements).filter(Boolean).length;
+            const total = Object.keys(requirements).length;
+            const strength = (passed / total) * 100;
+
+            // Actualizar barra de progreso
+            const fill = document.getElementById('strengthFill');
+            const text = document.getElementById('strengthText');
+            
+            if (fill && text) {
+                fill.style.width = `${strength}%`;
+                
+                if (strength < 40) {
+                    fill.style.backgroundColor = '#dc3545';
+                    text.textContent = 'Débil';
+                } else if (strength < 80) {
+                    fill.style.backgroundColor = '#ffc107';
+                    text.textContent = 'Moderada';
+                } else {
+                    fill.style.backgroundColor = 'var(--espam-secondary)';
+                    text.textContent = 'Fuerte';
+                }
+            }
+        }
+
+        // Mostrar/ocultar contraseña
+        function togglePassword(inputId, toggleElement) {
+            const input = document.getElementById(inputId);
+            const icon = toggleElement.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        // Guardar datos del formulario
+        function saveFormData(formId) {
+            let formData = {};
+            
+            switch(formId) {
+                case 'personalInfoForm':
+                    // Recoger datos del formulario de información personal
+                    Object.keys(userData).forEach(key => {
+                        const element = document.getElementById(key);
+                        if (element) {
+                            userData[key] = element.value;
+                        }
+                    });
+                    formData = userData;
+                    break;
+                    
+                case 'securityForm':
+                    // Cambiar contraseña
+                    const currentPass = document.getElementById('currentPassword').value;
+                    const newPass = document.getElementById('newPassword').value;
+                    
+                    // Aquí iría la lógica para cambiar contraseña en el servidor
+                    alert('Contraseña actualizada exitosamente');
+                    break;
+                    
+                case 'notificationsForm':
+                case 'preferencesForm':
+                    // Estas preferencias se manejarían diferente
+                    alert('Preferencias guardadas');
+                    break;
+            }
+
+            // Guardar en localStorage
+            localStorage.setItem('userProfileData', JSON.stringify(formData));
+            
+            // Actualizar UI
+            updateProfileUI();
+            
+            alert('Cambios guardados exitosamente');
+        }
+
+        // Restablecer formulario
+        function resetForm() {
+            if (confirm('¿Está seguro de que desea descartar los cambios?')) {
+                loadUserData();
+            }
+        }
+
+        // Eliminar cuenta
+        function deleteAccount() {
+            if (confirm('¿ESTÁ SEGURO? Esta acción eliminará permanentemente su cuenta y todos sus datos. Esta acción NO se puede deshacer.')) {
+                if (confirm('Última confirmación: ¿Realmente desea eliminar su cuenta?')) {
+                    // Aquí iría la lógica para eliminar la cuenta del servidor
+                    alert('Su cuenta será eliminada. Será redirigido al inicio.');
+                    setTimeout(() => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.href = 'index.html';
+                    }, 2000);
+                }
+            }
+        }
+
+        // Generar datos de ejemplo para estadísticas
+        function generateStats() {
+            // Estas estadísticas vendrían del servidor
+            const stats = {
+                reservas: Math.floor(Math.random() * 50) + 20,
+                estudiantes: Math.floor(Math.random() * 200) + 100,
+                rating: (Math.random() * 1 + 4).toFixed(1)
+            };
+            
+            document.getElementById('statReservas').textContent = stats.reservas;
+            document.getElementById('statEstudiantes').textContent = stats.estudiantes;
+            document.getElementById('statRating').textContent = stats.rating;
+        }
+
+        // Llamar a generar estadísticas al cargar
+        generateStats();
+    </script>
+</body>
+</html>

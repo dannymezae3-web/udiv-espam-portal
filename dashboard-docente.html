@@ -1,0 +1,1143 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Docente - UDIV ESPAM MFL</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fuentes institucionales ESPAM MFL -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <style>
+        /* Variables de colores ESPAM MFL */
+        :root {
+            --espam-primary: #005846;    /* Verde principal */
+            --espam-secondary: #39b54a;   /* Verde secundario */
+            --espam-accent: #cbdb2a;      /* Amarillo-verde */
+            --espam-light: #08b89d;       /* Verde claro */
+            --espam-bg-light: #F8F8F2;    /* Fondo claro */
+            --espam-font-primary: 'Libertad Mono', 'Work Sans', monospace;
+            --espam-font-secondary: 'Work Sans', sans-serif;
+        }
+
+        /* Estilos generales con identidad ESPAM */
+        body {
+            font-family: var(--espam-font-secondary);
+            color: #333;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--espam-font-primary);
+            color: var(--espam-primary);
+        }
+
+        /* Tarjeta de bienvenida ESPAM */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--espam-primary) 0%, #004637 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 88, 70, 0.2);
+        }
+
+        .welcome-content h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-family: var(--espam-font-primary);
+            font-weight: bold;
+            color: white;
+        }
+
+        .welcome-content p {
+            opacity: 0.9;
+            margin-bottom: 20px;
+            font-family: var(--espam-font-secondary);
+            max-width: 600px;
+        }
+
+        .btn-primary {
+            background-color: white;
+            color: var(--espam-primary);
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--espam-font-primary);
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--espam-bg-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-image i {
+            font-size: 4rem;
+            opacity: 0.8;
+            color: var(--espam-accent);
+        }
+
+        /* Grid de estadísticas ESPAM */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 2px 10px rgba(0, 88, 70, 0.1);
+            border-left: 5px solid var(--espam-primary);
+            transition: all 0.3s;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 88, 70, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .stat-info h3 {
+            font-size: 1rem;
+            color: var(--espam-primary);
+            margin-bottom: 5px;
+            font-family: var(--espam-font-primary);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+            line-height: 1;
+        }
+
+        .stat-text {
+            font-size: 0.9rem;
+            color: #666;
+            font-family: var(--espam-font-secondary);
+        }
+
+        /* Colores específicos para iconos */
+        .stat-card:nth-child(1) .stat-icon {
+            background-color: var(--espam-secondary) !important;
+        }
+
+        .stat-card:nth-child(2) .stat-icon {
+            background-color: var(--espam-primary) !important;
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            background-color: var(--espam-accent) !important;
+        }
+
+        .stat-card:nth-child(4) .stat-icon {
+            background-color: var(--espam-light) !important;
+        }
+
+        /* Acciones rápidas ESPAM */
+        .quick-actions {
+            margin-bottom: 30px;
+        }
+
+        .quick-actions h2 {
+            margin-bottom: 20px;
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 88, 70, 0.1);
+            border: 1px solid var(--espam-bg-light);
+            font-family: var(--espam-font-secondary);
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 88, 70, 0.15);
+            border-color: var(--espam-primary);
+        }
+
+        .action-card i {
+            font-size: 2.5rem;
+            color: var(--espam-primary);
+            margin-bottom: 15px;
+        }
+
+        .action-card span {
+            font-weight: 600;
+            color: var(--espam-primary);
+            margin-bottom: 8px;
+            font-family: var(--espam-font-primary);
+        }
+
+        .action-card p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+        }
+
+        /* Sección de reservas ESPAM */
+        .reservas-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 88, 70, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+            margin: 0;
+        }
+
+        .btn-view-all {
+            color: var(--espam-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-family: var(--espam-font-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .btn-view-all:hover {
+            color: var(--espam-secondary);
+        }
+
+        .reservas-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .reservas-table th {
+            background-color: var(--espam-primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-family: var(--espam-font-primary);
+        }
+
+        .reservas-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--espam-bg-light);
+        }
+
+        .reservas-table tr:hover {
+            background-color: var(--espam-bg-light);
+        }
+
+        /* Estados de reserva */
+        .status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .status.confirmed {
+            background-color: var(--espam-secondary);
+            color: white;
+        }
+
+        .status.pending {
+            background-color: var(--espam-accent);
+            color: var(--espam-primary);
+        }
+
+        .status.cancelled {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Botones de acción */
+        .btn-action {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--espam-primary);
+            font-size: 0.9rem;
+        }
+
+        .btn-action:hover {
+            background-color: var(--espam-primary);
+            color: white;
+            border-color: var(--espam-primary);
+        }
+
+        .btn-action i {
+            font-size: 0.9rem;
+        }
+
+        /* Calendario semanal ESPAM */
+        .calendario-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 88, 70, 0.1);
+        }
+
+        .week-calendar {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .day-column {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 88, 70, 0.1);
+            border: 1px solid var(--espam-bg-light);
+            transition: all 0.3s;
+        }
+
+        .day-column:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 88, 70, 0.15);
+        }
+
+        .day-header {
+            background: var(--espam-primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-family: var(--espam-font-primary);
+            border-bottom: 2px solid var(--espam-accent);
+        }
+
+        .day-event {
+            padding: 15px;
+            text-align: center;
+            background: var(--espam-bg-light);
+            margin: 10px;
+            border-radius: 5px;
+            border-left: 3px solid var(--espam-secondary);
+            font-family: var(--espam-font-secondary);
+        }
+
+        .day-event.free {
+            background: #f8f9fa;
+            color: #666;
+            border-left: 3px solid #dee2e6;
+        }
+
+        .event-time {
+            display: block;
+            font-weight: 600;
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+            font-size: 0.9rem;
+        }
+
+        .event-lab {
+            font-size: 0.85rem;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        /* Intercambios pendientes ESPAM */
+        .intercambios-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 88, 70, 0.1);
+        }
+
+        .intercambio-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid var(--espam-bg-light);
+            border-radius: 8px;
+            margin-top: 15px;
+            background: var(--espam-bg-light);
+            transition: all 0.3s;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .intercambio-card:hover {
+            border-color: var(--espam-primary);
+            box-shadow: 0 2px 8px rgba(0, 88, 70, 0.1);
+        }
+
+        .intercambio-info h4 {
+            margin-bottom: 5px;
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+        }
+
+        .intercambio-info p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .intercambio-time {
+            font-size: 0.8rem;
+            color: var(--espam-light);
+        }
+
+        .intercambio-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-accept, .btn-reject {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--espam-font-secondary);
+            transition: all 0.3s;
+        }
+
+        .btn-accept {
+            background-color: var(--espam-secondary);
+            color: white;
+        }
+
+        .btn-accept:hover {
+            background-color: #2da341;
+            transform: translateY(-2px);
+        }
+
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background-color: #bd2130;
+            transform: translateY(-2px);
+        }
+
+        /* Header ESPAM */
+        .top-bar {
+            background: linear-gradient(135deg, var(--espam-primary) 0%, #004637 100%);
+            color: white;
+        }
+
+        .top-bar h1 {
+            color: white;
+            font-family: var(--espam-font-primary);
+        }
+
+        /* Sidebar ESPAM */
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--espam-primary) 0%, #004637 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            border-bottom: 3px solid var(--espam-accent);
+        }
+
+        .sidebar-header h3 {
+            color: white !important;
+            margin: 10px 0 5px 0;
+            font-family: var(--espam-font-primary);
+            font-weight: bold;
+        }
+
+        .user-role {
+            color: var(--espam-accent);
+            font-size: 0.9rem;
+            margin: 0;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .sidebar-menu li.active a {
+            background: var(--espam-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(0, 88, 70, 0.1);
+            color: var(--espam-primary);
+        }
+
+        .user-profile h4 {
+            color: var(--espam-primary);
+            font-family: var(--espam-font-primary);
+        }
+
+        .user-profile p {
+            font-family: var(--espam-font-secondary);
+        }
+
+        .badge {
+            background-color: var(--espam-secondary);
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Barra de búsqueda */
+        .search-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-box input {
+            color: white;
+            font-family: var(--espam-font-secondary);
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-notification {
+            background: var(--espam-accent);
+            color: var(--espam-primary);
+        }
+
+        .notification-count {
+            background: var(--espam-secondary);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .week-calendar {
+                flex-wrap: wrap;
+            }
+            
+            .day-column {
+                flex: 0 0 calc(33.333% - 10px);
+                min-width: 150px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .welcome-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .welcome-image {
+                order: -1;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .actions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .week-calendar {
+                flex-direction: column;
+            }
+            
+            .day-column {
+                width: 100%;
+            }
+            
+            .intercambio-card {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .intercambio-actions {
+                justify-content: center;
+            }
+            
+            .reservas-table {
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .btn-view-all {
+                align-self: flex-end;
+            }
+        }
+
+        /* Logo ESPAM */
+        .sidebar-logo {
+            max-height: 60px;
+            margin-bottom: 10px;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Iconos con colores ESPAM */
+        .fa-tachometer-alt, .fa-calendar-alt, .fa-file-alt, .fa-clipboard-list, 
+        .fa-exchange-alt, .fa-users, .fa-flask, .fa-star, .fa-bell, .fa-user-cog {
+            color: var(--espam-primary);
+        }
+
+        .sidebar-menu li.active a i,
+        .sidebar-menu li a:hover i {
+            color: var(--espam-accent);
+        }
+    </style>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <!-- Logo ESPAM MFL -->
+            <div class="sidebar-logo" style="font-family: 'Libertad Mono', monospace; font-size: 1.5rem; font-weight: bold; color: white;">
+                ESPAM MFL
+            </div>
+            <h3>UNIVERSIDAD ESPAM MFL</h3>
+            <p class="user-role">Docente</p>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-info">
+                <h4 style="font-family: var(--espam-font-primary);">Dr. Carlos Mendoza</h4>
+                <p style="font-family: var(--espam-font-secondary);">Ingeniería de la Producción</p>
+                <span class="user-status online"></span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            <ul>
+                <li class="active">
+                    <a href="dashboard-docente.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="calendario-reservas.html">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Reservar Laboratorio</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="hoja-guia.html">
+                        <i class="fas fa-file-alt"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Hoja Guía</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="mis-reservas.html">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Mis Reservas</span>
+                        <span class="badge">3</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="intercambios.html">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Intercambiar Horarios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="mis-estudiantes.html">
+                        <i class="fas fa-users"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Mis Estudiantes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="equipos-disponibles.html">
+                        <i class="fas fa-flask"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Equipos Disponibles</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="calificar.html">
+                        <i class="fas fa-star"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Calificar Laboratorio</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="notificaciones.html">
+                        <i class="fas fa-bell"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Notificaciones</span>
+                        <span class="badge">2</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="perfil.html">
+                        <i class="fas fa-user-cog"></i>
+                        <span style="font-family: var(--espam-font-secondary);">Perfil</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 style="font-family: var(--espam-font-primary);">Dashboard del Docente</h1>
+            </div>
+            <div class="top-bar-right">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar laboratorio, equipo..." 
+                           style="font-family: var(--espam-font-secondary);">
+                </div>
+                <div class="top-bar-actions">
+                    <button class="btn-notification">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">2</span>
+                    </button>
+                    <div class="user-dropdown">
+                        <button class="btn-user">
+                            <i class="fas fa-user-circle"></i>
+                            <span style="font-family: var(--espam-font-secondary);">Dr. Carlos Mendoza</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="perfil.html"><i class="fas fa-user"></i> Perfil</a>
+                            <a href="#"><i class="fas fa-cog"></i> Configuración</a>
+                            <div class="divider"></div>
+                            <a href="login.html" class="logout">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Welcome Message -->
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <h2>¡Bienvenido, Dr. Mendoza!</h2>
+                    <p>Gestiona tus reservas de laboratorio y coordina prácticas con tus estudiantes en la Universidad ESPAM MFL</p>
+                    <a href="calendario-reservas.html" class="btn-primary">
+                        <i class="fas fa-calendar-plus"></i> Nueva Reserva
+                    </a>
+                </div>
+                <div class="welcome-image">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Reservas Activas</h3>
+                        <p class="stat-number">5</p>
+                        <span class="stat-text">Este mes</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Estudiantes</h3>
+                        <p class="stat-number">42</p>
+                        <span class="stat-text">Asignados</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Próxima Reserva</h3>
+                        <p class="stat-number">Mañana</p>
+                        <span class="stat-text">10:00 AM</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Intercambios</h3>
+                        <p class="stat-number">2</p>
+                        <span class="stat-text">Pendientes</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Acciones Rápidas</h2>
+                <div class="actions-grid">
+                    <a href="calendario-reservas.html" class="action-card">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Reservar Laboratorio</span>
+                        <p>Solicitar uso de laboratorio</p>
+                    </a>
+                    <a href="hoja-guia.html" class="action-card">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Generar Hoja Guía</span>
+                        <p>Crear formato de práctica</p>
+                    </a>
+                    <a href="intercambios.html" class="action-card">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Intercambiar Horario</span>
+                        <p>Cambiar fecha con otro docente</p>
+                    </a>
+                    <a href="mis-estudiantes.html" class="action-card">
+                        <i class="fas fa-users"></i>
+                        <span>Ver Estudiantes</span>
+                        <p>Lista de estudiantes asignados</p>
+                    </a>
+                    <a href="equipos-disponibles.html" class="action-card">
+                        <i class="fas fa-flask"></i>
+                        <span>Equipos Disponibles</span>
+                        <p>Ver maquinaria y reactivos</p>
+                    </a>
+                    <a href="calificar.html" class="action-card">
+                        <i class="fas fa-star"></i>
+                        <span>Calificar</span>
+                        <p>Evaluar laboratorio y técnico</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Próximas Reservas -->
+            <div class="reservas-section">
+                <div class="section-header">
+                    <h2>Mis Próximas Reservas</h2>
+                    <a href="mis-reservas.html" class="btn-view-all">
+                        Ver todas <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="reservas-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Laboratorio</th>
+                                <th>Asignatura</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-family: var(--espam-font-secondary);">15/01/2024</td>
+                                <td style="font-family: var(--espam-font-secondary);">08:00 - 12:00</td>
+                                <td style="font-family: var(--espam-font-secondary);">Bromatología</td>
+                                <td style="font-family: var(--espam-font-secondary);">Análisis de Alimentos</td>
+                                <td><span class="status confirmed">Confirmada</span></td>
+                                <td>
+                                    <button class="btn-action"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-action"><i class="fas fa-edit"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: var(--espam-font-secondary);">17/01/2024</td>
+                                <td style="font-family: var(--espam-font-secondary);">14:00 - 18:00</td>
+                                <td style="font-family: var(--espam-font-secondary);">Bromatología</td>
+                                <td style="font-family: var(--espam-font-secondary);">Control de Calidad</td>
+                                <td><span class="status confirmed">Confirmada</span></td>
+                                <td>
+                                    <button class="btn-action"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-action"><i class="fas fa-exchange-alt"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: var(--espam-font-secondary);">20/01/2024</td>
+                                <td style="font-family: var(--espam-font-secondary);">10:00 - 12:00</td>
+                                <td style="font-family: var(--espam-font-secondary);">Producción</td>
+                                <td style="font-family: var(--espam-font-secondary);">Procesos Industriales</td>
+                                <td><span class="status pending">Pendiente</span></td>
+                                <td>
+                                    <button class="btn-action"><i class="fas fa-check"></i></button>
+                                    <button class="btn-action"><i class="fas fa-times"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Calendario Resumido -->
+            <div class="calendario-section">
+                <div class="section-header">
+                    <h2>Calendario de Esta Semana</h2>
+                </div>
+                <div class="week-calendar">
+                    <div class="day-column">
+                        <div class="day-header">Lun<br>15</div>
+                        <div class="day-event">
+                            <span class="event-time">08:00-12:00</span>
+                            <span class="event-lab">Bromatología</span>
+                            <small style="display: block; margin-top: 5px; color: var(--espam-primary);">
+                                Análisis de Alimentos
+                            </small>
+                        </div>
+                    </div>
+                    <div class="day-column">
+                        <div class="day-header">Mar<br>16</div>
+                        <div class="day-event free">
+                            <span>Disponible</span>
+                            <small style="display: block; margin-top: 5px; color: #666;">
+                                Sin reservas programadas
+                            </small>
+                        </div>
+                    </div>
+                    <div class="day-column">
+                        <div class="day-header">Mié<br>17</div>
+                        <div class="day-event">
+                            <span class="event-time">14:00-18:00</span>
+                            <span class="event-lab">Bromatología</span>
+                            <small style="display: block; margin-top: 5px; color: var(--espam-primary);">
+                                Control de Calidad
+                            </small>
+                        </div>
+                    </div>
+                    <div class="day-column">
+                        <div class="day-header">Jue<br>18</div>
+                        <div class="day-event free">
+                            <span>Disponible</span>
+                            <small style="display: block; margin-top: 5px; color: #666;">
+                                Sin reservas programadas
+                            </small>
+                        </div>
+                    </div>
+                    <div class="day-column">
+                        <div class="day-header">Vie<br>19</div>
+                        <div class="day-event">
+                            <span class="event-time">09:00-11:00</span>
+                            <span class="event-lab">Reunión Técnica</span>
+                            <small style="display: block; margin-top: 5px; color: var(--espam-primary);">
+                                Planificación semestral
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intercambios Pendientes -->
+            <div class="intercambios-section">
+                <div class="section-header">
+                    <h2>Intercambios Pendientes</h2>
+                </div>
+                <div class="intercambios-list">
+                    <div class="intercambio-card">
+                        <div class="intercambio-info">
+                            <h4>Intercambio con Dr. María López</h4>
+                            <p>Tu: Vie 19/01 09:00-11:00 • Ella: Lun 22/01 14:00-16:00</p>
+                            <span class="intercambio-time">Solicitado hace 2 días</span>
+                        </div>
+                        <div class="intercambio-actions">
+                            <button class="btn-accept"><i class="fas fa-check"></i> Aceptar</button>
+                            <button class="btn-reject"><i class="fas fa-times"></i> Rechazar</button>
+                        </div>
+                    </div>
+                    <div class="intercambio-card">
+                        <div class="intercambio-info">
+                            <h4>Intercambio con Ing. Roberto Castro</h4>
+                            <p>Tu: Mié 24/01 10:00-12:00 • Él: Jue 25/01 08:00-10:00</p>
+                            <span class="intercambio-time">Solicitado hoy</span>
+                        </div>
+                        <div class="intercambio-actions">
+                            <button class="btn-accept"><i class="fas fa-check"></i> Aceptar</button>
+                            <button class="btn-reject"><i class="fas fa-times"></i> Rechazar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Función para cargar dinámicamente los datos del usuario
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar datos del usuario desde localStorage
+            const sessionData = JSON.parse(localStorage.getItem('userSession') || sessionStorage.getItem('userSession') || '{}');
+            
+            if (sessionData.loggedIn) {
+                // Actualizar nombre del usuario
+                const nombreUsuario = sessionData.nombre || 'Docente ESPAM';
+                const carreraUsuario = sessionData.carrera || 'Ingeniería de la Producción';
+                
+                // Actualizar elementos de la interfaz
+                document.querySelector('.user-profile h4').textContent = nombreUsuario;
+                document.querySelector('.user-profile p').textContent = carreraUsuario;
+                document.querySelector('.btn-user span').textContent = nombreUsuario;
+                document.querySelector('.welcome-content h2').textContent = `¡Bienvenido, ${nombreUsuario.split(' ')[1] || 'Docente'}!`;
+                
+                // Si el nombre incluye título, ajustar el saludo
+                const saludo = nombreUsuario.split(' ')[0];
+                if (saludo.includes('Dr.') || saludo.includes('Ing.') || saludo.includes('Lic.')) {
+                    document.querySelector('.welcome-content h2').textContent = `¡Bienvenido, ${saludo} ${nombreUsuario.split(' ')[1] || ''}!`;
+                }
+            }
+            
+            // Configurar eventos de los botones de intercambio
+            document.querySelectorAll('.btn-accept').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const intercambioInfo = this.closest('.intercambio-card').querySelector('h4').textContent;
+                    if (confirm(`¿Aceptar ${intercambioInfo}?`)) {
+                        this.closest('.intercambio-card').style.opacity = '0.5';
+                        this.closest('.intercambio-card').style.pointerEvents = 'none';
+                        alert('Intercambio aceptado. Se notificará al otro docente.');
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.btn-reject').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const intercambioInfo = this.closest('.intercambio-card').querySelector('h4').textContent;
+                    if (confirm(`¿Rechazar ${intercambioInfo}?`)) {
+                        this.closest('.intercambio-card').remove();
+                        alert('Intercambio rechazado.');
+                    }
+                });
+            });
+            
+            // Configurar eventos de las acciones de reserva
+            document.querySelectorAll('.reservas-table .btn-action').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const fila = this.closest('tr');
+                    const fecha = fila.cells[0].textContent;
+                    const asignatura = fila.cells[3].textContent;
+                    
+                    if (this.querySelector('.fa-eye')) {
+                        alert(`Ver detalles de reserva:\nFecha: ${fecha}\nAsignatura: ${asignatura}`);
+                    } else if (this.querySelector('.fa-edit')) {
+                        alert(`Editar reserva del ${fecha} para ${asignatura}`);
+                    } else if (this.querySelector('.fa-exchange-alt')) {
+                        alert(`Solicitar intercambio para la reserva del ${fecha}`);
+                    } else if (this.querySelector('.fa-check')) {
+                        alert(`Confirmar reserva del ${fecha}`);
+                    } else if (this.querySelector('.fa-times')) {
+                        if (confirm(`¿Cancelar reserva del ${fecha} para ${asignatura}?`)) {
+                            fila.remove();
+                            alert('Reserva cancelada.');
+                        }
+                    }
+                });
+            });
+            
+            // Aplicar tipografía a elementos dinámicos
+            const style = document.createElement('style');
+            style.textContent = `
+                @font-face {
+                    font-family: 'Libertad Mono';
+                    src: local('Libertad Mono'), local('LibertadMono-Regular');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+                
+                body {
+                    font-family: var(--espam-font-secondary);
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1163 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Guía de Prácticas de Laboratorio - ESPAM MFL</title>
+<style>
+:root{
+  --verde-espam: #005846;
+  --verde-claro: #39b54a;
+  --verde-agua: #08b89d;
+  --amarillo: #cbdb2a;
+  --gris: #f5f5f5;
+  --borde: 1px solid #000;
+  --fuente-titulo: 'Arial Black', Arial, sans-serif;
+  --fuente-texto: Arial, Helvetica, sans-serif;
+}
+
+body{
+  background: #ddd;
+  font-family: var(--fuente-texto);
+  margin: 0;
+  padding: 20px;
+}
+
+.page{
+  width: 820px;
+  background: #fff;
+  margin: 0 auto;
+  padding: 15px;
+  border: var(--borde);
+  position: relative;
+}
+
+/* ENCABEZADO SIMPLIFICADO */
+.top{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid var(--verde-espam);
+}
+
+.logo-left, .logo-right {
+  width: 120px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.page-title {
+  text-align: center;
+  flex: 1;
+}
+
+.titulo-principal {
+  font-family: var(--fuente-titulo);
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--verde-espam);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.numero-pagina {
+  font-family: var(--fuente-titulo);
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--verde-espam);
+  text-align: right;
+  margin-top: 5px;
+}
+
+/* SISTEMA DE USUARIOS (SOLO PARA EDICIÓN) */
+.user-system {
+  background: var(--gris);
+  border: 2px solid var(--verde-espam);
+  border-radius: 5px;
+  padding: 8px;
+  margin-bottom: 10px;
+  display: none; /* Oculto por defecto, visible solo en edición */
+}
+
+.user-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.user-btn {
+  padding: 5px 10px;
+  border: 2px solid var(--verde-espam);
+  background: white;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 10px;
+  transition: all 0.3s;
+}
+
+.user-btn.active {
+  background: var(--verde-espam);
+  color: white;
+}
+
+/* SECCIONES */
+.section-title{
+  background: var(--verde-espam);
+  color: white;
+  border: var(--borde);
+  border-bottom: none;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px;
+  font-family: var(--fuente-titulo);
+  margin-top: 8px;
+}
+
+table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+td, th{
+  border: var(--borde);
+  padding: 4px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+input[type="text"],
+input[type="date"],
+textarea,
+select {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--fuente-texto);
+  font-size: 11px;
+  outline: none;
+  padding: 2px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 40px;
+}
+
+/* CHECKBOXES MEJORADOS */
+.checkbox-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkbox-item label {
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* CAMPOS EDITABLES */
+.editable {
+  min-height: 16px;
+  cursor: text;
+  padding: 2px;
+  display: block;
+  width: 100%;
+}
+
+.editable:focus {
+  background: #fffacd;
+  outline: 1px solid var(--amarillo);
+}
+
+.readonly {
+  background: var(--gris);
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* SELECTOR DE LABORATORIO DENTRO DE LA TABLA */
+.lab-selector-cell {
+  padding: 1px !important;
+}
+
+.lab-selector-cell select {
+  width: 100%;
+  padding: 2px;
+  border: 1px solid #ccc;
+  background: white;
+  font-size: 10px;
+  height: 20px;
+}
+
+/* COLUMNA FIRMAS ESTUDIANTES */
+.firma-col {
+  min-height: 30px;
+  position: relative;
+  padding: 2px !important;
+}
+
+.firma-img {
+  max-width: 80px;
+  max-height: 25px;
+  object-fit: contain;
+}
+
+.no-firma {
+  font-size: 9px;
+  color: #999;
+  font-style: italic;
+  margin: 0;
+}
+
+/* BOTONES DE ASISTENCIA */
+.asistencia-btns {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.btn-asistencia {
+  padding: 1px 4px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  font-size: 8px;
+  border-radius: 1px;
+  transition: all 0.2s;
+}
+
+.btn-asistencia:hover {
+  transform: translateY(-1px);
+}
+
+.btn-asistencia.asistio {
+  background: var(--verde-claro);
+  color: white;
+  border-color: var(--verde-claro);
+}
+
+.btn-asistencia.falto {
+  background: #f44336;
+  color: white;
+  border-color: #f44336;
+}
+
+/* BOTONES AGREGAR */
+.add-buttons {
+  text-align: center;
+  margin: 8px 0;
+}
+
+.btn-add {
+  background: var(--verde-agua);
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: bold;
+  margin: 0 3px;
+  transition: all 0.3s;
+}
+
+.btn-add:hover {
+  background: #07a38c;
+  transform: translateY(-1px);
+}
+
+/* NOTA */
+.note{
+  font-size: 9px;
+  margin-top: 4px;
+  padding: 6px;
+  background: #fff9e6;
+  border-left: 3px solid var(--amarillo);
+  color: #856404;
+}
+
+/* FIRMAS FINALES */
+.signs{
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  font-size: 11px;
+}
+
+.sign{
+  width: 45%;
+  text-align: center;
+}
+
+.line{
+  border-top: var(--borde);
+  margin-bottom: 3px;
+  height: 1px;
+  width: 180px;
+  margin: 0 auto 4px;
+}
+
+/* BOTONES DE ACCIÓN (SOLO PARA EDICIÓN) */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+  display: none; /* Oculto por defecto */
+}
+
+.action-btn {
+  padding: 6px 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.3s;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.btn-print {
+  background: var(--verde-espam);
+  color: white;
+}
+
+.btn-save {
+  background: var(--verde-claro);
+  color: white;
+}
+
+/* MODO EDICIÓN */
+.edit-mode .user-system,
+.edit-mode .action-buttons,
+.edit-mode .btn-add,
+.edit-mode .btn-asistencia {
+  display: block;
+}
+
+.edit-mode .user-system {
+  display: block;
+}
+
+.edit-mode .action-buttons {
+  display: flex;
+}
+
+/* IMPRESIÓN */
+@media print {
+  body {
+    background: white;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .page {
+    box-shadow: none;
+    margin: 0;
+    width: 100%;
+    padding: 10px;
+    border: none;
+  }
+  
+  .user-system,
+  .action-buttons,
+  .btn-add,
+  .btn-asistencia,
+  .btn-agregar {
+    display: none !important;
+  }
+  
+  .editable,
+  input,
+  textarea,
+  select {
+    border: none !important;
+    background: transparent !important;
+    pointer-events: none;
+  }
+  
+  .checkbox-item input[type="checkbox"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .top {
+    border-bottom: 1px solid #000;
+    margin-bottom: 3px;
+    padding-bottom: 3px;
+  }
+  
+  .section-title {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #005846 !important;
+    color: white !important;
+  }
+}
+
+/* RESPONSIVE */
+@media screen and (max-width: 850px) {
+  .page {
+    width: 95%;
+    margin: 10px auto;
+  }
+}
+</style>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+
+<body>
+
+<div class="page" id="main-page">
+
+  <!-- ENCABEZADO SIMPLIFICADO -->
+  <div class="top">
+    <div class="logo-left">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Escudo_de_la_Universidad_T%C3%A9cnica_de_Cotopaxi.png/150px-Escudo_de_la_Universidad_T%C3%A9cnica_de_Cotopaxi.png" 
+           alt="ESPAM MFL" 
+           class="logo-img"
+           id="logo-espam">
+    </div>
+    
+    <div class="page-title">
+      <div class="titulo-principal">GUÍA DE PRÁCTICAS DE LABORATORIO</div>
+    </div>
+    
+    <div class="logo-right">
+      <img src="https://via.placeholder.com/120x50/005846/FFFFFF?text=FCAI" 
+           alt="Facultad" 
+           class="logo-img"
+           id="logo-facultad">
+    </div>
+  </div>
+
+  <div class="numero-pagina">Página 1</div>
+
+  <!-- SISTEMA DE USUARIOS (SOLO VISIBLE EN MODO EDICIÓN) -->
+  <div class="user-system" id="user-system">
+    <div class="user-buttons">
+      <button class="user-btn active" data-user="docente">DOCENTE</button>
+      <button class="user-btn" data-user="tecnico">TÉCNICO</button>
+      <button class="user-btn" data-user="admin">ADMIN</button>
+      <button class="user-btn" data-user="view">VISUALIZAR</button>
+    </div>
+  </div>
+
+  <!-- 1. DATOS INFORMATIVOS -->
+  <div class="section-title">1. DATOS INFORMATIVOS</div>
+  <table>
+    <!-- FILA 1: TIPO DE PRÁCTICA CON CHECKBOXES -->
+    <tr>
+      <td style="width: 20%;">Tipo de Práctica:</td>
+      <td colspan="4" style="padding: 2px !important;">
+        <div class="checkbox-container">
+          <div class="checkbox-item">
+            <input type="checkbox" id="tipo-academica" name="tipo-practica" checked onclick="toggleCheckbox('academica')">
+            <label for="tipo-academica">Académica</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="tipo-investigacion" name="tipo-practica" onclick="toggleCheckbox('investigacion')">
+            <label for="tipo-investigacion">Proyecto de Investigación</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="tipo-vinculacion" name="tipo-practica" onclick="toggleCheckbox('vinculacion')">
+            <label for="tipo-vinculacion">Proyecto de Vinculación</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="tipo-integracion" name="tipo-practica" onclick="toggleCheckbox('integracion')">
+            <label for="tipo-integracion">Trabajo de Integración Curricular</label>
+          </div>
+        </div>
+      </td>
+    </tr>
+
+    <!-- FILA 2: NÚMEROS DE GUÍA Y PRÁCTICA -->
+    <tr>
+      <td>No. de Guía Práctica:</td>
+      <td colspan="2">
+        <div class="editable" id="num-guia" contenteditable="true">GP-2025-001</div>
+      </td>
+      <td>No. de Práctica:</td>
+      <td>
+        <div class="editable" id="num-practica" contenteditable="true"></div>
+      </td>
+    </tr>
+
+    <!-- FILA 3: ASIGNATURA Y LUGAR DE PRÁCTICA CON SELECTOR -->
+    <tr>
+      <td>Asignatura:</td>
+      <td colspan="2">
+        <div class="editable" id="asignatura" contenteditable="true">Laboratorio de Bromatología</div>
+      </td>
+      <td>Lugar de Práctica:</td>
+      <td class="lab-selector-cell">
+        <select id="select-lab" onchange="cambiarLaboratorio()" style="width: 100%;">
+          <option value="bromatologia" selected>Laboratorio de Bromatología</option>
+          <option value="microbiologia">Laboratorio de Microbiología</option>
+          <option value="frutas">Taller de Frutas y Hortalizas</option>
+          <option value="lacteos">Taller de Lácteos</option>
+          <option value="carnicos">Taller de Cárnicos</option>
+          <option value="cacao">Taller de Cacao y Chocolate</option>
+          <option value="computacion">Laboratorio de Computación</option>
+          <option value="quimica">Laboratorio de Química</option>
+          <option value="fisica">Laboratorio de Física</option>
+          <option value="veterinaria">Clínica Veterinaria</option>
+          <option value="suelos">Laboratorio de Suelos</option>
+          <option value="hidraulica">Laboratorio de Hidráulica</option>
+          <option value="gastronomia">Taller de Gastronomía</option>
+        </select>
+      </td>
+    </tr>
+
+    <!-- FILA 4: DOCENTE Y FECHA -->
+    <tr>
+      <td>Docente:</td>
+      <td colspan="2">
+        <div class="editable" id="docente" contenteditable="true"></div>
+      </td>
+      <td>Fecha:</td>
+      <td>
+        <input type="date" id="fecha" style="width:100%">
+      </td>
+    </tr>
+
+    <!-- FILA 5: SEMESTRE Y PERÍODO -->
+    <tr>
+      <td>Semestre / Nivel:</td>
+      <td>
+        <div class="editable" id="semestre" contenteditable="true"></div>
+      </td>
+      <td>Paralelo:</td>
+      <td>Periodo Académico:</td>
+      <td class="readonly">Octubre 2025 - Febrero 2026</td>
+    </tr>
+
+    <!-- FILA 6: TEMA Y SUBTEMA -->
+    <tr>
+      <td>Tema de la Unidad:</td>
+      <td colspan="2">
+        <div class="editable" id="tema-unidad" contenteditable="true"></div>
+      </td>
+      <td>Subtema:</td>
+      <td>
+        <div class="editable" id="subtema" contenteditable="true"></div>
+      </td>
+    </tr>
+
+    <!-- FILA 7: LOGRO DE APRENDIZAJE -->
+    <tr>
+      <td colspan="3"></td>
+      <td>Logro de aprendizaje:</td>
+      <td>
+        <div class="editable" id="logro-aprendizaje" contenteditable="true"></div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- 2. OBJETIVO DE LA PRÁCTICA -->
+  <div class="section-title">2. OBJETIVO DE LA PRÁCTICA</div>
+  <table>
+    <tr>
+      <td style="height:50px">
+        <textarea id="objetivo" placeholder="Describa el objetivo de la práctica..."></textarea>
+      </td>
+    </tr>
+  </table>
+
+  <!-- 3. EQUIPOS / MATERIALES / OTROS -->
+  <div class="section-title">3. EQUIPOS / MATERIALES / OTROS (REACTIVOS / INSUMOS / ADITIVOS)</div>
+  <table id="tabla-materiales">
+    <tr>
+      <th colspan="2">EQUIPOS</th>
+      <th colspan="2">MATERIALES</th>
+      <th colspan="2">REACTIVOS / INSUMOS / ADITIVOS</th>
+    </tr>
+    <tr>
+      <th>CANT./UNID.</th><th>DESCRIPCIÓN</th>
+      <th>CANT./UNID.</th><th>DESCRIPCIÓN</th>
+      <th>CANT./UNID.</th><th>DESCRIPCIÓN</th>
+    </tr>
+    <!-- FILAS DINÁMICAS SE INSERTARÁN AQUÍ -->
+  </table>
+
+  <div class="add-buttons">
+    <button class="btn-add" onclick="agregarFilaMaterial()">+ AGREGAR MATERIAL</button>
+  </div>
+
+  <!-- 4. PARTICIPANTES DE LA PRÁCTICA -->
+  <div class="section-title">4. PARTICIPANTES DE LA PRÁCTICA</div>
+  <table id="tabla-estudiantes">
+    <tr>
+      <th style="width: 5%;">N°</th>
+      <th style="width: 35%;">NOMBRES</th>
+      <th style="width: 20%;">CÉDULA</th>
+      <th style="width: 15%;">ASISTENCIA</th>
+      <th style="width: 25%;">FIRMAS</th>
+    </tr>
+    <!-- FILAS DINÁMICAS SE INSERTARÁN AQUÍ -->
+  </table>
+
+  <div class="add-buttons">
+    <button class="btn-add" onclick="agregarFilaEstudiante()">+ AGREGAR ESTUDIANTE</button>
+  </div>
+
+  <div class="note">
+    Nota: No aplica subtema y logro de aprendizaje cuando se trata de actividades prácticas de Proyectos de Investigación,
+    Vinculación y Trabajos de Integración Curricular II
+  </div>
+
+  <!-- FIRMAS FINALES -->
+  <div class="signs">
+    <div class="sign">
+      <div class="line"></div>
+      <div style="font-weight: bold; color: var(--verde-espam);">DOCENTE</div>
+      <div style="font-size: 9px;">Firma y sello institucional</div>
+    </div>
+    <div class="sign">
+      <div class="line"></div>
+      <div style="font-weight: bold; color: var(--verde-espam);">TÉCNICO RESPONSABLE</div>
+      <div style="font-size: 9px;">Firma y sello del laboratorio</div>
+    </div>
+  </div>
+
+  <!-- BOTONES DE ACCIÓN (SOLO VISIBLES EN MODO EDICIÓN) -->
+  <div class="action-buttons" id="action-buttons">
+    <button class="action-btn btn-print" onclick="imprimirGuia()">🖨️ IMPRIMIR</button>
+    <button class="action-btn btn-save" onclick="guardarGuia()">💾 GUARDAR</button>
+  </div>
+
+</div>
+
+<script>
+// VARIABLES GLOBALES
+let usuarioActual = 'docente';
+let laboratorioActual = 'bromatologia';
+let filaMaterialActual = 1;
+let filaEstudianteActual = 6;
+let modoEdicion = true; // Por defecto en modo edición
+
+// DATOS DE LABORATORIOS
+const laboratoriosData = {
+  'bromatologia': {
+    nombre: 'Laboratorio de Bromatología',
+    facultad: 'Ciencias Agroindustriales',
+    logo: 'https://via.placeholder.com/120x50/005846/FFFFFF?text=FCAI'
+  },
+  'microbiologia': {
+    nombre: 'Laboratorio de Microbiología',
+    facultad: 'Ciencias Agroindustriales',
+    logo: 'https://via.placeholder.com/120x50/39b54a/FFFFFF?text=FCAI'
+  },
+  'frutas': {
+    nombre: 'Taller de Frutas y Hortalizas',
+    facultad: 'Ciencias Agroindustriales',
+    logo: 'https://via.placeholder.com/120x50/08b89d/FFFFFF?text=FCAI'
+  },
+  'lacteos': {
+    nombre: 'Taller de Lácteos',
+    facultad: 'Ciencias Agroindustriales',
+    logo: 'https://via.placeholder.com/120x50/005846/FFFFFF?text=FCAI'
+  },
+  'carnicos': {
+    nombre: 'Taller de Cárnicos',
+    facultad: 'Ciencias Agroindustriales',
+    logo: 'https://via.placeholder.com/120x50/39b54a/FFFFFF?text=FCAI'
+  },
+  'cacao': {
+    nombre: 'Taller de Cacao y Chocolate',
+    facultad: 'Ciencias Agroindustriales',
+    logo: 'https://via.placeholder.com/120x50/08b89d/FFFFFF?text=FCAI'
+  },
+  'computacion': {
+    nombre: 'Laboratorio de Computación',
+    facultad: 'Informática y Ciencias Básicas',
+    logo: 'https://via.placeholder.com/120x50/cbdb2a/000000?text=FICB'
+  },
+  'quimica': {
+    nombre: 'Laboratorio de Química',
+    facultad: 'Informática y Ciencias Básicas',
+    logo: 'https://via.placeholder.com/120x50/cbdb2a/000000?text=FICB'
+  },
+  'fisica': {
+    nombre: 'Laboratorio de Física',
+    facultad: 'Informática y Ciencias Básicas',
+    logo: 'https://via.placeholder.com/120x50/005846/FFFFFF?text=FICB'
+  },
+  'veterinaria': {
+    nombre: 'Clínica Veterinaria',
+    facultad: 'Ciencias Veterinarias y Biotecnología',
+    logo: 'https://via.placeholder.com/120x50/39b54a/FFFFFF?text=FCVB'
+  },
+  'suelos': {
+    nombre: 'Laboratorio de Suelos',
+    facultad: 'Ciencias Agrícolas y Ambientales',
+    logo: 'https://via.placeholder.com/120x50/08b89d/FFFFFF?text=FCAA'
+  },
+  'hidraulica': {
+    nombre: 'Laboratorio de Hidráulica',
+    facultad: 'Ciencias Agrícolas y Ambientales',
+    logo: 'https://via.placeholder.com/120x50/005846/FFFFFF?text=FCAA'
+  },
+  'gastronomia': {
+    nombre: 'Taller de Gastronomía',
+    facultad: 'Servicios y Hospitalidad',
+    logo: 'https://via.placeholder.com/120x50/cbdb2a/000000?text=ASH'
+  }
+};
+
+// BASE DE DATOS DE ESTUDIANTES
+const estudiantesDB = {
+  '1723456789': {
+    nombre: 'MARÍA FERNANDA GARCÍA LÓPEZ',
+    firma: 'https://i.imgur.com/R1JcH4h.png'
+  },
+  '1723456790': {
+    nombre: 'JUAN CARLOS PÉREZ MENDOZA',
+    firma: 'https://i.imgur.com/8KjQl4M.png'
+  },
+  '1723456791': {
+    nombre: 'ANA GABRIELA RODRÍGUEZ CASTRO',
+    firma: 'https://i.imgur.com/7LpN2qR.png'
+  },
+  '1723456792': {
+    nombre: 'CARLOS ANDRÉS MÉNDEZ VARGAS',
+    firma: 'https://i.imgur.com/9FgB7ZN.png'
+  },
+  '1723456793': {
+    nombre: 'SOFÍA ELENA CHÁVEZ RUIZ',
+    firma: 'https://i.imgur.com/X9nL8yP.png'
+  },
+  '1723456794': {
+    nombre: 'DIEGO ALEJANDRO TORRES SALAZAR',
+    firma: 'https://i.imgur.com/Y5mZ6qT.png'
+  }
+};
+
+// INICIALIZACIÓN
+document.addEventListener('DOMContentLoaded', function() {
+  // Configurar sistema de usuarios
+  configurarUsuarios();
+  
+  // Configurar fecha actual
+  const hoy = new Date();
+  document.getElementById('fecha').value = hoy.toISOString().split('T')[0];
+  
+  // Generar número de práctica
+  generarNumeroPractica();
+  
+  // Generar filas iniciales
+  generarFilasMateriales(3);
+  generarFilasEstudiantes(6);
+  
+  // Cargar datos de ejemplo
+  cargarDatosEjemplo();
+  
+  // Aplicar modo inicial (edición)
+  aplicarModoEdicion(true);
+});
+
+// SISTEMA DE USUARIOS
+function configurarUsuarios() {
+  const botones = document.querySelectorAll('.user-btn');
+  
+  botones.forEach(boton => {
+    boton.addEventListener('click', function() {
+      // Remover active de todos
+      botones.forEach(b => b.classList.remove('active'));
+      
+      // Activar seleccionado
+      this.classList.add('active');
+      usuarioActual = this.dataset.user;
+      
+      // Cambiar modo de edición
+      if (usuarioActual === 'view') {
+        aplicarModoEdicion(false);
+      } else {
+        aplicarModoEdicion(true);
+      }
+      
+      // Aplicar permisos específicos
+      aplicarPermisosUsuario();
+    });
+  });
+}
+
+function aplicarModoEdicion(editar) {
+  modoEdicion = editar;
+  const page = document.getElementById('main-page');
+  
+  if (editar) {
+    page.classList.add('edit-mode');
+  } else {
+    page.classList.remove('edit-mode');
+    // Deshabilitar todos los campos editables
+    document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+      el.setAttribute('contenteditable', 'false');
+    });
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+      el.disabled = true;
+    });
+  }
+}
+
+function aplicarPermisosUsuario() {
+  // En este formato simplificado, solo diferenciamos entre edición y visualización
+  // Los permisos específicos se manejarían en una implementación real
+}
+
+// CAMBIAR LABORATORIO
+function cambiarLaboratorio() {
+  const selector = document.getElementById('select-lab');
+  const laboratorioId = selector.value;
+  
+  if (laboratorioId && laboratoriosData[laboratorioId]) {
+    const lab = laboratoriosData[laboratorioId];
+    laboratorioActual = laboratorioId;
+    
+    // Actualizar logo de facultad
+    document.getElementById('logo-facultad').src = lab.logo;
+    document.getElementById('logo-facultad').alt = `Logo ${lab.facultad}`;
+    
+    // Actualizar asignatura
+    document.getElementById('asignatura').textContent = lab.nombre;
+    
+    // Generar nuevo código de guía
+    generarCodigoGuia(laboratorioId);
+  }
+}
+
+function generarCodigoGuia(labId) {
+  const lab = laboratoriosData[labId];
+  const fecha = new Date();
+  const año = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  
+  let prefijo = 'GP';
+  if (lab.facultad.includes('Agroindustriales')) prefijo = 'GPA';
+  else if (lab.facultad.includes('Veterinarias')) prefijo = 'GPV';
+  else if (lab.facultad.includes('Agrícolas')) prefijo = 'GPAG';
+  else if (lab.facultad.includes('Informática')) prefijo = 'GPI';
+  else if (lab.facultad.includes('Servicios')) prefijo = 'GPS';
+  
+  const codigo = `${prefijo}-${año}${mes}${dia}-001`;
+  document.getElementById('num-guia').textContent = codigo;
+}
+
+// CHECKBOXES (SOLO UNO SELECCIONADO)
+function toggleCheckbox(tipo) {
+  if (!modoEdicion) return;
+  
+  // Desmarcar todos
+  document.querySelectorAll('input[name="tipo-practica"]').forEach(cb => {
+    cb.checked = false;
+  });
+  
+  // Marcar el seleccionado
+  document.getElementById(`tipo-${tipo}`).checked = true;
+  
+  // Actualizar campos según tipo
+  const subtema = document.getElementById('subtema');
+  const logro = document.getElementById('logro-aprendizaje');
+  
+  if (tipo === 'academica') {
+    subtema.contentEditable = 'true';
+    logro.contentEditable = 'true';
+    subtema.classList.remove('readonly');
+    logro.classList.remove('readonly');
+    if (subtema.textContent === 'No aplica') subtema.textContent = '';
+    if (logro.textContent === 'No aplica') logro.textContent = '';
+  } else {
+    subtema.contentEditable = 'false';
+    logro.contentEditable = 'false';
+    subtema.classList.add('readonly');
+    logro.classList.add('readonly');
+    subtema.textContent = 'No aplica';
+    logro.textContent = 'No aplica';
+  }
+}
+
+// GENERAR NÚMERO DE PRÁCTICA
+function generarNumeroPractica() {
+  const fecha = new Date();
+  const año = fecha.getFullYear();
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  document.getElementById('num-practica').textContent = `P-${año}${mes}${dia}-001`;
+}
+
+// TABLA DE MATERIALES
+function generarFilasMateriales(cantidad) {
+  const tabla = document.getElementById('tabla-materiales');
+  
+  // Limpiar filas existentes (excepto cabeceras)
+  while (tabla.rows.length > 2) {
+    tabla.deleteRow(2);
+  }
+  
+  // Generar nuevas filas
+  for (let i = 1; i <= cantidad; i++) {
+    const fila = tabla.insertRow();
+    fila.innerHTML = `
+      <td><input type="text" placeholder="Cantidad" id="mat-cant-${i}" class="campo-material" ${!modoEdicion ? 'disabled' : ''}></td>
+      <td><input type="text" placeholder="Descripción" id="mat-desc-${i}" class="campo-material" ${!modoEdicion ? 'disabled' : ''}></td>
+      <td><input type="text" placeholder="Cantidad" id="mat-mat-cant-${i}" class="campo-material" ${!modoEdicion ? 'disabled' : ''}></td>
+      <td><input type="text" placeholder="Descripción" id="mat-mat-desc-${i}" class="campo-material" ${!modoEdicion ? 'disabled' : ''}></td>
+      <td><input type="text" placeholder="Cantidad" id="mat-react-cant-${i}" class="campo-material" ${!modoEdicion ? 'disabled' : ''}></td>
+      <td><input type="text" placeholder="Descripción" id="mat-react-desc-${i}" class="campo-material" ${!modoEdicion ? 'disabled' : ''}></td>
+    `;
+    filaMaterialActual = i;
+  }
+}
+
+function agregarFilaMaterial() {
+  if (!modoEdicion) return;
+  
+  filaMaterialActual++;
+  const tabla = document.getElementById('tabla-materiales');
+  const fila = tabla.insertRow();
+  fila.innerHTML = `
+    <td><input type="text" placeholder="Cantidad" id="mat-cant-${filaMaterialActual}" class="campo-material"></td>
+    <td><input type="text" placeholder="Descripción" id="mat-desc-${filaMaterialActual}" class="campo-material"></td>
+    <td><input type="text" placeholder="Cantidad" id="mat-mat-cant-${filaMaterialActual}" class="campo-material"></td>
+    <td><input type="text" placeholder="Descripción" id="mat-mat-desc-${filaMaterialActual}" class="campo-material"></td>
+    <td><input type="text" placeholder="Cantidad" id="mat-react-cant-${filaMaterialActual}" class="campo-material"></td>
+    <td><input type="text" placeholder="Descripción" id="mat-react-desc-${filaMaterialActual}" class="campo-material"></td>
+  `;
+}
+
+// TABLA DE ESTUDIANTES
+function generarFilasEstudiantes(cantidad) {
+  const tabla = document.getElementById('tabla-estudiantes');
+  
+  // Limpiar filas existentes (excepto cabecera)
+  while (tabla.rows.length > 1) {
+    tabla.deleteRow(1);
+  }
+  
+  // Generar nuevas filas
+  for (let i = 1; i <= cantidad; i++) {
+    const fila = tabla.insertRow();
+    fila.innerHTML = `
+      <td>${i}</td>
+      <td><input type="text" placeholder="Nombres completos" id="est-nombre-${i}" class="nombre-estudiante" ${!modoEdicion ? 'disabled' : ''}></td>
+      <td><input type="text" placeholder="Cédula" id="est-cedula-${i}" class="cedula-estudiante" ${!modoEdicion ? 'disabled' : ''} oninput="verificarEstudiante(${i})"></td>
+      <td>
+        <div class="asistencia-btns" id="asistencia-${i}">
+          <button class="btn-asistencia" onclick="marcarAsistencia(${i}, true)" ${!modoEdicion ? 'disabled' : ''}>Asistió</button>
+          <button class="btn-asistencia" onclick="marcarAsistencia(${i}, false)" ${!modoEdicion ? 'disabled' : ''}>Faltó</button>
+        </div>
+      </td>
+      <td class="firma-col" id="firma-${i}">
+        <div class="no-firma">-</div>
+      </td>
+    `;
+    filaEstudianteActual = i;
+  }
+}
+
+function agregarFilaEstudiante() {
+  if (!modoEdicion) return;
+  
+  filaEstudianteActual++;
+  const tabla = document.getElementById('tabla-estudiantes');
+  const fila = tabla.insertRow();
+  fila.innerHTML = `
+    <td>${filaEstudianteActual}</td>
+    <td><input type="text" placeholder="Nombres completos" id="est-nombre-${filaEstudianteActual}" class="nombre-estudiante"></td>
+    <td><input type="text" placeholder="Cédula" id="est-cedula-${filaEstudianteActual}" class="cedula-estudiante" oninput="verificarEstudiante(${filaEstudianteActual})"></td>
+    <td>
+      <div class="asistencia-btns" id="asistencia-${filaEstudianteActual}">
+        <button class="btn-asistencia" onclick="marcarAsistencia(${filaEstudianteActual}, true)">Asistió</button>
+        <button class="btn-asistencia" onclick="marcarAsistencia(${filaEstudianteActual}, false)">Faltó</button>
+      </div>
+    </td>
+    <td class="firma-col" id="firma-${filaEstudianteActual}">
+      <div class="no-firma">-</div>
+    </td>
+  `;
+}
+
+// VERIFICAR ESTUDIANTE EN BD
+function verificarEstudiante(id) {
+  if (!modoEdicion) return;
+  
+  const cedula = document.getElementById(`est-cedula-${id}`).value.trim();
+  const nombreInput = document.getElementById(`est-nombre-${id}`);
+  
+  if (estudiantesDB[cedula]) {
+    nombreInput.value = estudiantesDB[cedula].nombre;
+  }
+}
+
+// MARCAR ASISTENCIA
+function marcarAsistencia(id, asistio) {
+  if (!modoEdicion) return;
+  
+  const cedula = document.getElementById(`est-cedula-${id}`).value.trim();
+  const nombre = document.getElementById(`est-nombre-${id}`).value.trim();
+  const firmaCell = document.getElementById(`firma-${id}`);
+  const botones = document.querySelectorAll(`#asistencia-${id} .btn-asistencia`);
+  
+  // Resetear botones
+  botones.forEach(btn => {
+    btn.classList.remove('asistio', 'falto');
+  });
+  
+  if (asistio) {
+    // Marcar como asistió
+    botones[0].classList.add('asistio');
+    
+    // Buscar firma en base de datos
+    if (estudiantesDB[cedula] && estudiantesDB[cedula].firma) {
+      // Mostrar imagen de firma
+      firmaCell.innerHTML = `<img src="${estudiantesDB[cedula].firma}" alt="Firma ${nombre}" class="firma-img">`;
+    } else if (nombre) {
+      // Mostrar iniciales si no hay firma
+      const iniciales = obtenerIniciales(nombre);
+      firmaCell.innerHTML = `<div style="font-weight:bold;color:var(--verde-espam);font-size:10px;">${iniciales}</div>`;
+    } else {
+      firmaCell.innerHTML = '<div class="no-firma">-</div>';
+    }
+  } else {
+    // Marcar como faltó
+    botones[1].classList.add('falto');
+    firmaCell.innerHTML = '<div style="color:#f44336;font-weight:bold;font-size:9px;">NO ASISTIÓ</div>';
+  }
+}
+
+function obtenerIniciales(nombre) {
+  return nombre
+    .split(' ')
+    .map(palabra => palabra.charAt(0).toUpperCase())
+    .join('')
+    .substring(0, 3);
+}
+
+// CARGAR DATOS DE EJEMPLO
+function cargarDatosEjemplo() {
+  // Cargar estudiantes de ejemplo
+  const cedulas = Object.keys(estudiantesDB);
+  for (let i = 1; i <= Math.min(6, cedulas.length); i++) {
+    const cedula = cedulas[i-1];
+    const estudiante = estudiantesDB[cedula];
+    
+    if (estudiante) {
+      document.getElementById(`est-nombre-${i}`).value = estudiante.nombre;
+      document.getElementById(`est-cedula-${i}`).value = cedula;
+    }
+  }
+  
+  // Cargar datos de materiales
+  document.getElementById('mat-cant-1').value = '2';
+  document.getElementById('mat-desc-1').value = 'Microscopio';
+  document.getElementById('mat-mat-cant-1').value = '10';
+  document.getElementById('mat-mat-desc-1').value = 'Tubos ensayo';
+  document.getElementById('mat-react-cant-1').value = '500ml';
+  document.getElementById('mat-react-desc-1').value = 'Solución salina';
+  
+  // Cargar datos generales
+  document.getElementById('docente').textContent = 'DR. CARLOS MENDOZA';
+  document.getElementById('semestre').textContent = '5to Semestre';
+  document.getElementById('tema-unidad').textContent = 'Análisis alimentos';
+  document.getElementById('subtema').textContent = 'Determinación humedad';
+  document.getElementById('logro-aprendizaje').textContent = 'Determinar humedad en alimentos';
+  document.getElementById('objetivo').value = 'Determinar porcentaje de humedad en muestras de harina';
+}
+
+// FUNCIONES DE BOTONES
+function imprimirGuia() {
+  // Si estamos en modo edición, cambiar temporalmente a modo visualización para imprimir
+  const tempMode = modoEdicion;
+  if (tempMode) {
+    aplicarModoEdicion(false);
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        aplicarModoEdicion(true);
+      }, 100);
+    }, 100);
+  } else {
+    window.print();
+  }
+}
+
+function guardarGuia() {
+  if (!modoEdicion) {
+    alert('Modo de solo visualización. No puede guardar.');
+    return;
+  }
+  
+  // Validar campos obligatorios
+  const docente = document.getElementById('docente').textContent.trim();
+  const semestre = document.getElementById('semestre').textContent.trim();
+  const objetivo = document.getElementById('objetivo').value.trim();
+  
+  if (!docente || !semestre || !objetivo) {
+    alert('Complete los campos obligatorios: Docente, Semestre y Objetivo');
+    return;
+  }
+  
+  // Validar tipo de práctica seleccionado
+  const tipoSeleccionado = document.querySelector('input[name="tipo-practica"]:checked');
+  if (!tipoSeleccionado) {
+    alert('Seleccione un tipo de práctica');
+    return;
+  }
+  
+  // Simular guardado
+  alert('Guía guardada exitosamente en el sistema.');
+  
+  // Animación de confirmación
+  const btnSave = document.querySelector('.btn-save');
+  const textoOriginal = btnSave.innerHTML;
+  btnSave.innerHTML = '✅ GUARDADO';
+  btnSave.style.background = '#28a745';
+  
+  setTimeout(() => {
+    btnSave.innerHTML = textoOriginal;
+    btnSave.style.background = '';
+  }, 2000);
+}
+</script>
+</body>
+</html>

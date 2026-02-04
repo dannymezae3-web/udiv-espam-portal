@@ -1,0 +1,18 @@
+# Windows artifacts
+nul
+Thumbs.db
+Desktop.ini
+
+# Claude Code
+.claude/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Environment
+.env
+.env.local

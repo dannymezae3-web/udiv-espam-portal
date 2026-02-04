@@ -1,0 +1,525 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UDIV ESPAM MFL - Portal de Laboratorios</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fuente Work Sans para entornos digitales -->
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100;0,300;0,400;0,600;0,700;0,900;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <style>
+        /* ESTILOS ESPECÍFICOS AJUSTADOS A LA IDENTIDAD ESPAM MFL */
+        
+        /* FUENTES según manual de identidad */
+        body {
+            font-family: 'Work Sans', sans-serif; /* Fuente digital según manual */
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3, h4, .section-title {
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 700; /* Bold según manual */
+            color: #005846; /* Color institucional principal */
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-weight: 400; /* Regular */
+            color: #39b54a; /* Color secundario */
+            margin-bottom: 0.25rem;
+        }
+        
+        /* PALETA CROMÁTICA ESPAM MFL */
+        :root {
+            --espam-primary: #005846;      /* Verde principal */
+            --espam-secondary: #39b54a;    /* Verde secundario claro */
+            --espam-accent: #cbdb2a;       /* Verde amarillo */
+            --espam-teal: #08b89d;         /* Verde aguamarina */
+            --espam-light: #F8F8F2;        /* Fondo claro */
+            --espam-white: #FFFFFF;
+            --espam-dark: #1a1a1a;
+        }
+        
+        /* HEADER con colores institucionales */
+        .header {
+            background: linear-gradient(135deg, var(--espam-primary) 0%, #004035 100%);
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 88, 70, 0.2);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .logo {
+            height: 80px; /* Ajustar según tamaño mínimo del manual */
+            width: auto;
+            object-fit: contain;
+        }
+        
+        .title-container h1 {
+            color: var(--espam-white);
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .title-container .subtitle {
+            color: var(--espam-secondary);
+            font-weight: 400;
+            margin: 0;
+            font-size: 1rem;
+        }
+        
+        /* BOTONES ajustados a colores institucionales */
+        .btn-login {
+            background-color: var(--espam-secondary) !important; /* #39b54a */
+            color: var(--espam-white) !important;
+            padding: 10px 25px !important;
+            border-radius: 4px;
+            border: 2px solid var(--espam-secondary);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Work Sans', sans-serif;
+            text-decoration: none;
+        }
+        
+        .btn-login:hover {
+            background-color: var(--espam-teal) !important; /* #08b89d */
+            border-color: var(--espam-teal);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(8, 184, 157, 0.3);
+        }
+        
+        /* Botón principal en hero */
+        .btn-primary {
+            background-color: var(--espam-primary); /* #005846 */
+            color: var(--espam-white);
+            padding: 14px 35px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: 2px solid var(--espam-primary);
+            font-size: 1.1rem;
+            font-family: 'Work Sans', sans-serif;
+            box-shadow: 0 4px 15px rgba(0, 88, 70, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--espam-teal); /* #08b89d */
+            border-color: var(--espam-teal);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(8, 184, 157, 0.4);
+        }
+        
+        /* Botón secundario */
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--espam-white);
+            padding: 14px 35px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: 2px solid var(--espam-white);
+            font-size: 1.1rem;
+            font-family: 'Work Sans', sans-serif;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        /* HERO SECTION */
+        .hero {
+            background: linear-gradient(rgba(0, 88, 70, 0.9), rgba(0, 88, 70, 0.8)), url('images/lab-background.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--espam-white);
+            padding: 5rem 0;
+            text-align: center;
+        }
+        
+        .hero h2 {
+            color: var(--espam-white);
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        /* LABORATORIOS SECTION */
+        .laboratorios {
+            background-color: var(--espam-light);
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--espam-primary);
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .lab-card {
+            background: var(--espam-white);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 4px solid var(--espam-secondary);
+        }
+        
+        .lab-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .lab-icon {
+            font-size: 3rem;
+            color: var(--espam-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .lab-card h3 {
+            color: var(--espam-primary);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .lab-card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        
+        .btn-lab {
+            background-color: var(--espam-secondary);
+            color: var(--espam-white);
+            padding: 10px 25px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            transition: background-color 0.3s;
+            border: 2px solid var(--espam-secondary);
+        }
+        
+        .btn-lab:hover {
+            background-color: var(--espam-teal);
+            border-color: var(--espam-teal);
+        }
+        
+        /* FOOTER */
+        .footer {
+            background-color: var(--espam-primary);
+            color: var(--espam-white);
+            padding: 3rem 0 1.5rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h4 {
+            color: var(--espam-accent); /* #cbdb2a */
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .footer-section p {
+            margin-bottom: 0.8rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+        
+        .footer-section i {
+            margin-right: 10px;
+            color: var(--espam-secondary);
+        }
+        
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-section ul li a {
+            color: var(--espam-white);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 400;
+        }
+        
+        .footer-section ul li a:hover {
+            color: var(--espam-accent);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 400;
+            opacity: 0.8;
+        }
+        
+        /* NAVIGATION */
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .main-nav a {
+            color: var(--espam-white);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            font-family: 'Work Sans', sans-serif;
+        }
+        
+        .main-nav a:not(.btn-login):hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--espam-accent);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .logo-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .main-nav ul {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+                margin-top: 1.5rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                height: 60px;
+            }
+            
+            .hero {
+                padding: 3rem 0;
+            }
+            
+            .laboratorios {
+                padding: 3rem 0;
+            }
+        }
+    </style>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="logo-container">
+                <!-- Asegúrate de usar el logo oficial de ESPAM MFL -->
+                <img src="images/logo-espam.png" alt="Logo ESPAM MFL" class="logo">
+                <div class="title-container">
+                    <h1>UDIV ESPAM MFL</h1>
+                    <p class="subtitle">Universidad de Investigación y Vinculación</p>
+                    <p class="subtitle">Portal de Gestión de Laboratorios</p>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#laboratorios">Laboratorios</a></li>
+                    <li><a href="#calendario">Calendario</a></li>
+                    <li><a href="#recursos">Recursos</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                    <li><a href="login.html" class="btn-login">Iniciar Sesión</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Bienvenido al Sistema de Gestión de Laboratorios</h2>
+                <p>Accede a los recursos, reserva equipos y gestiona tus prácticas de laboratorio de manera eficiente</p>
+                <div class="hero-buttons">
+                    <a href="login.html" class="btn-primary">Iniciar Sesión</a>
+                    <a href="register.html" class="btn-secondary">Crear Cuenta</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Laboratorios Section -->
+    <section class="laboratorios" id="laboratorios">
+        <div class="container">
+            <h2 class="section-title">Nuestros Laboratorios</h2>
+            <div class="lab-grid">
+                <div class="lab-card">
+                    <div class="lab-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3>Laboratorio de Bromatología</h3>
+                    <p>Equipado para análisis de alimentos, control de calidad y seguridad alimentaria.</p>
+                    <a href="#" class="btn-lab">Ver Detalles</a>
+                </div>
+                <div class="lab-card">
+                    <div class="lab-icon">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <h3>Laboratorio de Biología</h3>
+                    <p>Equipos para investigación biológica, microbiología y biotecnología.</p>
+                    <a href="#" class="btn-lab">Ver Detalles</a>
+                </div>
+                <div class="lab-card">
+                    <div class="lab-icon">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <h3>Laboratorio de Producción</h3>
+                    <p>Maquinaria para procesos de producción industrial y manufactura.</p>
+                    <a href="#" class="btn-lab">Ver Detalles</a>
+                </div>
+                <div class="lab-card">
+                    <div class="lab-icon">
+                        <i class="fas fa-atom"></i>
+                    </div>
+                    <h3>Laboratorio de Química</h3>
+                    <p>Reactivos y equipos para análisis químicos y experimentación.</p>
+                    <a href="#" class="btn-lab">Ver Detalles</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contacto">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>UDIV ESPAM MFL</h4>
+                    <p>Universidad de Investigación y Vinculación</p>
+                    <p>Escuela Superior Politécnica Agropecuaria de Manabí</p>
+                    <p>Manuel Félix López</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Vía Calceta-El Tambo, Manabí, Ecuador</p>
+                    <p><i class="fas fa-phone"></i> (05) 301-5000</p>
+                    <p><i class="fas fa-envelope"></i> info@espam.edu.ec</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="login.html">Iniciar Sesión</a></li>
+                        <li><a href="register.html">Registrarse</a></li>
+                        <li><a href="#calendario">Calendario</a></li>
+                        <li><a href="#recursos">Recursos</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 UDIV ESPAM MFL. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

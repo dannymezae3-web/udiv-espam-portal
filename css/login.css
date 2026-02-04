@@ -1,0 +1,472 @@
+/* Estilos para Páginas de Login y Registro - UNIVERSIDAD ESPAM MFL */
+:root {
+    /* PALETA CROMÁTICA OFICIAL ESPAM MFL */
+    --color-primario: #005846;              /* Color principal */
+    --color-primario-rgb: 0, 88, 70;        /* RGB para gradientes */
+    --color-secundario-1: #39b54a;          /* Verde */
+    --color-secundario-2: #cbdb2a;          /* Amarillo verdoso */
+    --color-secundario-3: #08b89d;          /* Turquesa */
+    --color-fondo-claro: #F8F8F2;           /* Fondo claro / Pantone 663 C */
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Gradiente con colores institucionales */
+    background: linear-gradient(135deg, var(--color-fondo-claro) 0%, rgba(0, 88, 70, 0.1) 100%);
+    padding: 20px;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 40px; /* Más espacio para área de protección */
+}
+
+/* LOGOTIPO - Cumpliendo con reducción mínima y área de protección */
+.login-logo {
+    height: 100px; /* Mayor tamaño para visibilidad */
+    width: auto;
+    margin-bottom: 20px; /* Área de protección */
+    min-height: 100px; /* Cumple con reducción mínima en pantalla (100px) */
+}
+
+.login-header h1 {
+    color: var(--color-primario); /* #005846 */
+    margin-bottom: 8px;
+    font-family: 'Libertad Mono', monospace; /* Fuente principal para títulos */
+    font-weight: 700; /* Bold */
+    font-size: 2rem;
+}
+
+.login-header p {
+    color: #666;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa para textos */
+    font-size: 1.1rem;
+}
+
+.login-box, .register-box {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 30px;
+}
+
+.login-box h2, .register-box h2 {
+    color: var(--color-primario); /* #005846 */
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    font-family: 'Libertad Mono', monospace; /* Fuente principal para títulos */
+    font-weight: 700;
+}
+
+/* Selección de Rol */
+.role-selection {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    gap: 10px;
+}
+
+.role-option {
+    flex: 1;
+    text-align: center;
+    padding: 15px 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.role-option:hover {
+    border-color: var(--color-secundario-3); /* #08b89d */
+    background-color: rgba(8, 184, 157, 0.05); /* Con transparencia */
+}
+
+.role-option.active {
+    border-color: var(--color-primario); /* #005846 */
+    background-color: rgba(0, 88, 70, 0.05); /* #005846 con transparencia */
+    color: var(--color-primario);
+}
+
+.role-option i {
+    font-size: 1.5rem;
+    color: var(--color-primario); /* #005846 */
+}
+
+.role-option.active i {
+    color: var(--color-primario); /* #005846 */
+}
+
+.role-option span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Formularios */
+.form-group {
+    margin-bottom: 20px;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+}
+
+.form-group label i {
+    margin-right: 8px;
+    color: var(--color-primario); /* #005846 */
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primario); /* #005846 */
+    box-shadow: 0 0 0 3px rgba(0, 88, 70, 0.1); /* #005846 con transparencia */
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+}
+
+.form-group {
+    position: relative;
+}
+
+/* Opciones del formulario */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.checkbox-container input {
+    display: none;
+}
+
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ddd;
+    border-radius: 3px;
+    margin-right: 10px;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.checkbox-container input:checked + .checkmark {
+    background-color: var(--color-primario); /* #005846 */
+    border-color: var(--color-primario);
+}
+
+.checkbox-container input:checked + .checkmark::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.forgot-link {
+    color: var(--color-primario); /* #005846 */
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+/* Separador */
+.login-divider {
+    text-align: center;
+    margin: 25px 0;
+    position: relative;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.login-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+.login-divider span {
+    background-color: white;
+    padding: 0 15px;
+    position: relative;
+    z-index: 2;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Botones principales ESPAM MFL */
+.btn-login-submit,
+.btn-register-submit,
+.btn-next,
+.btn-prev {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--color-primario); /* #005846 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+    margin-bottom: 15px; /* Espacio entre botones */
+}
+
+.btn-login-submit:hover,
+.btn-register-submit:hover,
+.btn-next:hover {
+    background-color: #004235; /* Variante más oscura de #005846 */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 88, 70, 0.2); /* #005846 con transparencia */
+}
+
+.btn-prev {
+    background-color: #666;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.btn-prev:hover {
+    background-color: #555;
+}
+
+/* =========================================== */
+/* BOTÓN MICROSOFT - ELIGE UNA DE ESTAS OPCIONES */
+/* =========================================== */
+
+/* OPCCIÓN 1: Efecto Simple (Recomendado para coherencia visual) */
+.btn-microsoft {
+    width: 100%;
+    padding: 12px;
+    background-color: #2f2f2f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.btn-microsoft:hover {
+    background-color: #1a1a1a;
+    transform: translateY(-1px);
+}
+
+/* OPCCIÓN 2: Con colores institucionales ESPAM MFL */
+.btn-microsoft-espam {
+    width: 100%;
+    padding: 12px;
+    background-color: #2f2f2f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-microsoft-espam:hover {
+    background-color: #1a1a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-microsoft-espam:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--color-secundario-3), transparent);
+    transition: left 0.5s;
+}
+
+.btn-microsoft-espam:hover:after {
+    left: 100%;
+}
+
+/* OPCCIÓN 3: Integración completa con paleta ESPAM MFL */
+.btn-microsoft-integrated {
+    width: 100%;
+    padding: 12px;
+    background-color: #2f2f2f;
+    color: white;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.btn-microsoft-integrated:hover {
+    background-color: #1a1a1a;
+    border-color: var(--color-primario); /* #005846 - Usando color institucional */
+    box-shadow: 0 0 0 3px rgba(0, 88, 70, 0.1); /* #005846 con transparencia */
+}
+
+/* Links adicionales */
+.login-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.login-footer p {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.register-link {
+    color: var(--color-primario); /* #005846 */
+    text-decoration: none;
+    font-weight: 600;
+    font-family: 'Libertad Mono', monospace; /* Fuente principal para énfasis */
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+
+/* Mensajes de validación */
+.validation-message {
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Work Sans', sans-serif; /* Fuente alternativa */
+}
+
+.validation-message.error {
+    color: #dc3545;
+}
+
+.validation-message.success {
+    color: var(--color-secundario-1); /* #39b54a */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-box, .register-box {
+        padding: 30px 20px;
+    }
+    
+    .role-selection {
+        flex-direction: column;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .login-logo {
+        height: 80px;
+        min-height: 80px;
+    }
+    
+    .login-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .login-container {
+        padding: 15px;
+    }
+    
+    .login-box, .register-box {
+        padding: 25px 15px;
+    }
+    
+    .form-options {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
