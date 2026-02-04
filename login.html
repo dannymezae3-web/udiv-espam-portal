@@ -845,34 +845,26 @@
         
         // ===== VALIDACIÓN DEL FORMULARIO =====
         function setupFormValidation() {
-            const form = document.getElementById('loginForm');
             const emailInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
             const roleSelect = document.getElementById('userType');
-            
+
             // Validación de email en tiempo real
             emailInput.addEventListener('input', function() {
                 validateEmail(this.value);
             });
-            
+
             // Validación de contraseña en tiempo real
             passwordInput.addEventListener('input', function() {
                 validatePassword(this.value);
             });
-            
+
             // Validación de rol
             roleSelect.addEventListener('change', function() {
                 validateRole(this.value);
             });
-            
-            // Validación al enviar el formulario
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                if (validateForm()) {
-                    submitLogin();
-                }
-            });
+
+            // El submit del formulario se maneja en js/login.js con Supabase
         }
         
         function validateEmail(email) {
@@ -938,51 +930,18 @@
             element.className = 'validation-message ' + type;
         }
         
-        // ===== ENVÍO DEL LOGIN =====
-        function submitLogin() {
-            const submitButton = document.getElementById('submitButton');
-            const email = document.getElementById('username').value;
-            const role = document.getElementById('userType').value;
-            
-            // Mostrar estado de loading
-            submitButton.disabled = true;
-            submitButton.classList.add('loading');
-            submitButton.innerHTML = '';
-            
-            // Simular envío al servidor (en producción sería una petición real)
-            setTimeout(() => {
-                submitButton.disabled = false;
-                submitButton.classList.remove('loading');
-                submitButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> INGRESAR AL SISTEMA';
-                
-                // Simulación de login exitoso
-                alert(`¡Bienvenido! \n\nUsuario: ${email}\nRol: ${role}\n\nRedirigiendo al dashboard...`);
-                
-                // Redirigir según el rol (simulación)
-                const redirectUrls = {
-                    'tecnico': 'dashboard-tecnico.html',
-                    'docente': 'dashboard-docente.html',
-                    'estudiante': 'dashboard-estudiante.html'
-                };
-                
-                // En producción, usar:
-                // window.location.href = redirectUrls[role];
-                
-            }, 1500);
-        }
-        
         // ===== OTROS EVENT LISTENERS =====
         function setupEventListeners() {
             // Enlace de registro
             document.getElementById('registerLink').addEventListener('click', function(e) {
                 e.preventDefault();
-                alert('Para solicitar acceso al sistema, contacte al administrador de su departamento.');
+                window.location.href = 'register.html';
             });
-            
+
             // Enlace de contraseña olvidada
             document.getElementById('forgotPassword').addEventListener('click', function(e) {
                 e.preventDefault();
-                alert('Para recuperar su contraseña, contacte al soporte técnico: soporte.udiv@espam.edu.ec');
+                window.location.href = 'forgot-password.html';
             });
             
             // Login con Microsoft
@@ -1004,16 +963,6 @@
         document.getElementById('username').addEventListener('focus', function() {
             if (!this.value) {
                 this.placeholder = 'nombre.apellido@espam.edu.ec';
-            }
-        });
-        
-        // Detectar tecla Enter para enviar formulario
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && document.activeElement.type !== 'textarea') {
-                const form = document.getElementById('loginForm');
-                if (validateForm()) {
-                    submitLogin();
-                }
             }
         });
     </script>
