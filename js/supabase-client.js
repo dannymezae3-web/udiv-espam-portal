@@ -201,7 +201,7 @@ const UsuariosService = {
     // Listar todos los usuarios (admin/tecnico)
     async listarUsuarios(filtros = {}) {
         try {
-            let query = supabaseClientClient.from('usuarios').select('*');
+            let query = supabaseClient.from('usuarios').select('*');
 
             if (filtros.tipo) query = query.eq('tipo', filtros.tipo);
             if (filtros.carrera) query = query.eq('carrera_nombre', filtros.carrera);
@@ -691,7 +691,7 @@ const ReportesService = {
     // Reservas por carrera
     async reservasPorCarrera(filtros = {}) {
         try {
-            let query = supabaseClientClient.from('reservas').select('carrera');
+            let query = supabaseClient.from('reservas').select('carrera');
 
             if (filtros.fechaDesde) query = query.gte('fecha', filtros.fechaDesde);
             if (filtros.fechaHasta) query = query.lte('fecha', filtros.fechaHasta);
