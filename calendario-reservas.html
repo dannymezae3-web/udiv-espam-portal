@@ -1022,98 +1022,120 @@
         let usuarioActual = { ...DEFAULT_USER_CONFIG };
         let mesActual = new Date().getMonth();
         let añoActual = new Date().getFullYear();
-        
-        // Feriados nacionales Ecuador 2024
+        let laboratoriosESPAM = {};
+        let laboratoriosList = [];
+        let reservasExistentes = {};
+        let labIdMap = {};
+
+        // Feriados nacionales Ecuador
+        const year = new Date().getFullYear();
         const feriados = [
-            '2024-01-01', '2024-01-06', '2024-02-12', '2024-02-13',
-            '2024-03-28', '2024-03-29', '2024-05-01', '2024-05-24',
-            '2024-08-10', '2024-10-09', '2024-11-02', '2024-11-03',
-            '2024-12-25'
+            `${year}-01-01`, `${year}-01-06`, `${year}-02-12`, `${year}-02-13`,
+            `${year}-03-28`, `${year}-03-29`, `${year}-05-01`, `${year}-05-24`,
+            `${year}-08-10`, `${year}-10-09`, `${year}-11-02`, `${year}-11-03`,
+            `${year}-12-25`
         ];
 
-        // Datos de reservas (simulación)
-        const reservasExistentes = {
-            '2024-01-15': [
-                { hora: '08:00-10:00', docente: 'Dr. Carlos Mendoza', asignatura: 'Análisis de Alimentos', estado: 'confirmada' },
-                { hora: '10:00-12:00', docente: 'Ing. María López', asignatura: 'Control de Calidad', estado: 'confirmada' }
-            ],
-            '2024-01-16': [
-                { hora: '08:00-12:00', docente: 'Dra. Ana Torres', asignatura: 'Bromatología', estado: 'confirmada' }
-            ],
-            '2024-01-17': [
-                { hora: '14:00-18:00', docente: 'Dr. Carlos Mendoza', asignatura: 'Control de Calidad', estado: 'confirmada' }
-            ]
-        };
-
         // Días de mantenimiento programado
-        const mantenimiento = ['2024-01-22', '2024-01-23'];
+        const mantenimiento = [];
 
-        // Información de laboratorios ESPAM MFL
-        const laboratoriosESPAM = {
-            bromatologia: {
-                nombre: 'Laboratorio de Bromatología',
-                tecnico: 'Ing. Wellington Espinoza',
-                contacto: '05-301-5000 ext. 123',
-                horario: '08:00 - 18:00 (Lunes a Viernes)',
-                capacidad: '25 estudiantes máximo'
-            },
-            biologia: {
-                nombre: 'Laboratorio de Biología',
-                tecnico: 'Lic. Ana Rodríguez',
-                contacto: '05-301-5000 ext. 124',
-                horario: '08:00 - 17:00 (Lunes a Viernes)',
-                capacidad: '20 estudiantes'
-            },
-            produccion: {
-                nombre: 'Laboratorio de Procesos Industriales',
-                tecnico: 'Ing. Roberto Martínez',
-                contacto: '05-301-5000 ext. 125',
-                horario: '07:00 - 19:00 (Lunes a Sábado)',
-                capacidad: '30 estudiantes'
-            },
-            quimica: {
-                nombre: 'Laboratorio de Química Analítica',
-                tecnico: 'Q.F. Laura González',
-                contacto: '05-301-5000 ext. 126',
-                horario: '08:00 - 17:00 (Lunes a Viernes)',
-                capacidad: '15 estudiantes'
-            },
-            microbiologia: {
-                nombre: 'Laboratorio de Microbiología',
-                tecnico: 'Biól. Diego Morales',
-                contacto: '05-301-5000 ext. 127',
-                horario: '08:00 - 16:00 (Lunes a Viernes)',
-                capacidad: '18 estudiantes'
+        // === CARGAR LABORATORIOS DESDE SUPABASE ===
+        async function cargarLaboratorios() {
+            try {
+                laboratoriosList = await LaboratoriosService.obtenerTodos();
+                const selector = document.getElementById('labSelector');
+                selector.innerHTML = '';
+                laboratoriosList.forEach(lab => {
+                    const opt = document.createElement('option');
+                    opt.value = lab.codigo || lab.id;
+                    opt.textContent = lab.nombre;
+                    selector.appendChild(opt);
+                    laboratoriosESPAM[lab.codigo || lab.id] = {
+                        id: lab.id,
+                        nombre: lab.nombre,
+                        tecnico: lab.tecnico_nombre || '-',
+                        contacto: lab.contacto || '-',
+                        horario: lab.horario || '08:00 - 18:00 (Lun-Vie)',
+                        capacidad: lab.capacidad ? `${lab.capacidad} estudiantes` : '25 estudiantes'
+                    };
+                    labIdMap[lab.codigo || lab.id] = lab.id;
+                });
+                if (laboratoriosList.length === 0) {
+                    // Fallback si no hay labs en DB
+                    selector.innerHTML = '<option value="">Sin laboratorios</option>';
+                }
+            } catch (e) {
+                console.error('Error cargando laboratorios:', e);
             }
-        };
+        }
+
+        // === CARGAR RESERVAS DESDE SUPABASE ===
+        async function cargarReservasDelMes(mes, año) {
+            reservasExistentes = {};
+            try {
+                const fechaDesde = `${año}-${String(mes + 1).padStart(2, '0')}-01`;
+                const ultimoDia = new Date(año, mes + 1, 0).getDate();
+                const fechaHasta = `${año}-${String(mes + 1).padStart(2, '0')}-${String(ultimoDia).padStart(2, '0')}`;
+
+                const reservas = await ReservasService.obtenerTodas({ fechaDesde, fechaHasta });
+                reservas.forEach(r => {
+                    if (!r.fecha) return;
+                    if (!reservasExistentes[r.fecha]) reservasExistentes[r.fecha] = [];
+                    reservasExistentes[r.fecha].push({
+                        id: r.id,
+                        hora: `${(r.hora_inicio || '').slice(0,5)}-${(r.hora_fin || '').slice(0,5)}`,
+                        docente: r.usuarios?.nombre || r.docente || '-',
+                        asignatura: r.tema || r.descripcion || '-',
+                        estado: r.estado || 'pendiente'
+                    });
+                });
+            } catch (e) {
+                console.error('Error cargando reservas:', e);
+            }
+        }
 
         // Inicializar página
-        document.addEventListener('DOMContentLoaded', function() {
-            // Asegurar que el usuario está configurado
-            if (!localStorage.getItem('userSession')) {
-                localStorage.setItem('userSession', JSON.stringify(usuarioActual));
-                sessionStorage.setItem('userSession', JSON.stringify(usuarioActual));
-            } else {
-                usuarioActual = JSON.parse(localStorage.getItem('userSession'));
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Intentar cargar sesión desde Supabase
+            try {
+                const { session, perfil } = await AuthService.getSesion();
+                if (session && perfil) {
+                    usuarioActual = {
+                        loggedIn: true,
+                        tipo: perfil.tipo,
+                        nombre: perfil.nombre,
+                        carrera: perfil.carrera_nombre || '',
+                        email: perfil.email,
+                        userId: perfil.id
+                    };
+                    await SessionHelper.guardarSesionLegacy(perfil);
+                } else {
+                    const legacy = SessionHelper.obtenerSesionLegacy();
+                    if (legacy.loggedIn) usuarioActual = legacy;
+                }
+            } catch (e) {
+                const legacy = SessionHelper.obtenerSesionLegacy();
+                if (legacy.loggedIn) usuarioActual = legacy;
             }
-            
-            // Actualizar UI
+
             actualizarInfoUsuario();
-            
-            // Generar calendario inicial
+
+            // Cargar laboratorios desde Supabase
+            await cargarLaboratorios();
+
+            // Cargar reservas y generar calendario
+            await cargarReservasDelMes(mesActual, añoActual);
             generarCalendario(mesActual, añoActual);
-            
-            // Configurar eventos
+
             document.getElementById('labSelector').addEventListener('change', function() {
                 actualizarInfoLaboratorio(this.value);
             });
-            
-            // Inicializar información del primer laboratorio
-            actualizarInfoLaboratorio('bromatologia');
-            
-            console.log('✅ Calendario cargado exitosamente');
-            console.log('Usuario:', usuarioActual.nombre);
-            console.log('Tipo:', usuarioActual.tipo);
+
+            // Inicializar primer laboratorio
+            const primerLab = document.getElementById('labSelector').value;
+            if (primerLab) actualizarInfoLaboratorio(primerLab);
+
+            console.log('Calendario cargado - Usuario:', usuarioActual.nombre);
         });
 
         // Función para actualizar información del usuario
@@ -1264,20 +1286,16 @@
         }
 
         // Función para cambiar de mes
-        function changeMonth(delta) {
+        async function changeMonth(delta) {
             let nuevoMes = mesActual + delta;
             let nuevoAño = añoActual;
-            
-            if (nuevoMes < 0) {
-                nuevoMes = 11;
-                nuevoAño--;
-            } else if (nuevoMes > 11) {
-                nuevoMes = 0;
-                nuevoAño++;
-            }
-            
+
+            if (nuevoMes < 0) { nuevoMes = 11; nuevoAño--; }
+            else if (nuevoMes > 11) { nuevoMes = 0; nuevoAño++; }
+
             mesActual = nuevoMes;
             añoActual = nuevoAño;
+            await cargarReservasDelMes(nuevoMes, nuevoAño);
             generarCalendario(nuevoMes, nuevoAño);
         }
 
@@ -1304,6 +1322,7 @@
             });
             
             document.getElementById('selectedDate').textContent = fechaFormateada;
+            document.getElementById('reservaModal').dataset.fecha = fechaStr;
             document.getElementById('reservaModal').style.display = 'flex';
             document.getElementById('modalTitle').textContent = 'Nueva Reserva';
             document.getElementById('reservaAsignatura').value = '';
@@ -1381,47 +1400,68 @@
         }
 
         // Función para solicitar reserva
-        function solicitarReserva() {
+        async function solicitarReserva() {
             const asignatura = document.getElementById('reservaAsignatura').value.trim();
             const estudiantes = document.getElementById('reservaEstudiantes').value;
             const objetivo = document.getElementById('reservaObjetivo').value.trim();
             const turnoSeleccionado = document.querySelector('.turno-slot.seleccionado');
-            const fechaSeleccionada = document.querySelector('#selectedDate').textContent;
-            
-            // Validaciones
+
             if (!asignatura) {
                 mostrarNotificacion('Por favor ingrese el nombre de la asignatura', 'error');
                 document.getElementById('reservaAsignatura').focus();
                 return;
             }
-            
             if (!estudiantes || estudiantes < 1 || estudiantes > 25) {
                 mostrarNotificacion('El número de estudiantes debe estar entre 1 y 25', 'error');
                 document.getElementById('reservaEstudiantes').focus();
                 return;
             }
-            
             if (!turnoSeleccionado) {
                 mostrarNotificacion('Por favor seleccione un turno disponible', 'error');
                 return;
             }
-            
+
             const hora = turnoSeleccionado.dataset.hora;
-            
-            // Obtener equipos seleccionados
-            const equiposSeleccionados = [];
-            document.querySelectorAll('input[name="equipo"]:checked').forEach(checkbox => {
-                equiposSeleccionados.push(checkbox.value);
-            });
-            
-            // Mostrar mensaje de éxito
-            mostrarNotificacion('¡Reserva enviada exitosamente! El técnico la revisará pronto.', 'success');
-            
-            // Simular cierre del modal
-            setTimeout(() => {
-                closeModal();
-                // En una implementación real, aquí actualizarías el calendario
-            }, 1500);
+            const [horaInicio, horaFin] = hora.split('-');
+            const labCodigo = document.getElementById('labSelector').value;
+            const labId = labIdMap[labCodigo];
+
+            // Obtener fecha seleccionada del modal (guardada en dataset)
+            const modal = document.getElementById('reservaModal');
+            const fechaReserva = modal.dataset.fecha;
+
+            if (!labId) {
+                mostrarNotificacion('Error: laboratorio no encontrado', 'error');
+                return;
+            }
+
+            try {
+                const result = await ReservasService.crear({
+                    laboratorio_id: labId,
+                    fecha: fechaReserva,
+                    hora_inicio: horaInicio + ':00',
+                    hora_fin: horaFin + ':00',
+                    docente: usuarioActual.nombre,
+                    carrera: usuarioActual.carrera,
+                    tema: asignatura,
+                    descripcion: objetivo,
+                    estudiantes_count: parseInt(estudiantes)
+                });
+
+                if (result.success) {
+                    mostrarNotificacion('¡Reserva enviada exitosamente! El técnico la revisará pronto.', 'success');
+                    setTimeout(async () => {
+                        closeModal();
+                        await cargarReservasDelMes(mesActual, añoActual);
+                        generarCalendario(mesActual, añoActual);
+                    }, 1000);
+                } else {
+                    mostrarNotificacion('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error creando reserva:', error);
+                mostrarNotificacion('Error al enviar la reserva', 'error');
+            }
         }
 
         // Función para mostrar notificaciones
