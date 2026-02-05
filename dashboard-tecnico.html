@@ -1069,66 +1069,133 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/dashboard.js"></script>
     <script>
-        // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cargar datos del usuario
-            const sessionData = JSON.parse(localStorage.getItem('userSession') || sessionStorage.getItem('userSession') || '{}');
-            if (sessionData.loggedIn) {
-                const nombre = sessionData.nombre || 'Técnico ESPAM';
-                const laboratorio = sessionData.laboratorio || 'Laboratorio General';
-                
-                // Actualizar interfaz
-                document.querySelector('.user-info h4').textContent = nombre;
-                document.querySelector('.user-info p').textContent = laboratorio;
-                document.querySelector('.btn-user span').textContent = nombre;
+        // === SESIÓN CON FALLBACK ===
+        async function cargarSesion() {
+            try {
+                const { session, perfil } = await AuthService.getSesion();
+                if (session && perfil) {
+                    await SessionHelper.guardarSesionLegacy(perfil);
+                    return perfil;
+                }
+                return SessionHelper.obtenerSesionLegacy();
+            } catch (e) {
+                console.error('Error cargando sesión:', e);
+                return SessionHelper.obtenerSesionLegacy();
             }
-            
-            // Configurar búsqueda
-            document.querySelector('.search-box input').addEventListener('input', function(e) {
-                const termino = e.target.value.toLowerCase();
-                buscarContenido(termino);
-            });
-            
-            // Crear gráficos con colores ESPAM
-            crearGraficos();
-        });
+        }
 
-        // Funciones para manejar reservas
+        // === CARGAR ESTADÍSTICAS REALES ===
+        async function cargarEstadisticas() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(el => el.textContent = '...');
+
+            try {
+                const hoy = new Date().toISOString().split('T')[0];
+                const [reservasHoy, stats, sustanciasCriticas] = await Promise.all([
+                    ReservasService.obtenerTodas({ fecha: hoy }),
+                    ReportesService.obtenerEstadisticas(),
+                    SustanciasService.obtenerCriticas()
+                ]);
+
+                statNumbers[0].textContent = reservasHoy.length;
+                statNumbers[1].textContent = stats.totalUsuarios;
+                statNumbers[2].textContent = stats.pendientes;
+                statNumbers[3].textContent = sustanciasCriticas.length;
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+                statNumbers.forEach(el => el.textContent = '0');
+            }
+        }
+
+        // === CARGAR TABLA DE RESERVAS ===
+        async function cargarReservas() {
+            const tbody = document.querySelector('.reservas-table tbody');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">Cargando reservas...</td></tr>';
+
+            try {
+                const reservas = await ReservasService.obtenerTodas();
+                const recientes = reservas.slice(0, 10);
+
+                if (recientes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No hay reservas registradas</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = recientes.map(r => {
+                    const hora = `${(r.hora_inicio || '').slice(0,5)} - ${(r.hora_fin || '').slice(0,5)}`;
+                    const docente = r.usuarios?.nombre || r.docente || 'Sin asignar';
+                    const carrera = r.usuarios?.carrera_nombre || r.carrera || '-';
+                    const lab = r.laboratorios?.nombre || '-';
+                    const tema = r.tema || r.descripcion || '-';
+                    const estado = r.estado || 'pendiente';
+
+                    const statusClass = estado === 'confirmada' ? 'confirmed' :
+                                       estado === 'pendiente' ? 'pending' : 'cancelled';
+                    const statusText = estado.charAt(0).toUpperCase() + estado.slice(1);
+
+                    let acciones = '';
+                    if (estado === 'pendiente') {
+                        acciones = `
+                            <button class="btn-action" onclick="confirmarReserva('${r.id}')"><i class="fas fa-check"></i></button>
+                            <button class="btn-action" onclick="rechazarReserva('${r.id}')"><i class="fas fa-times"></i></button>`;
+                    } else {
+                        acciones = `<button class="btn-action" onclick="verDetallesReserva('${r.id}')"><i class="fas fa-eye"></i></button>`;
+                    }
+
+                    return `<tr>
+                        <td style="font-family: var(--espam-font-secondary);">${hora}</td>
+                        <td style="font-family: var(--espam-font-secondary);">${docente}</td>
+                        <td style="font-family: var(--espam-font-secondary);">${carrera}</td>
+                        <td style="font-family: var(--espam-font-secondary);">${lab}</td>
+                        <td style="font-family: var(--espam-font-secondary);">${tema}</td>
+                        <td><span class="status ${statusClass}">${statusText}</span></td>
+                        <td>${acciones}</td>
+                    </tr>`;
+                }).join('');
+            } catch (error) {
+                console.error('Error cargando reservas:', error);
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#dc3545;">Error al cargar reservas</td></tr>';
+            }
+        }
+
+        // === ACCIONES DE RESERVAS ===
         function verDetallesReserva(id) {
-            alert(`Ver detalles de reserva #${id}\n\nEn una implementación real, esto mostraría un modal con toda la información de la reserva.`);
+            alert('Detalles de la reserva.\n\nEn desarrollo: modal con información completa.');
         }
 
-        function editarReserva(id) {
-            alert(`Editar reserva #${id}\n\nPermite modificar horarios, equipos solicitados, etc.`);
-        }
-
-        function confirmarReserva(id) {
-            if (confirm(`¿Confirmar reserva #${id}?`)) {
-                mostrarNotificacion(`Reserva #${id} confirmada exitosamente`, 'success');
-                // Actualizar estado en la tabla
-                const fila = document.querySelector(`tr:nth-child(${id})`);
-                if (fila) {
-                    const statusCell = fila.querySelector('.status');
-                    statusCell.textContent = 'Confirmada';
-                    statusCell.className = 'status confirmed';
+        async function confirmarReserva(id) {
+            if (!confirm('¿Confirmar esta reserva?')) return;
+            try {
+                const result = await ReservasService.actualizarEstado(id, 'confirmada');
+                if (result.success) {
+                    mostrarNotificacion('Reserva confirmada exitosamente', 'success');
+                    await cargarReservas();
+                    await cargarEstadisticas();
+                } else {
+                    mostrarNotificacion('Error al confirmar: ' + result.error, 'warning');
                 }
+            } catch (error) {
+                mostrarNotificacion('Error al confirmar reserva', 'warning');
             }
         }
 
-        function rechazarReserva(id) {
-            if (confirm(`¿Rechazar reserva #${id}?`)) {
-                mostrarNotificacion(`Reserva #${id} rechazada`, 'info');
-                // Actualizar estado en la tabla
-                const fila = document.querySelector(`tr:nth-child(${id})`);
-                if (fila) {
-                    const statusCell = fila.querySelector('.status');
-                    statusCell.textContent = 'Rechazada';
-                    statusCell.className = 'status cancelled';
+        async function rechazarReserva(id) {
+            if (!confirm('¿Rechazar esta reserva?')) return;
+            try {
+                const result = await ReservasService.actualizarEstado(id, 'rechazada');
+                if (result.success) {
+                    mostrarNotificacion('Reserva rechazada', 'info');
+                    await cargarReservas();
+                    await cargarEstadisticas();
+                } else {
+                    mostrarNotificacion('Error al rechazar: ' + result.error, 'warning');
                 }
+            } catch (error) {
+                mostrarNotificacion('Error al rechazar reserva', 'warning');
             }
         }
 
-        // Funciones para manejar alertas
+        // === ALERTAS ===
         function eliminarAlerta(id) {
             const alerta = document.querySelector(`.alerta-item:nth-child(${id})`);
             if (alerta) {
@@ -1143,204 +1210,157 @@
 
         function marcarTodasLeidas() {
             const alertas = document.querySelectorAll('.alerta-item');
-            alertas.forEach(alerta => {
-                alerta.style.opacity = '0.5';
-            });
+            alertas.forEach(alerta => alerta.style.opacity = '0.5');
             mostrarNotificacion('Todas las alertas marcadas como leídas', 'success');
             actualizarContadorNotificaciones();
         }
 
         function actualizarContadorNotificaciones() {
             const alertasActivas = document.querySelectorAll('.alerta-item').length;
-            document.querySelector('.notification-count').textContent = alertasActivas;
+            const el = document.querySelector('.notification-count');
+            if (el) el.textContent = alertasActivas;
         }
 
-        // Función de búsqueda
+        // === BÚSQUEDA ===
         function buscarContenido(termino) {
-            // Buscar en reservas
-            const filasReservas = document.querySelectorAll('.reservas-table tbody tr');
-            filasReservas.forEach(fila => {
+            document.querySelectorAll('.reservas-table tbody tr').forEach(fila => {
                 const texto = fila.textContent.toLowerCase();
                 fila.style.display = termino === '' || texto.includes(termino) ? '' : 'none';
             });
-            
-            // Buscar en alertas
-            const alertas = document.querySelectorAll('.alerta-item');
-            alertas.forEach(alerta => {
+            document.querySelectorAll('.alerta-item').forEach(alerta => {
                 const texto = alerta.textContent.toLowerCase();
                 alerta.style.display = termino === '' || texto.includes(termino) ? 'flex' : 'none';
             });
         }
 
-        // Función para crear gráficos con colores ESPAM
-        function crearGraficos() {
-            // Gráfico de uso por carrera
-            const ctxCarrera = document.getElementById('carreraChart').getContext('2d');
-            if (ctxCarrera) {
-                new Chart(ctxCarrera, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Ing. Producción', 'Ing. Alimentos', 'Biotecnología', 'Ing. Agroindustrial', 'Otras'],
-                        datasets: [{
-                            data: [35, 25, 20, 15, 5],
-                            backgroundColor: [
-                                'var(--espam-primary)',
-                                'var(--espam-secondary)',
-                                'var(--espam-accent)',
-                                'var(--espam-light)',
-                                '#6c757d'
-                            ],
-                            borderWidth: 1,
-                            borderColor: '#fff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    font: {
-                                        family: 'var(--espam-font-secondary)'
-                                    },
-                                    padding: 20
-                                }
-                            }
+        // === GRÁFICOS CON DATOS REALES ===
+        let carreraChartInstance = null;
+        let diasChartInstance = null;
+
+        async function crearGraficos() {
+            const coloresESPAM = ['#005846', '#39b54a', '#cbdb2a', '#08b89d', '#6c757d', '#004637', '#2da341'];
+
+            try {
+                const datosPorCarrera = await ReportesService.reservasPorCarrera();
+                const labels = Object.keys(datosPorCarrera);
+                const data = Object.values(datosPorCarrera);
+
+                const ctxCarrera = document.getElementById('carreraChart').getContext('2d');
+                if (ctxCarrera) {
+                    if (carreraChartInstance) carreraChartInstance.destroy();
+                    carreraChartInstance = new Chart(ctxCarrera, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels.length > 0 ? labels : ['Sin datos'],
+                            datasets: [{
+                                data: data.length > 0 ? data : [1],
+                                backgroundColor: labels.length > 0 ? coloresESPAM.slice(0, labels.length) : ['#e0e0e0'],
+                                borderWidth: 1,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom', labels: { padding: 20 } } }
                         }
-                    }
-                });
+                    });
+                }
+            } catch (e) {
+                console.error('Error en gráfico de carreras:', e);
             }
 
-            // Gráfico de reservas por día
-            const ctxDias = document.getElementById('diasChart').getContext('2d');
-            if (ctxDias) {
-                new Chart(ctxDias, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-                        datasets: [{
-                            label: 'Reservas',
-                            data: [12, 15, 10, 18, 22, 5],
-                            backgroundColor: 'var(--espam-primary)',
-                            borderColor: 'var(--espam-primary)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        family: 'var(--espam-font-secondary)'
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.1)'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    font: {
-                                        family: 'var(--espam-font-secondary)'
-                                    }
-                                },
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.1)'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    font: {
-                                        family: 'var(--espam-font-primary)'
-                                    }
-                                }
-                            }
-                        }
+            try {
+                const reservas = await ReservasService.obtenerTodas();
+                const porDia = [0, 0, 0, 0, 0, 0];
+                reservas.forEach(r => {
+                    if (r.fecha) {
+                        const d = new Date(r.fecha + 'T00:00:00').getDay();
+                        if (d >= 1 && d <= 6) porDia[d - 1]++;
                     }
                 });
+
+                const ctxDias = document.getElementById('diasChart').getContext('2d');
+                if (ctxDias) {
+                    if (diasChartInstance) diasChartInstance.destroy();
+                    diasChartInstance = new Chart(ctxDias, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+                            datasets: [{
+                                label: 'Reservas',
+                                data: porDia,
+                                backgroundColor: '#005846',
+                                borderColor: '#005846',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.1)' } },
+                                x: { grid: { color: 'rgba(0,0,0,0.1)' } }
+                            }
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('Error en gráfico de días:', e);
             }
         }
 
-        // Función para mostrar notificaciones
+        // === NOTIFICACIONES ===
         function mostrarNotificacion(mensaje, tipo) {
-            // Crear elemento de notificación
             const notificacion = document.createElement('div');
             notificacion.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 20px;
-                border-radius: 8px;
-                color: white;
-                font-family: var(--espam-font-secondary);
-                font-weight: 600;
-                background: ${tipo === 'success' ? 'var(--espam-secondary)' : 
-                           tipo === 'warning' ? 'var(--espam-accent)' : 
-                           tipo === 'info' ? 'var(--espam-primary)' : '#6c757d'};
+                position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+                border-radius: 8px; color: white; font-family: var(--espam-font-secondary);
+                font-weight: 600; z-index: 10000; animation: slideIn 0.3s ease;
+                display: flex; align-items: center; gap: 10px; max-width: 400px;
+                background: ${tipo === 'success' ? '#39b54a' : tipo === 'warning' ? '#cbdb2a' : '#005846'};
                 box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                max-width: 400px;
-                border-left: 4px solid ${tipo === 'success' ? '#2da341' : 
-                                 tipo === 'warning' ? '#b9c925' : '#004637'};
+                border-left: 4px solid ${tipo === 'success' ? '#2da341' : tipo === 'warning' ? '#b9c925' : '#004637'};
             `;
-            
-            const icono = tipo === 'success' ? 'fas fa-check-circle' :
-                        tipo === 'warning' ? 'fas fa-exclamation-triangle' :
-                        'fas fa-info-circle';
-            
-            notificacion.innerHTML = `
-                <i class="${icono}" style="font-size: 1.2rem;"></i>
-                <span>${mensaje}</span>
-            `;
-            
+            const icono = tipo === 'success' ? 'fa-check-circle' : tipo === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            notificacion.innerHTML = `<i class="fas ${icono}" style="font-size:1.2rem;"></i><span>${mensaje}</span>`;
             document.body.appendChild(notificacion);
-            
-            // Eliminar después de 5 segundos
             setTimeout(() => {
-                notificacion.style.animation = 'slideOut 0.3s ease';
+                notificacion.style.opacity = '0';
+                notificacion.style.transform = 'translateX(100%)';
+                notificacion.style.transition = 'all 0.3s';
                 setTimeout(() => notificacion.remove(), 300);
             }, 5000);
         }
 
-        // Agregar animaciones CSS si no existen
+        // === ANIMACIONES CSS ===
         if (!document.querySelector('style#animations')) {
             const style = document.createElement('style');
             style.id = 'animations';
             style.textContent = `
-                @keyframes slideIn {
-                    from {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                }
-                
-                @keyframes slideOut {
-                    from {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                    to {
-                        transform: translateX(100%);
-                        opacity: 0;
-                    }
-                }
+                @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
             `;
             document.head.appendChild(style);
         }
+
+        // === INICIALIZACIÓN ===
+        document.addEventListener('DOMContentLoaded', async function() {
+            const perfil = await cargarSesion();
+            if (perfil && (perfil.nombre || perfil.loggedIn)) {
+                const nombre = perfil.nombre || 'Técnico ESPAM';
+                const laboratorio = perfil.laboratorio_nombre || perfil.laboratorio || 'Laboratorio General';
+                document.querySelector('.user-info h4').textContent = nombre;
+                document.querySelector('.user-info p').textContent = laboratorio;
+                document.querySelector('.btn-user span').textContent = nombre;
+            }
+
+            document.querySelector('.search-box input').addEventListener('input', function(e) {
+                buscarContenido(e.target.value.toLowerCase());
+            });
+
+            await Promise.all([cargarEstadisticas(), cargarReservas(), crearGraficos()]);
+        });
     </script>
 </body>
 </html>
