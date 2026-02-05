@@ -670,130 +670,129 @@ textarea {
 <script>
 // VARIABLES GLOBALES
 let usuarioActual = 'docente';
-let laboratorioActual = 'bromatologia';
+let laboratorioActual = null;
+let laboratorioActualId = null;
 let filaMaterialActual = 1;
 let filaEstudianteActual = 6;
-let modoEdicion = true; // Por defecto en modo edición
-
-// DATOS DE LABORATORIOS
-const laboratoriosData = {
-  'bromatologia': {
-    nombre: 'Laboratorio de Bromatología',
-    facultad: 'Ciencias Agroindustriales',
-    logo: 'https://via.placeholder.com/120x50/005846/FFFFFF?text=FCAI'
-  },
-  'microbiologia': {
-    nombre: 'Laboratorio de Microbiología',
-    facultad: 'Ciencias Agroindustriales',
-    logo: 'https://via.placeholder.com/120x50/39b54a/FFFFFF?text=FCAI'
-  },
-  'frutas': {
-    nombre: 'Taller de Frutas y Hortalizas',
-    facultad: 'Ciencias Agroindustriales',
-    logo: 'https://via.placeholder.com/120x50/08b89d/FFFFFF?text=FCAI'
-  },
-  'lacteos': {
-    nombre: 'Taller de Lácteos',
-    facultad: 'Ciencias Agroindustriales',
-    logo: 'https://via.placeholder.com/120x50/005846/FFFFFF?text=FCAI'
-  },
-  'carnicos': {
-    nombre: 'Taller de Cárnicos',
-    facultad: 'Ciencias Agroindustriales',
-    logo: 'https://via.placeholder.com/120x50/39b54a/FFFFFF?text=FCAI'
-  },
-  'cacao': {
-    nombre: 'Taller de Cacao y Chocolate',
-    facultad: 'Ciencias Agroindustriales',
-    logo: 'https://via.placeholder.com/120x50/08b89d/FFFFFF?text=FCAI'
-  },
-  'computacion': {
-    nombre: 'Laboratorio de Computación',
-    facultad: 'Informática y Ciencias Básicas',
-    logo: 'https://via.placeholder.com/120x50/cbdb2a/000000?text=FICB'
-  },
-  'quimica': {
-    nombre: 'Laboratorio de Química',
-    facultad: 'Informática y Ciencias Básicas',
-    logo: 'https://via.placeholder.com/120x50/cbdb2a/000000?text=FICB'
-  },
-  'fisica': {
-    nombre: 'Laboratorio de Física',
-    facultad: 'Informática y Ciencias Básicas',
-    logo: 'https://via.placeholder.com/120x50/005846/FFFFFF?text=FICB'
-  },
-  'veterinaria': {
-    nombre: 'Clínica Veterinaria',
-    facultad: 'Ciencias Veterinarias y Biotecnología',
-    logo: 'https://via.placeholder.com/120x50/39b54a/FFFFFF?text=FCVB'
-  },
-  'suelos': {
-    nombre: 'Laboratorio de Suelos',
-    facultad: 'Ciencias Agrícolas y Ambientales',
-    logo: 'https://via.placeholder.com/120x50/08b89d/FFFFFF?text=FCAA'
-  },
-  'hidraulica': {
-    nombre: 'Laboratorio de Hidráulica',
-    facultad: 'Ciencias Agrícolas y Ambientales',
-    logo: 'https://via.placeholder.com/120x50/005846/FFFFFF?text=FCAA'
-  },
-  'gastronomia': {
-    nombre: 'Taller de Gastronomía',
-    facultad: 'Servicios y Hospitalidad',
-    logo: 'https://via.placeholder.com/120x50/cbdb2a/000000?text=ASH'
-  }
-};
-
-// BASE DE DATOS DE ESTUDIANTES
-const estudiantesDB = {
-  '1723456789': {
-    nombre: 'MARÍA FERNANDA GARCÍA LÓPEZ',
-    firma: 'https://i.imgur.com/R1JcH4h.png'
-  },
-  '1723456790': {
-    nombre: 'JUAN CARLOS PÉREZ MENDOZA',
-    firma: 'https://i.imgur.com/8KjQl4M.png'
-  },
-  '1723456791': {
-    nombre: 'ANA GABRIELA RODRÍGUEZ CASTRO',
-    firma: 'https://i.imgur.com/7LpN2qR.png'
-  },
-  '1723456792': {
-    nombre: 'CARLOS ANDRÉS MÉNDEZ VARGAS',
-    firma: 'https://i.imgur.com/9FgB7ZN.png'
-  },
-  '1723456793': {
-    nombre: 'SOFÍA ELENA CHÁVEZ RUIZ',
-    firma: 'https://i.imgur.com/X9nL8yP.png'
-  },
-  '1723456794': {
-    nombre: 'DIEGO ALEJANDRO TORRES SALAZAR',
-    firma: 'https://i.imgur.com/Y5mZ6qT.png'
-  }
-};
+let modoEdicion = true;
+let currentUserId = null;
+let laboratoriosData = {};
+let estudiantesDB = {};
 
 // INICIALIZACIÓN
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+  // Cargar sesión del usuario
+  await cargarSesion();
+
+  // Cargar laboratorios desde Supabase
+  await cargarLaboratorios();
+
+  // Cargar estudiantes desde Supabase
+  await cargarEstudiantes();
+
   // Configurar sistema de usuarios
   configurarUsuarios();
-  
+
   // Configurar fecha actual
   const hoy = new Date();
   document.getElementById('fecha').value = hoy.toISOString().split('T')[0];
-  
+
   // Generar número de práctica
   generarNumeroPractica();
-  
+
   // Generar filas iniciales
   generarFilasMateriales(3);
   generarFilasEstudiantes(6);
-  
-  // Cargar datos de ejemplo
-  cargarDatosEjemplo();
-  
+
   // Aplicar modo inicial (edición)
   aplicarModoEdicion(true);
 });
+
+// CARGAR SESIÓN
+async function cargarSesion() {
+  try {
+    const { session, perfil } = await AuthService.getSesion();
+    if (session && perfil) {
+      currentUserId = perfil.id;
+      const docenteEl = document.getElementById('docente');
+      if (docenteEl && perfil.nombre) {
+        docenteEl.textContent = perfil.nombre.toUpperCase();
+      }
+    } else {
+      const legacy = SessionHelper.obtenerSesionLegacy();
+      if (legacy.nombre) {
+        const docenteEl = document.getElementById('docente');
+        if (docenteEl) docenteEl.textContent = legacy.nombre.toUpperCase();
+      }
+    }
+  } catch (e) {
+    console.error('Error cargando sesión:', e);
+    const legacy = SessionHelper.obtenerSesionLegacy();
+    if (legacy.nombre) {
+      const docenteEl = document.getElementById('docente');
+      if (docenteEl) docenteEl.textContent = legacy.nombre.toUpperCase();
+    }
+  }
+}
+
+// CARGAR LABORATORIOS DESDE SUPABASE
+async function cargarLaboratorios() {
+  try {
+    const labs = await LaboratoriosService.obtenerTodos();
+    laboratoriosData = {};
+
+    const selector = document.getElementById('select-lab');
+    if (selector) {
+      selector.innerHTML = '<option value="">Seleccionar laboratorio...</option>';
+    }
+
+    (labs || []).forEach(lab => {
+      laboratoriosData[lab.codigo] = {
+        id: lab.id,
+        nombre: lab.nombre,
+        facultad: lab.facultad || 'ESPAM MFL',
+        logo: 'https://via.placeholder.com/120x50/005846/FFFFFF?text=ESPAM'
+      };
+      if (selector) {
+        const opt = document.createElement('option');
+        opt.value = lab.codigo;
+        opt.textContent = lab.nombre;
+        selector.appendChild(opt);
+      }
+    });
+
+    // Seleccionar primer laboratorio si existe
+    const codigos = Object.keys(laboratoriosData);
+    if (codigos.length > 0) {
+      laboratorioActual = codigos[0];
+      laboratorioActualId = laboratoriosData[codigos[0]].id;
+      if (selector) selector.value = codigos[0];
+      const asigEl = document.getElementById('asignatura');
+      if (asigEl) asigEl.textContent = laboratoriosData[codigos[0]].nombre;
+    }
+  } catch (e) {
+    console.error('Error cargando laboratorios:', e);
+  }
+}
+
+// CARGAR ESTUDIANTES DESDE SUPABASE
+async function cargarEstudiantes() {
+  try {
+    const usuarios = await UsuariosService.listarUsuarios({ tipo: 'estudiante' });
+    estudiantesDB = {};
+    (usuarios || []).forEach(u => {
+      if (u.cedula) {
+        estudiantesDB[u.cedula] = {
+          id: u.id,
+          nombre: (u.nombre || '').toUpperCase(),
+          firma: null
+        };
+      }
+    });
+  } catch (e) {
+    console.error('Error cargando estudiantes:', e);
+  }
+}
 
 // SISTEMA DE USUARIOS
 function configurarUsuarios() {
@@ -847,21 +846,26 @@ function aplicarPermisosUsuario() {
 // CAMBIAR LABORATORIO
 function cambiarLaboratorio() {
   const selector = document.getElementById('select-lab');
-  const laboratorioId = selector.value;
-  
-  if (laboratorioId && laboratoriosData[laboratorioId]) {
-    const lab = laboratoriosData[laboratorioId];
-    laboratorioActual = laboratorioId;
-    
+  const labCodigo = selector.value;
+
+  if (labCodigo && laboratoriosData[labCodigo]) {
+    const lab = laboratoriosData[labCodigo];
+    laboratorioActual = labCodigo;
+    laboratorioActualId = lab.id;
+
     // Actualizar logo de facultad
-    document.getElementById('logo-facultad').src = lab.logo;
-    document.getElementById('logo-facultad').alt = `Logo ${lab.facultad}`;
-    
+    const logoEl = document.getElementById('logo-facultad');
+    if (logoEl) {
+      logoEl.src = lab.logo;
+      logoEl.alt = `Logo ${lab.facultad}`;
+    }
+
     // Actualizar asignatura
-    document.getElementById('asignatura').textContent = lab.nombre;
-    
+    const asigEl = document.getElementById('asignatura');
+    if (asigEl) asigEl.textContent = lab.nombre;
+
     // Generar nuevo código de guía
-    generarCodigoGuia(laboratorioId);
+    generarCodigoGuia(labCodigo);
   }
 }
 
@@ -1073,36 +1077,7 @@ function obtenerIniciales(nombre) {
     .substring(0, 3);
 }
 
-// CARGAR DATOS DE EJEMPLO
-function cargarDatosEjemplo() {
-  // Cargar estudiantes de ejemplo
-  const cedulas = Object.keys(estudiantesDB);
-  for (let i = 1; i <= Math.min(6, cedulas.length); i++) {
-    const cedula = cedulas[i-1];
-    const estudiante = estudiantesDB[cedula];
-    
-    if (estudiante) {
-      document.getElementById(`est-nombre-${i}`).value = estudiante.nombre;
-      document.getElementById(`est-cedula-${i}`).value = cedula;
-    }
-  }
-  
-  // Cargar datos de materiales
-  document.getElementById('mat-cant-1').value = '2';
-  document.getElementById('mat-desc-1').value = 'Microscopio';
-  document.getElementById('mat-mat-cant-1').value = '10';
-  document.getElementById('mat-mat-desc-1').value = 'Tubos ensayo';
-  document.getElementById('mat-react-cant-1').value = '500ml';
-  document.getElementById('mat-react-desc-1').value = 'Solución salina';
-  
-  // Cargar datos generales
-  document.getElementById('docente').textContent = 'DR. CARLOS MENDOZA';
-  document.getElementById('semestre').textContent = '5to Semestre';
-  document.getElementById('tema-unidad').textContent = 'Análisis alimentos';
-  document.getElementById('subtema').textContent = 'Determinación humedad';
-  document.getElementById('logro-aprendizaje').textContent = 'Determinar humedad en alimentos';
-  document.getElementById('objetivo').value = 'Determinar porcentaje de humedad en muestras de harina';
-}
+// Los datos se cargan desde Supabase (sesión, laboratorios, estudiantes)
 
 // FUNCIONES DE BOTONES
 function imprimirGuia() {
@@ -1121,41 +1096,88 @@ function imprimirGuia() {
   }
 }
 
-function guardarGuia() {
+async function guardarGuia() {
   if (!modoEdicion) {
     alert('Modo de solo visualización. No puede guardar.');
     return;
   }
-  
+
   // Validar campos obligatorios
   const docente = document.getElementById('docente').textContent.trim();
   const semestre = document.getElementById('semestre').textContent.trim();
   const objetivo = document.getElementById('objetivo').value.trim();
-  
+
   if (!docente || !semestre || !objetivo) {
     alert('Complete los campos obligatorios: Docente, Semestre y Objetivo');
     return;
   }
-  
-  // Validar tipo de práctica seleccionado
+
   const tipoSeleccionado = document.querySelector('input[name="tipo-practica"]:checked');
   if (!tipoSeleccionado) {
     alert('Seleccione un tipo de práctica');
     return;
   }
-  
-  // Simular guardado
-  alert('Guía guardada exitosamente en el sistema.');
-  
-  // Animación de confirmación
+
+  if (!laboratorioActualId) {
+    alert('Seleccione un laboratorio');
+    return;
+  }
+
   const btnSave = document.querySelector('.btn-save');
   const textoOriginal = btnSave.innerHTML;
-  btnSave.innerHTML = '✅ GUARDADO';
-  btnSave.style.background = '#28a745';
-  
+  btnSave.innerHTML = 'Guardando...';
+  btnSave.disabled = true;
+
+  try {
+    // Recopilar estudiantes
+    const estudiantes = [];
+    for (let i = 1; i <= filaEstudianteActual; i++) {
+      const nombreEl = document.getElementById(`est-nombre-${i}`);
+      const cedulaEl = document.getElementById(`est-cedula-${i}`);
+      if (nombreEl && cedulaEl && (nombreEl.value.trim() || cedulaEl.value.trim())) {
+        const est = estudiantesDB[cedulaEl.value.trim()];
+        estudiantes.push({
+          usuario_id: est ? est.id : null,
+          cedula: cedulaEl.value.trim(),
+          nombre: nombreEl.value.trim()
+        });
+      }
+    }
+
+    const datos = {
+      laboratorio_id: laboratorioActualId,
+      docente_id: currentUserId,
+      fecha: document.getElementById('fecha').value,
+      tema: document.getElementById('tema-unidad')?.textContent?.trim() || '',
+      subtema: document.getElementById('subtema')?.textContent?.trim() || '',
+      objetivo: objetivo,
+      tipo: tipoSeleccionado.value || 'academica',
+      semestre: semestre,
+      estudiantes: estudiantes
+    };
+
+    const result = await PracticasService.crear(datos);
+    if (result && result.id) {
+      alert('Guía guardada exitosamente en el sistema.');
+      btnSave.innerHTML = 'GUARDADO';
+      btnSave.style.background = '#28a745';
+    } else {
+      alert('Guía guardada exitosamente.');
+      btnSave.innerHTML = 'GUARDADO';
+      btnSave.style.background = '#28a745';
+    }
+  } catch (e) {
+    console.error('Error guardando guía:', e);
+    alert('Error al guardar: ' + (e.message || 'Intente de nuevo'));
+    btnSave.innerHTML = textoOriginal;
+    btnSave.disabled = false;
+    return;
+  }
+
   setTimeout(() => {
     btnSave.innerHTML = textoOriginal;
     btnSave.style.background = '';
+    btnSave.disabled = false;
   }, 2000);
 }
 </script>
