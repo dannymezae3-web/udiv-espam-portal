@@ -1216,29 +1216,104 @@
             document.head.appendChild(style);
         }
         
-        // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
-            setupRatingStars();
-            
-            // Cargar datos del usuario
-            const sessionData = JSON.parse(localStorage.getItem('userSession') || sessionStorage.getItem('userSession') || '{}');
-            if (sessionData.loggedIn) {
-                const nombre = sessionData.nombre || 'Estudiante';
-                const carrera = sessionData.carrera || 'Ingeniería de la Producción';
-                const semestre = sessionData.semestre || '5to';
-                
-                // Actualizar interfaz
-                document.querySelector('.user-info h4').textContent = nombre;
-                document.querySelector('.user-info p').textContent = `${carrera} - ${semestre} Semestre`;
-                document.querySelector('.btn-user span').textContent = nombre;
-                document.querySelector('.welcome-content h2').textContent = `¡Bienvenid${sessionData.genero === 'femenino' ? 'a' : 'o'}, ${nombre.split(' ')[0]}!`;
-                document.querySelector('.welcome-content p').textContent = `Consulta tus prácticas programadas y los materiales que utilizarás en los laboratorios de la ESPAM MFL`;
+        // === SESIÓN CON FALLBACK ===
+        async function cargarSesion() {
+            try {
+                const { session, perfil } = await AuthService.getSesion();
+                if (session && perfil) {
+                    await SessionHelper.guardarSesionLegacy(perfil);
+                    return perfil;
+                }
+                return SessionHelper.obtenerSesionLegacy();
+            } catch (e) {
+                return SessionHelper.obtenerSesionLegacy();
             }
-            
-            // Configurar búsqueda
+        }
+
+        // === CARGAR PRÁCTICAS DEL ESTUDIANTE ===
+        async function cargarPracticas() {
+            const contenedor = document.querySelector('.dashboard-content');
+            const sectionHeader = contenedor.querySelector('.section-header');
+            const practicasExistentes = contenedor.querySelectorAll('.practica-card');
+
+            try {
+                const practicas = await PracticasService.obtenerPracticasEstudiante();
+                if (practicas.length === 0) return;
+
+                // Eliminar las tarjetas hardcodeadas
+                practicasExistentes.forEach(card => card.remove());
+
+                // Insertar prácticas reales después del header de sección
+                practicas.forEach((p, i) => {
+                    const estado = p.estado || 'pendiente';
+                    const statusClass = estado === 'confirmada' ? 'status-confirmada' :
+                                       estado === 'completada' ? 'status-completada' : 'status-pendiente';
+                    const statusText = estado.charAt(0).toUpperCase() + estado.slice(1);
+                    const fecha = p.fecha_inicio ? new Date(p.fecha_inicio + 'T00:00:00').toLocaleDateString('es-EC') : '-';
+                    const docente = p.usuarios?.nombre || '-';
+                    const lab = p.laboratorios?.nombre || '-';
+
+                    const card = document.createElement('div');
+                    card.className = 'practica-card';
+                    card.innerHTML = `
+                        <div class="practica-header">
+                            <h3 class="practica-title">Práctica #${i + 1}: ${p.titulo || p.tema || 'Sin título'}</h3>
+                            <span class="practica-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="practica-info">
+                            <div class="info-item">
+                                <span class="info-label">Fecha</span>
+                                <span class="info-value">${fecha}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Laboratorio</span>
+                                <span class="info-value">${lab}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Docente</span>
+                                <span class="info-value">${docente}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Asignatura</span>
+                                <span class="info-value">${p.asignatura || '-'}</span>
+                            </div>
+                        </div>`;
+
+                    // Insertar después del sectionHeader
+                    if (sectionHeader && sectionHeader.nextSibling) {
+                        sectionHeader.parentNode.insertBefore(card, sectionHeader.nextSibling);
+                    }
+                });
+
+                // Actualizar estadísticas de bienvenida
+                const welcomeStats = document.querySelectorAll('.welcome-stat span');
+                if (welcomeStats[0]) welcomeStats[0].textContent = `${practicas.length} Prácticas programadas`;
+            } catch (e) {
+                console.error('Error cargando prácticas:', e);
+            }
+        }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', async function() {
+            setupRatingStars();
+
+            const perfil = await cargarSesion();
+            if (perfil && (perfil.nombre || perfil.loggedIn)) {
+                const nombre = perfil.nombre || 'Estudiante';
+                const carrera = perfil.carrera_nombre || perfil.carrera || 'Ingeniería de la Producción';
+                const semestre = perfil.semestre || '';
+
+                document.querySelector('.user-info h4').textContent = nombre;
+                document.querySelector('.user-info p').textContent = semestre ? `${carrera} - ${semestre} Semestre` : carrera;
+                document.querySelector('.btn-user span').textContent = nombre;
+                const sexo = perfil.sexo || '';
+                document.querySelector('.welcome-content h2').textContent = `¡Bienvenid${sexo === 'femenino' ? 'a' : 'o'}, ${nombre.split(' ')[0]}!`;
+            }
+
+            await cargarPracticas();
+
             document.querySelector('.search-box input').addEventListener('input', function(e) {
-                const termino = e.target.value.toLowerCase();
-                buscarPracticas(termino);
+                buscarPracticas(e.target.value.toLowerCase());
             });
         });
         
