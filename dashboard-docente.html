@@ -1053,90 +1053,206 @@
 
     <script src="js/dashboard.js"></script>
     <script>
-        // Función para cargar dinámicamente los datos del usuario
-        document.addEventListener('DOMContentLoaded', function() {
-            // Cargar datos del usuario desde localStorage
-            const sessionData = JSON.parse(localStorage.getItem('userSession') || sessionStorage.getItem('userSession') || '{}');
-            
-            if (sessionData.loggedIn) {
-                // Actualizar nombre del usuario
-                const nombreUsuario = sessionData.nombre || 'Docente ESPAM';
-                const carreraUsuario = sessionData.carrera || 'Ingeniería de la Producción';
-                
-                // Actualizar elementos de la interfaz
-                document.querySelector('.user-profile h4').textContent = nombreUsuario;
-                document.querySelector('.user-profile p').textContent = carreraUsuario;
-                document.querySelector('.btn-user span').textContent = nombreUsuario;
-                document.querySelector('.welcome-content h2').textContent = `¡Bienvenido, ${nombreUsuario.split(' ')[1] || 'Docente'}!`;
-                
-                // Si el nombre incluye título, ajustar el saludo
-                const saludo = nombreUsuario.split(' ')[0];
+        // === SESIÓN CON FALLBACK ===
+        async function cargarSesion() {
+            try {
+                const { session, perfil } = await AuthService.getSesion();
+                if (session && perfil) {
+                    await SessionHelper.guardarSesionLegacy(perfil);
+                    return perfil;
+                }
+                return SessionHelper.obtenerSesionLegacy();
+            } catch (e) {
+                return SessionHelper.obtenerSesionLegacy();
+            }
+        }
+
+        // === CARGAR RESERVAS DEL DOCENTE ===
+        async function cargarMisReservas() {
+            const tbody = document.querySelector('.reservas-table tbody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">Cargando...</td></tr>';
+
+            try {
+                const reservas = await ReservasService.obtenerMisReservas();
+                const proximas = reservas.filter(r => r.fecha >= new Date().toISOString().split('T')[0]).slice(0, 5);
+
+                if (proximas.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">No hay reservas próximas</td></tr>';
+                    return proximas;
+                }
+
+                tbody.innerHTML = proximas.map(r => {
+                    const fecha = r.fecha ? new Date(r.fecha + 'T00:00:00').toLocaleDateString('es-EC') : '-';
+                    const hora = `${(r.hora_inicio || '').slice(0,5)} - ${(r.hora_fin || '').slice(0,5)}`;
+                    const lab = r.laboratorios?.nombre || '-';
+                    const tema = r.tema || r.descripcion || '-';
+                    const estado = r.estado || 'pendiente';
+                    const statusClass = estado === 'confirmada' ? 'confirmed' : estado === 'pendiente' ? 'pending' : 'cancelled';
+
+                    let acciones = '';
+                    if (estado === 'pendiente') {
+                        acciones = `<button class="btn-action" onclick="cancelarReserva('${r.id}')"><i class="fas fa-times"></i></button>`;
+                    } else {
+                        acciones = `<button class="btn-action"><i class="fas fa-eye"></i></button>`;
+                    }
+
+                    return `<tr>
+                        <td style="font-family:var(--espam-font-secondary);">${fecha}</td>
+                        <td style="font-family:var(--espam-font-secondary);">${hora}</td>
+                        <td style="font-family:var(--espam-font-secondary);">${lab}</td>
+                        <td style="font-family:var(--espam-font-secondary);">${tema}</td>
+                        <td><span class="status ${statusClass}">${estado.charAt(0).toUpperCase() + estado.slice(1)}</span></td>
+                        <td>${acciones}</td>
+                    </tr>`;
+                }).join('');
+
+                return proximas;
+            } catch (error) {
+                console.error('Error cargando reservas:', error);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:#dc3545;">Error al cargar</td></tr>';
+                return [];
+            }
+        }
+
+        // === CARGAR ESTADÍSTICAS ===
+        async function cargarEstadisticas(reservas) {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            try {
+                const misReservas = reservas || await ReservasService.obtenerMisReservas();
+                const activas = misReservas.filter(r => ['pendiente', 'confirmada'].includes(r.estado));
+                statNumbers[0].textContent = activas.length;
+
+                // Estudiantes - contamos los que participan en reservas
+                let totalEstudiantes = 0;
+                misReservas.forEach(r => totalEstudiantes += (r.estudiantes_count || 0));
+                statNumbers[1].textContent = totalEstudiantes || '0';
+
+                // Próxima reserva
+                const hoy = new Date().toISOString().split('T')[0];
+                const proxima = misReservas.find(r => r.fecha >= hoy && ['pendiente', 'confirmada'].includes(r.estado));
+                if (proxima) {
+                    const fechaProx = new Date(proxima.fecha + 'T00:00:00');
+                    const diffDias = Math.ceil((fechaProx - new Date()) / (1000 * 60 * 60 * 24));
+                    statNumbers[2].textContent = diffDias === 0 ? 'Hoy' : diffDias === 1 ? 'Mañana' : `${diffDias} días`;
+                    const textoHora = document.querySelectorAll('.stat-text');
+                    if (textoHora[2]) textoHora[2].textContent = (proxima.hora_inicio || '').slice(0, 5);
+                } else {
+                    statNumbers[2].textContent = '-';
+                }
+
+                statNumbers[3].textContent = '0';
+            } catch (e) {
+                console.error('Error en estadísticas:', e);
+            }
+        }
+
+        // === CARGAR CALENDARIO SEMANAL ===
+        async function cargarCalendarioSemanal(reservas) {
+            const weekCalendar = document.querySelector('.week-calendar');
+            if (!weekCalendar) return;
+
+            try {
+                const misReservas = reservas || await ReservasService.obtenerMisReservas();
+                const hoy = new Date();
+                const lunes = new Date(hoy);
+                lunes.setDate(hoy.getDate() - ((hoy.getDay() + 6) % 7));
+
+                const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+                let html = '';
+
+                for (let i = 0; i < 5; i++) {
+                    const fecha = new Date(lunes);
+                    fecha.setDate(lunes.getDate() + i);
+                    const fechaStr = fecha.toISOString().split('T')[0];
+                    const dia = fecha.getDate();
+
+                    const reservasDia = misReservas.filter(r => r.fecha === fechaStr);
+
+                    let contenido = '';
+                    if (reservasDia.length > 0) {
+                        reservasDia.forEach(r => {
+                            contenido += `<div class="day-event">
+                                <span class="event-time">${(r.hora_inicio || '').slice(0,5)}-${(r.hora_fin || '').slice(0,5)}</span>
+                                <span class="event-lab">${r.laboratorios?.nombre || '-'}</span>
+                                <small style="display:block;margin-top:5px;color:var(--espam-primary);">${r.tema || ''}</small>
+                            </div>`;
+                        });
+                    } else {
+                        contenido = `<div class="day-event free">
+                            <span>Disponible</span>
+                            <small style="display:block;margin-top:5px;color:#666;">Sin reservas</small>
+                        </div>`;
+                    }
+
+                    html += `<div class="day-column">
+                        <div class="day-header">${diasSemana[i]}<br>${dia}</div>
+                        ${contenido}
+                    </div>`;
+                }
+
+                weekCalendar.innerHTML = html;
+            } catch (e) {
+                console.error('Error en calendario semanal:', e);
+            }
+        }
+
+        // === CANCELAR RESERVA ===
+        async function cancelarReserva(id) {
+            if (!confirm('¿Cancelar esta reserva?')) return;
+            try {
+                const result = await ReservasService.cancelar(id);
+                if (result.success) {
+                    alert('Reserva cancelada.');
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (e) {
+                alert('Error al cancelar reserva');
+            }
+        }
+
+        // === INICIALIZACIÓN ===
+        document.addEventListener('DOMContentLoaded', async function() {
+            const perfil = await cargarSesion();
+            if (perfil && (perfil.nombre || perfil.loggedIn)) {
+                const nombre = perfil.nombre || 'Docente ESPAM';
+                const carrera = perfil.carrera_nombre || perfil.carrera || 'Ingeniería de la Producción';
+
+                document.querySelector('.user-profile h4').textContent = nombre;
+                document.querySelector('.user-profile p').textContent = carrera;
+                document.querySelector('.btn-user span').textContent = nombre;
+
+                const partes = nombre.split(' ');
+                const saludo = partes[0];
                 if (saludo.includes('Dr.') || saludo.includes('Ing.') || saludo.includes('Lic.')) {
-                    document.querySelector('.welcome-content h2').textContent = `¡Bienvenido, ${saludo} ${nombreUsuario.split(' ')[1] || ''}!`;
+                    document.querySelector('.welcome-content h2').textContent = `¡Bienvenido, ${saludo} ${partes[1] || ''}!`;
+                } else {
+                    document.querySelector('.welcome-content h2').textContent = `¡Bienvenido, ${partes[1] || nombre}!`;
                 }
             }
-            
-            // Configurar eventos de los botones de intercambio
+
+            const reservas = await cargarMisReservas();
+            await Promise.all([cargarEstadisticas(reservas), cargarCalendarioSemanal(reservas)]);
+
+            // Intercambios (mantener comportamiento existente)
             document.querySelectorAll('.btn-accept').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const intercambioInfo = this.closest('.intercambio-card').querySelector('h4').textContent;
-                    if (confirm(`¿Aceptar ${intercambioInfo}?`)) {
+                    if (confirm('¿Aceptar este intercambio?')) {
                         this.closest('.intercambio-card').style.opacity = '0.5';
                         this.closest('.intercambio-card').style.pointerEvents = 'none';
-                        alert('Intercambio aceptado. Se notificará al otro docente.');
+                        alert('Intercambio aceptado.');
                     }
                 });
             });
-            
             document.querySelectorAll('.btn-reject').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const intercambioInfo = this.closest('.intercambio-card').querySelector('h4').textContent;
-                    if (confirm(`¿Rechazar ${intercambioInfo}?`)) {
+                    if (confirm('¿Rechazar este intercambio?')) {
                         this.closest('.intercambio-card').remove();
                         alert('Intercambio rechazado.');
                     }
                 });
             });
-            
-            // Configurar eventos de las acciones de reserva
-            document.querySelectorAll('.reservas-table .btn-action').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const fila = this.closest('tr');
-                    const fecha = fila.cells[0].textContent;
-                    const asignatura = fila.cells[3].textContent;
-                    
-                    if (this.querySelector('.fa-eye')) {
-                        alert(`Ver detalles de reserva:\nFecha: ${fecha}\nAsignatura: ${asignatura}`);
-                    } else if (this.querySelector('.fa-edit')) {
-                        alert(`Editar reserva del ${fecha} para ${asignatura}`);
-                    } else if (this.querySelector('.fa-exchange-alt')) {
-                        alert(`Solicitar intercambio para la reserva del ${fecha}`);
-                    } else if (this.querySelector('.fa-check')) {
-                        alert(`Confirmar reserva del ${fecha}`);
-                    } else if (this.querySelector('.fa-times')) {
-                        if (confirm(`¿Cancelar reserva del ${fecha} para ${asignatura}?`)) {
-                            fila.remove();
-                            alert('Reserva cancelada.');
-                        }
-                    }
-                });
-            });
-            
-            // Aplicar tipografía a elementos dinámicos
-            const style = document.createElement('style');
-            style.textContent = `
-                @font-face {
-                    font-family: 'Libertad Mono';
-                    src: local('Libertad Mono'), local('LibertadMono-Regular');
-                    font-weight: normal;
-                    font-style: normal;
-                }
-                
-                body {
-                    font-family: var(--espam-font-secondary);
-                }
-            `;
-            document.head.appendChild(style);
         });
     </script>
 </body>
