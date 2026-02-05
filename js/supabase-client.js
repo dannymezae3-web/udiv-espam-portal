@@ -26,7 +26,7 @@ const AuthService = {
 
             // 2. Crear perfil en tabla usuarios
             if (authData.user) {
-                const { error: profileError } = await supabase
+                const { error: profileError } = await supabaseClient
                     .from('usuarios')
                     .insert({
                         id: authData.user.id,
@@ -74,7 +74,7 @@ const AuthService = {
             const perfil = await UsuariosService.obtenerPerfil(data.user.id);
 
             // Actualizar último acceso
-            await supabase
+            await supabaseClient
                 .from('usuarios')
                 .update({ ultimo_acceso: new Date().toISOString() })
                 .eq('id', data.user.id);
@@ -166,7 +166,7 @@ const UsuariosService = {
     // Obtener perfil por ID
     async obtenerPerfil(userId) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('usuarios')
                 .select('*')
                 .eq('id', userId)
@@ -183,7 +183,7 @@ const UsuariosService = {
     // Actualizar perfil
     async actualizarPerfil(userId, datos) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('usuarios')
                 .update(datos)
                 .eq('id', userId)
@@ -201,7 +201,7 @@ const UsuariosService = {
     // Listar todos los usuarios (admin/tecnico)
     async listarUsuarios(filtros = {}) {
         try {
-            let query = supabaseClient.from('usuarios').select('*');
+            let query = supabaseClientClient.from('usuarios').select('*');
 
             if (filtros.tipo) query = query.eq('tipo', filtros.tipo);
             if (filtros.carrera) query = query.eq('carrera_nombre', filtros.carrera);
@@ -226,7 +226,7 @@ const LaboratoriosService = {
     // Obtener todos los laboratorios
     async obtenerTodos() {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('laboratorios')
                 .select('*')
                 .order('nombre');
@@ -242,7 +242,7 @@ const LaboratoriosService = {
     // Obtener laboratorio por código
     async obtenerPorCodigo(codigo) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('laboratorios')
                 .select('*')
                 .eq('codigo', codigo)
@@ -259,7 +259,7 @@ const LaboratoriosService = {
     // Obtener laboratorio por ID
     async obtenerPorId(id) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('laboratorios')
                 .select('*')
                 .eq('id', id)
@@ -276,7 +276,7 @@ const LaboratoriosService = {
     // Actualizar laboratorio
     async actualizar(id, datos) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('laboratorios')
                 .update(datos)
                 .eq('id', id)
@@ -302,7 +302,7 @@ const ReservasService = {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) throw new Error('No hay sesión activa');
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('reservas')
                 .insert({
                     laboratorio_id: datosReserva.laboratorio_id,
@@ -335,7 +335,7 @@ const ReservasService = {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return [];
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('reservas')
                 .select(`
                     *,
@@ -355,7 +355,7 @@ const ReservasService = {
     // Obtener todas las reservas (admin/tecnico)
     async obtenerTodas(filtros = {}) {
         try {
-            let query = supabase
+            let query = supabaseClient
                 .from('reservas')
                 .select(`
                     *,
@@ -383,7 +383,7 @@ const ReservasService = {
     // Obtener reservas por laboratorio y fecha (para verificar disponibilidad)
     async obtenerPorLabYFecha(laboratorioId, fecha) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('reservas')
                 .select('*')
                 .eq('laboratorio_id', laboratorioId)
@@ -401,7 +401,7 @@ const ReservasService = {
     // Actualizar estado de reserva
     async actualizarEstado(reservaId, nuevoEstado) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('reservas')
                 .update({ estado: nuevoEstado })
                 .eq('id', reservaId)
@@ -429,7 +429,7 @@ const EquiposService = {
     // Obtener equipos de un laboratorio
     async obtenerPorLaboratorio(laboratorioId) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('equipos')
                 .select('*')
                 .eq('laboratorio_id', laboratorioId)
@@ -446,7 +446,7 @@ const EquiposService = {
     // Obtener todos los equipos
     async obtenerTodos() {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('equipos')
                 .select(`
                     *,
@@ -465,7 +465,7 @@ const EquiposService = {
     // Actualizar estado de equipo
     async actualizarEstado(equipoId, nuevoEstado) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('equipos')
                 .update({ estado: nuevoEstado })
                 .eq('id', equipoId)
@@ -488,7 +488,7 @@ const SustanciasService = {
     // Obtener sustancias de un laboratorio
     async obtenerPorLaboratorio(laboratorioId) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('sustancias')
                 .select('*')
                 .eq('laboratorio_id', laboratorioId)
@@ -505,7 +505,7 @@ const SustanciasService = {
     // Obtener sustancias críticas
     async obtenerCriticas() {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('sustancias')
                 .select(`
                     *,
@@ -530,7 +530,7 @@ const PracticasService = {
     // Crear práctica
     async crear(datosPractica) {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('practicas')
                 .insert(datosPractica)
                 .select()
@@ -550,7 +550,7 @@ const PracticasService = {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return [];
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('practicas')
                 .select(`
                     *,
@@ -573,7 +573,7 @@ const PracticasService = {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return [];
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('practica_estudiantes')
                 .select(`
                     practicas (
@@ -599,7 +599,7 @@ const PracticasService = {
 const CarrerasService = {
     async obtenerTodas() {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('carreras')
                 .select('*')
                 .order('nombre');
@@ -659,7 +659,7 @@ const ReportesService = {
     // Reservas por laboratorio (para gráficos)
     async reservasPorLaboratorio(filtros = {}) {
         try {
-            let query = supabase
+            let query = supabaseClient
                 .from('reservas')
                 .select(`
                     laboratorio_id,
@@ -691,7 +691,7 @@ const ReportesService = {
     // Reservas por carrera
     async reservasPorCarrera(filtros = {}) {
         try {
-            let query = supabaseClient.from('reservas').select('carrera');
+            let query = supabaseClientClient.from('reservas').select('carrera');
 
             if (filtros.fechaDesde) query = query.gte('fecha', filtros.fechaDesde);
             if (filtros.fechaHasta) query = query.lte('fecha', filtros.fechaHasta);
@@ -763,7 +763,7 @@ const SessionHelper = {
 // ============================================
 // EXPORTAR GLOBALMENTE
 // ============================================
-window.supabaseClient = supabase;
+window.supabaseClient = supabaseClient;
 window.AuthService = AuthService;
 window.UsuariosService = UsuariosService;
 window.LaboratoriosService = LaboratoriosService;
