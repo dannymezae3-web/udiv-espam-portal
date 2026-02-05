@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustancias y Reactivos - ESPAM MFL</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <style>
+        :root {
+            --espam-primary: #005846;
+            --espam-secondary: #39b54a;
+            --espam-accent: #cbdb2a;
+            --espam-light: #08b89d;
+            --espam-bg-light: #F8F8F2;
+            --espam-font-primary: 'Libertad Mono', 'Work Sans', monospace;
+            --espam-font-secondary: 'Work Sans', sans-serif;
+        }
+        body { font-family: var(--espam-font-secondary); color: #333; }
+        h1,h2,h3,h4,h5,h6 { font-family: var(--espam-font-primary); color: var(--espam-primary); }
+        .top-bar { background: linear-gradient(135deg, var(--espam-primary) 0%, #004637 100%); color: white; }
+        .top-bar h1 { color: white; }
+        .sidebar-header { background: linear-gradient(135deg, var(--espam-primary) 0%, #004637 100%); padding: 20px; text-align: center; color: white; border-bottom: 3px solid var(--espam-accent); }
+        .sidebar-header h3 { color: white !important; margin: 10px 0 5px 0; }
+        .sidebar-menu li.active a { background: var(--espam-primary); color: white; font-weight: 600; }
+        .sidebar-menu li a:hover { background: rgba(0,88,70,0.1); color: var(--espam-primary); }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background: var(--espam-primary); color: white; padding: 12px 15px; text-align: left; font-weight: 600; }
+        .data-table td { padding: 12px 15px; border-bottom: 1px solid var(--espam-bg-light); }
+        .data-table tr:hover { background: var(--espam-bg-light); }
+        .content-card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,88,70,0.1); }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: inline-block; }
+        .status-disponible, .status-confirmada { background: var(--espam-secondary); color: white; }
+        .status-pendiente { background: var(--espam-accent); color: var(--espam-primary); }
+        .status-mantenimiento, .status-cancelada, .status-rechazada { background: #dc3545; color: white; }
+        .status-en_uso, .status-completada { background: var(--espam-light); color: white; }
+        .status-critico, .status-agotado { background: #dc3545; color: white; }
+        .status-normal { background: var(--espam-secondary); color: white; }
+        .filter-bar { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .filter-bar select, .filter-bar input { padding: 8px 15px; border: 1px solid #ddd; border-radius: 5px; font-family: var(--espam-font-secondary); }
+        .filter-bar select:focus, .filter-bar input:focus { outline: none; border-color: var(--espam-primary); }
+        .btn-primary-espam { background: var(--espam-primary); color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-primary-espam:hover { background: #004637; }
+        .btn-danger-espam { background: #dc3545; color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        .btn-danger-espam:hover { background: #bd2130; }
+        .loading-spinner { text-align: center; padding: 40px; color: var(--espam-primary); }
+        .empty-state { text-align: center; padding: 40px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo" style="font-family:'Libertad Mono',monospace;font-size:1.5rem;font-weight:bold;color:white;">ESPAM MFL</div>
+                <h3>UNIVERSIDAD ESPAM MFL</h3>
+                <p class="user-role">Técnico Encargado</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
+                <div class="user-info">
+                    <h4 id="userName">Técnico ESPAM</h4>
+                    <p id="userDetail">Laboratorio</p>
+                    <span class="user-status online"></span>
+                </div>
+            </div>
+            <nav class="sidebar-menu"><ul>
+                <li><a href="dashboard-tecnico.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+                <li><a href="admin-laboratorios.html"><i class="fas fa-flask"></i><span>Gestión de Laboratorio</span></a></li>
+                <li><a href="calendario-reservas.html"><i class="fas fa-calendar-alt"></i><span>Calendario de Reservas</span></a></li>
+                <li><a href="inventario-equipos.html"><i class="fas fa-list"></i><span>Inventario Equipos</span></a></li>
+                <li><a href="mantenimiento-equipos.html"><i class="fas fa-wrench"></i><span>Mantenimiento</span></a></li>
+                <li><a href="estado-equipos.html"><i class="fas fa-clipboard-check"></i><span>Estado Equipos</span></a></li>
+                <li class="active"><a href="sustancias-reactivos.html"><i class="fas fa-vial"></i><span>Sustancias y Reactivos</span></a></li>
+                <li><a href="reportes.html"><i class="fas fa-chart-bar"></i><span>Reportes</span></a></li>
+                <li><a href="usuarios-registrados.html"><i class="fas fa-users"></i><span>Usuarios</span></a></li>
+                <li><a href="hoja-guia.html"><i class="fas fa-file-alt"></i><span>Hojas Guía</span></a></li>
+                <li><a href="calificaciones.html"><i class="fas fa-star"></i><span>Calificaciones</span></a></li>
+                <li><a href="notificaciones.html"><i class="fas fa-bell"></i><span>Notificaciones</span></a></li>
+                <li><a href="perfil.html"><i class="fas fa-user-cog"></i><span>Configuración</span></a></li>
+            </ul></nav>
+        </div>
+
+        <div class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+                    <h1>Sustancias y Reactivos</h1>
+                </div>
+                <div class="top-bar-right">
+                    <div class="top-bar-actions">
+                        <button class="btn-notification"><i class="fas fa-bell"></i><span class="notification-count">0</span></button>
+                        <div class="user-dropdown">
+                            <button class="btn-user"><i class="fas fa-user-circle"></i><span id="topBarUserName">Usuario</span><i class="fas fa-chevron-down"></i></button>
+                            <div class="dropdown-menu">
+                                <a href="perfil.html"><i class="fas fa-user"></i> Perfil</a>
+                                <div class="divider"></div>
+                                <a href="login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="dashboard-content">
+                <div class="content-card" id="alertaCriticas" style="display:none;border-left:5px solid #dc3545;">
+                    <h3 style="color:#dc3545;margin-bottom:10px;"><i class="fas fa-exclamation-triangle"></i> Sustancias en Estado Crítico</h3>
+                    <div id="listaCriticas"></div>
+                </div>
+                <div class="content-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <h2><i class="fas fa-vial"></i> Sustancias y Reactivos</h2>
+                    </div>
+                    <div class="filter-bar">
+                        <select id="filtroLab"><option value="">Todos los laboratorios</option></select>
+                        <input type="text" id="filtroBusqueda" placeholder="Buscar sustancia...">
+                    </div>
+                    <div id="tablaContainer" class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+                        <p>Cargando sustancias...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        async function cargarSesion() {
+            try {
+                const { session, perfil } = await AuthService.getSesion();
+                if (session && perfil) {
+                    await SessionHelper.guardarSesionLegacy(perfil);
+                    if (document.getElementById('userName')) document.getElementById('userName').textContent = perfil.nombre || 'Usuario';
+                    if (document.getElementById('userDetail')) document.getElementById('userDetail').textContent = perfil.laboratorio_nombre || perfil.carrera_nombre || '';
+                    if (document.getElementById('topBarUserName')) document.getElementById('topBarUserName').textContent = perfil.nombre || 'Usuario';
+                    return perfil;
+                }
+                return SessionHelper.obtenerSesionLegacy();
+            } catch (e) {
+                console.error('Error cargando sesión:', e);
+                return SessionHelper.obtenerSesionLegacy();
+            }
+        }
+
+        let todasSustancias = [];
+
+        async function cargarSustanciasCriticas() {
+            try {
+                const criticas = await SustanciasService.obtenerCriticas();
+                if (criticas && criticas.length > 0) {
+                    document.getElementById('alertaCriticas').style.display = 'block';
+                    let html = '<ul style="margin:0;padding-left:20px;">';
+                    criticas.forEach(s => {
+                        html += '<li><strong>' + (s.nombre||'') + '</strong> - ' + (s.laboratorios?.nombre||'') + ' (Cantidad: ' + (s.cantidad||0) + ' ' + (s.unidad||'') + ')</li>';
+                    });
+                    html += '</ul>';
+                    document.getElementById('listaCriticas').innerHTML = html;
+                }
+            } catch (e) {
+                console.error('Error cargando sustancias críticas:', e);
+            }
+        }
+
+        async function cargarSustancias() {
+            const container = document.getElementById('tablaContainer');
+            try {
+                const labs = await LaboratoriosService.obtenerTodos();
+                const select = document.getElementById('filtroLab');
+
+                for (const l of labs) {
+                    const opt = document.createElement('option');
+                    opt.value = l.id;
+                    opt.textContent = l.nombre;
+                    select.appendChild(opt);
+
+                    const sustancias = await SustanciasService.obtenerPorLaboratorio(l.id);
+                    sustancias.forEach(s => {
+                        s.laboratorio_nombre = l.nombre;
+                        todasSustancias.push(s);
+                    });
+                }
+
+                renderTabla(todasSustancias);
+            } catch (e) {
+                console.error('Error cargando sustancias:', e);
+                container.innerHTML = '<div class="empty-state"><p>Error al cargar sustancias</p></div>';
+            }
+        }
+
+        function renderTabla(sustancias) {
+            const container = document.getElementById('tablaContainer');
+            if (sustancias.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-vial" style="font-size:3rem;color:#ccc;margin-bottom:15px;"></i><p>No se encontraron sustancias</p></div>';
+                return;
+            }
+            let html = '<div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>Nombre</th><th>Laboratorio</th><th>Cantidad</th><th>Unidad</th><th>Estado</th></tr></thead><tbody>';
+            sustancias.forEach(s => {
+                const lab = s.laboratorio_nombre || s.laboratorios?.nombre || '-';
+                const estado = s.estado || 'normal';
+                html += '<tr><td>' + (s.nombre||'-') + '</td><td>' + lab + '</td><td>' + (s.cantidad||0) + '</td><td>' + (s.unidad||'-') + '</td><td><span class="status-badge status-' + estado + '">' + estado.charAt(0).toUpperCase() + estado.slice(1) + '</span></td></tr>';
+            });
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        function filtrarSustancias() {
+            const lab = document.getElementById('filtroLab').value;
+            const busqueda = document.getElementById('filtroBusqueda').value.toLowerCase();
+            let filtradas = todasSustancias;
+            if (lab) filtradas = filtradas.filter(s => s.laboratorio_id === lab);
+            if (busqueda) filtradas = filtradas.filter(s => (s.nombre||'').toLowerCase().includes(busqueda));
+            renderTabla(filtradas);
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await cargarSesion();
+            await cargarSustanciasCriticas();
+            await cargarSustancias();
+            document.getElementById('filtroLab').addEventListener('change', filtrarSustancias);
+            document.getElementById('filtroBusqueda').addEventListener('input', filtrarSustancias);
+        });
+    </script>
+</body>
+</html>

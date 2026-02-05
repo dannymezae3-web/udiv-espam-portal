@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Estudiantes - UDIV ESPAM MFL</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <style>
+        :root {
+            --espam-primary: #005846;
+            --espam-secondary: #39b54a;
+            --espam-accent: #cbdb2a;
+            --espam-light: #08b89d;
+            --espam-bg-light: #F8F8F2;
+            --espam-font-primary: 'Libertad Mono', 'Work Sans', monospace;
+            --espam-font-secondary: 'Work Sans', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo" style="font-family: 'Libertad Mono', monospace; font-size: 1.5rem; font-weight: bold; color: white;">ESPAM MFL</div>
+                <h3>UNIVERSIDAD ESPAM MFL</h3>
+                <p class="user-role">Docente</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
+                <div class="user-info">
+                    <h4 id="userName">Docente ESPAM</h4>
+                    <p id="userCarrera">Carrera</p>
+                    <span class="user-status online"></span>
+                </div>
+            </div>
+            <nav class="sidebar-menu">
+                <ul>
+                    <li><a href="dashboard-docente.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+                    <li><a href="calendario-reservas.html"><i class="fas fa-calendar-alt"></i><span>Reservar Laboratorio</span></a></li>
+                    <li><a href="hoja-guia.html"><i class="fas fa-file-alt"></i><span>Hoja Guía</span></a></li>
+                    <li><a href="mis-reservas.html"><i class="fas fa-clipboard-list"></i><span>Mis Reservas</span></a></li>
+                    <li><a href="intercambios.html"><i class="fas fa-exchange-alt"></i><span>Intercambiar Horarios</span></a></li>
+                    <li class="active"><a href="mis-estudiantes.html"><i class="fas fa-users"></i><span>Mis Estudiantes</span></a></li>
+                    <li><a href="equipos-disponibles.html"><i class="fas fa-flask"></i><span>Equipos Disponibles</span></a></li>
+                    <li><a href="calificar.html"><i class="fas fa-star"></i><span>Calificar Laboratorio</span></a></li>
+                    <li><a href="notificaciones.html"><i class="fas fa-bell"></i><span>Notificaciones</span></a></li>
+                    <li><a href="perfil.html"><i class="fas fa-user-cog"></i><span>Perfil</span></a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+                    <h1>Mis Estudiantes</h1>
+                </div>
+                <div class="top-bar-right">
+                    <div class="top-bar-actions">
+                        <button class="btn-notification"><i class="fas fa-bell"></i><span class="notification-count">0</span></button>
+                        <div class="user-dropdown">
+                            <button class="btn-user"><i class="fas fa-user-circle"></i><span id="topBarUserName">Usuario</span><i class="fas fa-chevron-down"></i></button>
+                            <div class="dropdown-menu">
+                                <a href="perfil.html"><i class="fas fa-user"></i> Perfil</a>
+                                <div class="divider"></div>
+                                <a href="login.html" class="logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="dashboard-content">
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;">
+                    <i class="fas fa-users" style="font-size:4rem;color:var(--espam-primary);margin-bottom:20px;opacity:0.5;"></i>
+                    <h2 style="color:var(--espam-primary);margin-bottom:10px;">Mis Estudiantes</h2>
+                    <p style="color:#666;max-width:400px;margin-bottom:20px;">Este módulo se encuentra actualmente en desarrollo. Pronto estará disponible.</p>
+                    <a href="dashboard-docente.html" style="background:var(--espam-primary);color:white;padding:10px 25px;border-radius:5px;text-decoration:none;font-weight:600;">
+                        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const { session, perfil } = await AuthService.getSesion();
+                if (session && perfil) {
+                    await SessionHelper.guardarSesionLegacy(perfil);
+                    if (document.getElementById('userName')) document.getElementById('userName').textContent = perfil.nombre || 'Usuario';
+                    if (document.getElementById('userLab')) document.getElementById('userLab').textContent = perfil.laboratorio_nombre || 'Laboratorio';
+                    if (document.getElementById('userCarrera')) document.getElementById('userCarrera').textContent = perfil.carrera_nombre || 'Carrera';
+                    if (document.getElementById('topBarUserName')) document.getElementById('topBarUserName').textContent = perfil.nombre || 'Usuario';
+                }
+            } catch (e) {
+                console.error('Error cargando sesión:', e);
+            }
+        });
+    </script>
+</body>
+</html>
