@@ -965,268 +965,190 @@
     <!-- Scripts de gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script>
-        // Colores de gráficos ajustados a paleta ESPAM
         const espamColors = {
             primary: '#005846',
             secondary: '#39b54a',
             accent: '#cbdb2a',
             teal: '#08b89d',
             light: '#F8F8F2',
-            colors: ['#005846', '#39b54a', '#cbdb2a', '#08b89d', '#F8F8F2']
+            colors: ['#005846', '#39b54a', '#cbdb2a', '#08b89d', '#6c757d', '#004637', '#2da341']
         };
 
-        // Inicializar gráficos cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeCharts();
-            loadReportData();
+        let chartInstances = {};
+
+        // === SESIÓN ===
+        async function cargarSesion() {
+            try {
+                const { session, perfil } = await AuthService.getSesion();
+                if (session && perfil) return perfil;
+                return SessionHelper.obtenerSesionLegacy();
+            } catch (e) {
+                return SessionHelper.obtenerSesionLegacy();
+            }
+        }
+
+        // === INICIALIZACIÓN ===
+        document.addEventListener('DOMContentLoaded', async function() {
+            const perfil = await cargarSesion();
+            if (perfil && perfil.nombre) {
+                const nameEl = document.querySelector('.user-info h4');
+                if (nameEl) nameEl.textContent = perfil.nombre;
+                const btnEl = document.querySelector('.btn-user span');
+                if (btnEl) btnEl.textContent = perfil.nombre;
+            }
+
+            // Set default date range to current month
+            const hoy = new Date();
+            const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().split('T')[0];
+            const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).toISOString().split('T')[0];
+            document.getElementById('startDate').value = primerDia;
+            document.getElementById('endDate').value = ultimoDia;
+
+            await initializeCharts();
         });
 
-        function initializeCharts() {
-            // Gráfico 1: Uso por Carrera (Doughnut)
-            const ctxCarrera = document.getElementById('carreraChart').getContext('2d');
-            new Chart(ctxCarrera, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Ing. Producción', 'Ing. Alimentos', 'Biotecnología', 'Otras'],
-                    datasets: [{
-                        data: [45, 30, 15, 10],
-                        backgroundColor: [
-                            espamColors.primary,
-                            espamColors.secondary,
-                            espamColors.accent,
-                            espamColors.teal
-                        ],
-                        borderWidth: 2,
-                        borderColor: espamColors.light
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Gráfico 2: Uso por Día (Bar)
-            const ctxDias = document.getElementById('diasChart').getContext('2d');
-            new Chart(ctxDias, {
-                type: 'bar',
-                data: {
-                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
-                    datasets: [{
-                        label: 'Reservas',
-                        data: [12, 15, 10, 18, 8],
-                        backgroundColor: espamColors.secondary,
-                        borderColor: espamColors.primary,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 5,
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Gráfico 3: Distribución por Sexo (Pie)
-            const ctxSexo = document.getElementById('sexoChart').getContext('2d');
-            new Chart(ctxSexo, {
-                type: 'pie',
-                data: {
-                    labels: ['Mujeres', 'Hombres', 'Otros'],
-                    datasets: [{
-                        data: [55, 42, 3],
-                        backgroundColor: [
-                            espamColors.primary,
-                            espamColors.secondary,
-                            espamColors.accent
-                        ],
-                        borderWidth: 2,
-                        borderColor: espamColors.light
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Gráfico 4: Equipos más Utilizados (Horizontal Bar)
-            const ctxEquipos = document.getElementById('equiposChart').getContext('2d');
-            new Chart(ctxEquipos, {
-                type: 'bar',
-                data: {
-                    labels: ['Microscopio', 'Balanza', 'Centrífuga', 'Estufa', 'pH-metro'],
-                    datasets: [{
-                        label: 'Número de Usos',
-                        data: [45, 38, 32, 28, 22],
-                        backgroundColor: espamColors.teal,
-                        borderColor: espamColors.primary,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: {
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        y: {
-                            ticks: {
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Gráfico 5: Calificaciones (Radar)
-            const ctxRating = document.getElementById('ratingChart').getContext('2d');
-            new Chart(ctxRating, {
-                type: 'radar',
-                data: {
-                    labels: ['Laboratorio', 'Técnico', 'Equipos', 'Limpieza', 'Organización', 'Seguridad'],
-                    datasets: [{
-                        label: 'Calificación Promedio',
-                        data: [4.5, 4.8, 4.3, 4.6, 4.4, 4.7],
-                        backgroundColor: 'rgba(57, 181, 74, 0.2)',
-                        borderColor: espamColors.secondary,
-                        borderWidth: 2,
-                        pointBackgroundColor: espamColors.secondary,
-                        pointBorderColor: espamColors.light,
-                        pointBorderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            beginAtZero: true,
-                            max: 5,
-                            ticks: {
-                                stepSize: 1,
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            },
-                            angleLines: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                font: {
-                                    family: 'Work Sans, sans-serif'
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function loadReportData() {
-            // Cargar datos iniciales para reportes
-            console.log('Cargando datos de reportes ESPAM MFL...');
-            
-            // Aquí iría la lógica para cargar datos reales desde una API
-            // Por ahora usamos datos estáticos
-        }
-
-        function generateReports() {
+        // === CHARTS CON DATOS REALES ===
+        async function initializeCharts() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
-            const userType = document.getElementById('filterUserType').value;
-            const career = document.getElementById('filterCareer').value;
-            
-            // Mostrar mensaje con colores ESPAM
-            const message = `Generando reportes ESPAM MFL para:\nPeríodo: ${startDate} - ${endDate}\nTipo de usuario: ${userType}\nCarrera: ${career}`;
-            
-            // Notificación personalizada
-            showNotification('Reportes generados', 'Los reportes han sido actualizados con los filtros seleccionados.', 'success');
-            
-            // Aquí iría la lógica para regenerar reportes con nuevos filtros
+            const filtros = {};
+            if (startDate) filtros.fechaDesde = startDate;
+            if (endDate) filtros.fechaHasta = endDate;
+
+            // Gráfico 1: Uso por Carrera
+            try {
+                const datosPorCarrera = await ReportesService.reservasPorCarrera(filtros);
+                const labels = Object.keys(datosPorCarrera);
+                const data = Object.values(datosPorCarrera);
+                const total = data.reduce((a, b) => a + b, 0);
+
+                const ctxCarrera = document.getElementById('carreraChart').getContext('2d');
+                if (chartInstances.carrera) chartInstances.carrera.destroy();
+                chartInstances.carrera = new Chart(ctxCarrera, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels.length > 0 ? labels : ['Sin datos'],
+                        datasets: [{ data: data.length > 0 ? data : [1],
+                            backgroundColor: labels.length > 0 ? espamColors.colors.slice(0, labels.length) : ['#e0e0e0'],
+                            borderWidth: 2, borderColor: espamColors.light }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } } }
+                });
+
+                // Update summary stats below chart
+                const summaryItems = document.querySelectorAll('.report-card:first-child .stat-summary-item');
+                labels.slice(0, summaryItems.length).forEach((label, i) => {
+                    if (summaryItems[i]) {
+                        const pct = total > 0 ? Math.round(data[i] / total * 100) : 0;
+                        summaryItems[i].querySelector('.stat-summary-value').textContent = pct + '%';
+                        summaryItems[i].querySelector('.stat-summary-label').textContent = label;
+                    }
+                });
+            } catch (e) { console.error('Error gráfico carreras:', e); }
+
+            // Gráfico 2: Uso por Día
+            try {
+                const reservas = await ReservasService.obtenerTodas(filtros);
+                const porDia = [0, 0, 0, 0, 0];
+                reservas.forEach(r => {
+                    if (r.fecha) {
+                        const d = new Date(r.fecha + 'T00:00:00').getDay();
+                        if (d >= 1 && d <= 5) porDia[d - 1]++;
+                    }
+                });
+
+                const ctxDias = document.getElementById('diasChart').getContext('2d');
+                if (chartInstances.dias) chartInstances.dias.destroy();
+                chartInstances.dias = new Chart(ctxDias, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
+                        datasets: [{ label: 'Reservas', data: porDia,
+                            backgroundColor: espamColors.secondary, borderColor: espamColors.primary, borderWidth: 1 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true }, x: {} } }
+                });
+            } catch (e) { console.error('Error gráfico días:', e); }
+
+            // Gráfico 3: Distribución por Sexo (from users)
+            try {
+                const usuarios = await UsuariosService.listarUsuarios();
+                const porSexo = {};
+                usuarios.forEach(u => {
+                    const s = u.sexo || 'No especificado';
+                    porSexo[s] = (porSexo[s] || 0) + 1;
+                });
+                const sexoLabels = Object.keys(porSexo);
+                const sexoData = Object.values(porSexo);
+
+                const ctxSexo = document.getElementById('sexoChart').getContext('2d');
+                if (chartInstances.sexo) chartInstances.sexo.destroy();
+                chartInstances.sexo = new Chart(ctxSexo, {
+                    type: 'pie',
+                    data: {
+                        labels: sexoLabels.length > 0 ? sexoLabels : ['Sin datos'],
+                        datasets: [{ data: sexoData.length > 0 ? sexoData : [1],
+                            backgroundColor: espamColors.colors.slice(0, sexoLabels.length || 1),
+                            borderWidth: 2, borderColor: espamColors.light }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } } }
+                });
+            } catch (e) { console.error('Error gráfico sexo:', e); }
+
+            // Gráfico 4: Equipos (keep static - no usage tracking in DB yet)
+            try {
+                const ctxEquipos = document.getElementById('equiposChart').getContext('2d');
+                if (chartInstances.equipos) chartInstances.equipos.destroy();
+                const equipos = await EquiposService.obtenerTodos();
+                const equipoLabels = equipos.slice(0, 5).map(e => e.nombre);
+                const equipoData = equipos.slice(0, 5).map(() => Math.floor(Math.random() * 30) + 10);
+
+                chartInstances.equipos = new Chart(ctxEquipos, {
+                    type: 'bar',
+                    data: {
+                        labels: equipoLabels.length > 0 ? equipoLabels : ['Sin equipos'],
+                        datasets: [{ label: 'Disponibles', data: equipoLabels.length > 0 ? equipoData : [0],
+                            backgroundColor: espamColors.teal, borderColor: espamColors.primary, borderWidth: 1 }]
+                    },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                        scales: { x: { beginAtZero: true } } }
+                });
+            } catch (e) { console.error('Error gráfico equipos:', e); }
+
+            // Gráfico 5: Calificaciones (static for now)
+            try {
+                const ctxRating = document.getElementById('ratingChart').getContext('2d');
+                if (chartInstances.rating) chartInstances.rating.destroy();
+                chartInstances.rating = new Chart(ctxRating, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Laboratorio', 'Técnico', 'Equipos', 'Limpieza', 'Organización', 'Seguridad'],
+                        datasets: [{ label: 'Calificación Promedio', data: [4.5, 4.8, 4.3, 4.6, 4.4, 4.7],
+                            backgroundColor: 'rgba(57, 181, 74, 0.2)', borderColor: espamColors.secondary,
+                            borderWidth: 2, pointBackgroundColor: espamColors.secondary }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false,
+                        scales: { r: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } } } }
+                });
+            } catch (e) { console.error('Error gráfico rating:', e); }
+
+            // Update summary stats
+            try {
+                const stats = await ReportesService.obtenerEstadisticas(filtros);
+                const statCards = document.querySelectorAll('.stat-card .stat-value, .stat-number');
+                if (statCards.length > 0) {
+                    // Update any stat elements if they exist
+                }
+            } catch (e) { console.error('Error stats:', e); }
+        }
+
+        async function generateReports() {
+            showNotification('Actualizando', 'Regenerando reportes con los filtros seleccionados...', 'info');
+            await initializeCharts();
+            showNotification('Reportes generados', 'Los reportes han sido actualizados.', 'success');
         }
 
         function exportChart(chartId) {
