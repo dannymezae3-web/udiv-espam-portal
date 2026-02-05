@@ -1861,198 +1861,163 @@
     <!-- Script principal -->
     <script>
         // ===== SISTEMA COMPLETO DE GESTIÓN ESPAM MFL =====
-        
-        // Configuración global
-        const SYSTEM_CONFIG = {
-            institution: "ESPAM MFL",
-            version: "2.0.0",
-            lastUpdate: "2024-01-24",
-            mode: 'admin',
-            permissions: {
-                admin: ['all'],
-                tecnico: ['equipos', 'inventario', 'mantenimiento', 'reservas'],
-                docente: ['reservas', 'consultas'],
-                estudiante: ['reservas']
-            }
-        };
 
-        // Datos de ejemplo (en producción vendrían de una API)
-        const LABORATORIOS = [
-            {
-                id: 1,
-                codigo: "LAB-BROM-001",
-                nombre: "Laboratorio de Bromatología",
-                facultad: "ingenieria",
-                responsable: "Ing. Wellington Espinoza",
-                ubicacion: "Edificio Central, Piso 3",
-                estado: "activo",
-                equipos: 28,
-                capacidad: 20,
-                ultimaAuditoria: "2024-01-15"
-            },
-            {
-                id: 2,
-                codigo: "LAB-QUIM-002",
-                nombre: "Laboratorio de Química Analítica",
-                facultad: "ciencias",
-                responsable: "Dra. María Rodríguez",
-                ubicacion: "Edificio de Ciencias, Piso 2",
-                estado: "activo",
-                equipos: 42,
-                capacidad: 25,
-                ultimaAuditoria: "2024-01-10"
-            },
-            {
-                id: 3,
-                codigo: "LAB-BIO-003",
-                nombre: "Laboratorio de Biología Molecular",
-                facultad: "salud",
-                responsable: "Dr. Carlos Méndez",
-                ubicacion: "Edificio de Salud, Piso 1",
-                estado: "mantenimiento",
-                equipos: 35,
-                capacidad: 15,
-                ultimaAuditoria: "2023-12-20"
-            }
-        ];
-
-        const EQUIPOS = [
-            {
-                id: 1,
-                nombre: "Microscopio Óptico Binocular",
-                serial: "LAB-BROM-001",
-                laboratorio: "LAB-BROM-001",
-                categoria: "analisis",
-                ubicacion: "Mesa Principal - Estante 1",
-                estado: "available",
-                valor: 8500.00,
-                fechaAdquisicion: "2022-03-15",
-                vidaUtil: 10,
-                ultimoMantenimiento: "2023-12-15",
-                proximoMantenimiento: "2024-06-15"
-            },
-            {
-                id: 2,
-                nombre: "Balanza Analítica Digital",
-                serial: "LAB-BROM-002",
-                laboratorio: "LAB-BROM-001",
-                categoria: "medicion",
-                ubicacion: "Mesa de Pesaje",
-                estado: "inuse",
-                valor: 3200.00,
-                fechaAdquisicion: "2022-05-20",
-                vidaUtil: 8,
-                ultimoMantenimiento: "2023-11-20",
-                proximoMantenimiento: "2024-05-20"
-            },
-            {
-                id: 3,
-                nombre: "Centrífuga Refrigerada",
-                serial: "LAB-BROM-003",
-                laboratorio: "LAB-BROM-001",
-                categoria: "preparacion",
-                ubicacion: "Área de Preparación",
-                estado: "maintenance",
-                valor: 12500.00,
-                fechaAdquisicion: "2021-08-10",
-                vidaUtil: 12,
-                ultimoMantenimiento: "2023-10-10",
-                proximoMantenimiento: "2024-01-22"
-            }
-        ];
-
-        const USUARIOS = [
-            {
-                id: 1,
-                nombre: "Admin Sistema",
-                email: "admin@espam.edu.ec",
-                rol: "admin",
-                laboratorio: "Todos",
-                estado: "activo",
-                ultimoAcceso: "2024-01-24 08:45:00"
-            },
-            {
-                id: 2,
-                nombre: "Ing. Wellington Espinoza",
-                email: "well.espinoza@espam.edu.ec",
-                rol: "tecnico",
-                laboratorio: "LAB-BROM-001",
-                estado: "activo",
-                ultimoAcceso: "2024-01-24 08:30:00"
-            },
-            {
-                id: 3,
-                nombre: "Dra. María Rodríguez",
-                email: "maria.rodriguez@espam.edu.ec",
-                rol: "tecnico",
-                laboratorio: "LAB-QUIM-002",
-                estado: "activo",
-                ultimoAcceso: "2024-01-23 16:20:00"
-            }
-        ];
-
-        // Variables globales
+        // Datos cargados desde Supabase
+        let LABORATORIOS = [];
+        let EQUIPOS = [];
+        let USUARIOS = [];
         let currentUserMode = 'admin';
         let currentWeek = 0;
         let selectedDate = new Date();
+        let reservasData = [];
 
         // Inicializar aplicación
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Sistema ESPAM MFL - Versión ' + SYSTEM_CONFIG.version);
-            
-            // Configurar fecha
+        document.addEventListener('DOMContentLoaded', async function() {
             document.getElementById('lastAccess').textContent = formatDateTime(new Date());
-            
-            // Cargar datos iniciales
+
+            // Cargar sesión
+            try {
+                const { session, perfil } = await AuthService.getSesion();
+                if (session && perfil) {
+                    const userName = document.getElementById('userName');
+                    const userRole = document.getElementById('userRole');
+                    const userBadge = document.getElementById('userBadge');
+                    if (userName) userName.textContent = perfil.nombre || 'Administrador';
+                    currentUserMode = perfil.tipo || 'admin';
+                    if (userRole) {
+                        const roles = { admin: 'Administrador Principal - UDIV', tecnico: 'Técnico Encargado', docente: 'Docente', estudiante: 'Estudiante' };
+                        userRole.textContent = roles[perfil.tipo] || perfil.tipo;
+                    }
+                    if (userBadge) {
+                        userBadge.textContent = (perfil.tipo || 'admin').toUpperCase();
+                    }
+                }
+            } catch (e) {
+                console.error('Error cargando sesión:', e);
+            }
+
+            // Cargar datos desde Supabase
+            await Promise.all([
+                cargarLaboratorios(),
+                cargarEquipos(),
+                cargarUsuarios(),
+                cargarReservas()
+            ]);
+
             loadDashboardData();
-            loadLaboratorios();
-            loadEquipos();
-            loadUsuarios();
-            loadInventoryData();
-            loadSubstancesData();
-            loadMaintenanceData();
             setupCalendar();
-            
-            // Configurar event listeners
             setupEventListeners();
-            
-            // Mostrar notificación de bienvenida
-            setTimeout(() => {
-                showNotification('Sistema de Gestión de Laboratorios ESPAM MFL cargado correctamente', 'success');
-            }, 1000);
+
+            showNotification('Sistema de Gestión de Laboratorios ESPAM MFL cargado correctamente', 'success');
         });
+
+        // ===== CARGA DE DATOS DESDE SUPABASE =====
+
+        async function cargarLaboratorios() {
+            try {
+                const data = await LaboratoriosService.obtenerTodos();
+                LABORATORIOS = (data || []).map(lab => ({
+                    id: lab.id,
+                    codigo: lab.codigo,
+                    nombre: lab.nombre,
+                    facultad: lab.facultad || '',
+                    responsable: lab.responsable || '',
+                    ubicacion: lab.ubicacion || '',
+                    estado: lab.estado || 'activo',
+                    capacidad: lab.capacidad || 0
+                }));
+            } catch (e) {
+                console.error('Error cargando laboratorios:', e);
+            }
+        }
+
+        async function cargarEquipos() {
+            try {
+                const data = await EquiposService.obtenerTodos();
+                EQUIPOS = (data || []).map(eq => ({
+                    id: eq.id,
+                    nombre: eq.nombre,
+                    serial: eq.codigo || eq.serial || '',
+                    laboratorio: eq.laboratorio_id,
+                    laboratorio_nombre: eq.laboratorios?.nombre || '',
+                    laboratorio_codigo: eq.laboratorios?.codigo || '',
+                    estado: eq.estado || 'disponible',
+                    descripcion: eq.descripcion || ''
+                }));
+            } catch (e) {
+                console.error('Error cargando equipos:', e);
+            }
+        }
+
+        async function cargarUsuarios() {
+            try {
+                const data = await UsuariosService.listarUsuarios();
+                USUARIOS = (data || []).map(u => ({
+                    id: u.id,
+                    nombre: u.nombre,
+                    email: u.email,
+                    rol: u.tipo || 'estudiante',
+                    estado: 'activo'
+                }));
+            } catch (e) {
+                console.error('Error cargando usuarios:', e);
+            }
+        }
+
+        async function cargarReservas() {
+            try {
+                reservasData = await ReservasService.obtenerTodas() || [];
+            } catch (e) {
+                console.error('Error cargando reservas:', e);
+                reservasData = [];
+            }
+        }
 
         // ===== FUNCIONES PRINCIPALES =====
 
         function loadDashboardData() {
-            // Actualizar estadísticas
             document.getElementById('totalLabs').textContent = LABORATORIOS.length;
             document.getElementById('totalEquipment').textContent = EQUIPOS.length;
-            document.getElementById('pendingMaintenance').textContent = '12';
-            document.getElementById('todayReservations').textContent = '42';
-            document.getElementById('criticalSubstances').textContent = '8';
-            
-            // Cargar alertas
+
+            // Equipos en mantenimiento
+            const enMantenimiento = EQUIPOS.filter(e => e.estado === 'mantenimiento' || e.estado === 'maintenance').length;
+            const elMaint = document.getElementById('pendingMaintenance');
+            if (elMaint) elMaint.textContent = enMantenimiento;
+
+            // Reservas de hoy
+            const hoy = new Date().toISOString().split('T')[0];
+            const reservasHoy = reservasData.filter(r => r.fecha === hoy).length;
+            const elRes = document.getElementById('todayReservations');
+            if (elRes) elRes.textContent = reservasHoy;
+
+            // Sustancias críticas
+            SustanciasService.obtenerCriticas().then(data => {
+                const el = document.getElementById('criticalSubstances');
+                if (el) el.textContent = (data || []).length;
+            }).catch(() => {});
+
             loadAlerts();
-            
-            // Cargar actividad reciente
             loadRecentActivity();
-            
-            // Inicializar gráficos
             initializeCharts();
         }
 
         function loadLaboratorios() {
             const tbody = document.getElementById('labsTable');
             if (!tbody) return;
-            
+
+            if (LABORATORIOS.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;">No hay laboratorios registrados</td></tr>';
+                return;
+            }
+
             let html = '';
             LABORATORIOS.forEach(lab => {
-                const estadoClass = lab.estado === 'activo' ? 'badge-available' : 
+                const estadoClass = lab.estado === 'activo' ? 'badge-available' :
                                    lab.estado === 'mantenimiento' ? 'badge-maintenance' : 'badge-warning';
-                const estadoText = lab.estado === 'activo' ? 'Activo' : 
+                const estadoText = lab.estado === 'activo' ? 'Activo' :
                                    lab.estado === 'mantenimiento' ? 'En Mantenimiento' : 'Inactivo';
-                
+                const numEquipos = EQUIPOS.filter(e => e.laboratorio === lab.id).length;
+
                 html += `
                     <tr>
                         <td><strong>${lab.codigo}</strong></td>
@@ -2060,53 +2025,52 @@
                         <td>${getFacultyName(lab.facultad)}</td>
                         <td>${lab.responsable}</td>
                         <td><span class="status-badge ${estadoClass}">${estadoText}</span></td>
-                        <td>${lab.equipos}</td>
-                        <td>${formatDate(lab.ultimaAuditoria)}</td>
+                        <td>${numEquipos}</td>
+                        <td>${lab.capacidad} personas</td>
                         <td>
                             <div class="btn-group">
-                                <button class="btn btn-small btn-primary" onclick="viewLabDetails(${lab.id})">
+                                <button class="btn btn-small btn-primary" onclick="viewLabDetails('${lab.id}')">
                                     <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-small btn-warning" onclick="editLaboratorio(${lab.id})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-small btn-info" onclick="generateLabReport(${lab.id})">
-                                    <i class="fas fa-file-alt"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
                 `;
             });
-            
+
             tbody.innerHTML = html;
         }
 
         function loadEquipos() {
             const grid = document.getElementById('equipmentGrid');
             if (!grid) return;
-            
+
+            if (EQUIPOS.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;padding:20px;grid-column:1/-1;">No hay equipos registrados</p>';
+                return;
+            }
+
+            const estadoMap = {
+                'disponible': 'Disponible', 'available': 'Disponible',
+                'en_uso': 'En uso', 'inuse': 'En uso',
+                'mantenimiento': 'Mantenimiento', 'maintenance': 'Mantenimiento',
+                'reservado': 'Reservado', 'reserved': 'Reservado'
+            };
+
             let html = '';
             EQUIPOS.forEach(equipo => {
-                const estadoClass = `status-${equipo.estado}`;
-                const estadoText = {
-                    'available': 'Disponible',
-                    'inuse': 'En uso',
-                    'maintenance': 'Mantenimiento',
-                    'reserved': 'Reservado'
-                }[equipo.estado] || equipo.estado;
-                
+                const estadoText = estadoMap[equipo.estado] || equipo.estado;
+
                 html += `
                     <div class="equipment-card">
                         <div class="equipment-header">
                             <div class="equipment-name">${equipo.nombre}</div>
                             <div class="equipment-serial">${equipo.serial}</div>
                         </div>
-                        
                         <div class="equipment-details">
                             <div class="detail-row">
                                 <span>Laboratorio:</span>
-                                <strong>${equipo.laboratorio}</strong>
+                                <strong>${equipo.laboratorio_nombre || equipo.laboratorio_codigo || 'N/A'}</strong>
                             </div>
                             <div class="detail-row">
                                 <span>Estado:</span>
@@ -2115,113 +2079,76 @@
                                     ${estadoText}
                                 </span>
                             </div>
-                            <div class="detail-row">
-                                <span>Valor:</span>
-                                <span>$${equipo.valor.toFixed(2)}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span>Próx. Mant.:</span>
-                                <span>${formatDate(equipo.proximoMantenimiento)}</span>
-                            </div>
+                            ${equipo.descripcion ? `<div class="detail-row"><span>Descripción:</span><span>${equipo.descripcion}</span></div>` : ''}
                         </div>
-                        
                         <div class="btn-group">
-                            <button class="btn btn-small btn-primary" onclick="viewEquipment(${equipo.id})">
+                            <button class="btn btn-small btn-primary" onclick="viewEquipment('${equipo.id}')">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-small btn-warning" onclick="editEquipment(${equipo.id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-small btn-info" onclick="scheduleMaintenance(${equipo.id})">
-                                <i class="fas fa-wrench"></i>
-                            </button>
-                            ${currentUserMode === 'admin' ? `
-                                <button class="btn btn-small btn-danger" onclick="deleteEquipment(${equipo.id})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            ` : ''}
                         </div>
                     </div>
                 `;
             });
-            
+
             grid.innerHTML = html;
         }
 
         function loadUsuarios() {
             const tbody = document.getElementById('usersTable');
             if (!tbody) return;
-            
+
+            if (USUARIOS.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;">No hay usuarios registrados</td></tr>';
+                return;
+            }
+
+            const rolMap = { admin: 'Administrador', tecnico: 'Técnico', docente: 'Docente', estudiante: 'Estudiante' };
+            const rolClassMap = { admin: 'badge-maintenance', tecnico: 'badge-inuse', docente: 'badge-available', estudiante: 'badge-available' };
+
             let html = '';
             USUARIOS.forEach(usuario => {
-                const rolClass = usuario.rol === 'admin' ? 'badge-maintenance' :
-                                usuario.rol === 'tecnico' ? 'badge-inuse' : 'badge-available';
-                const rolText = usuario.rol === 'admin' ? 'Administrador' :
-                               usuario.rol === 'tecnico' ? 'Técnico' : 'Usuario';
-                
                 html += `
                     <tr>
                         <td><strong>${usuario.nombre}</strong></td>
                         <td>${usuario.email}</td>
-                        <td><span class="status-badge ${rolClass}">${rolText}</span></td>
-                        <td>${usuario.laboratorio}</td>
+                        <td><span class="status-badge ${rolClassMap[usuario.rol] || 'badge-available'}">${rolMap[usuario.rol] || usuario.rol}</span></td>
+                        <td>-</td>
                         <td><span class="status-badge badge-available">Activo</span></td>
-                        <td>${formatDateTime(usuario.ultimoAcceso)}</td>
+                        <td>-</td>
                         <td>
                             <div class="btn-group">
-                                <button class="btn btn-small btn-primary" onclick="viewUser(${usuario.id})">
+                                <button class="btn btn-small btn-primary" onclick="viewUser('${usuario.id}')">
                                     <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-small btn-warning" onclick="editUser(${usuario.id})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-small btn-info" onclick="resetPassword(${usuario.id})">
-                                    <i class="fas fa-key"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
                 `;
             });
-            
+
             tbody.innerHTML = html;
         }
 
         // ===== FUNCIONES DE GESTIÓN =====
 
         function openTab(tabName) {
-            // Ocultar todos los tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
-            // Desactivar todos los botones
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
-            // Mostrar tab seleccionado
+
             const tabElement = document.getElementById(tabName);
-            if (tabElement) {
-                tabElement.classList.add('active');
-            }
-            
-            // Activar botón correspondiente
-            if (event && event.currentTarget) {
-                event.currentTarget.classList.add('active');
-            }
-            
-            // Cargar datos específicos del tab si es necesario
+            if (tabElement) tabElement.classList.add('active');
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
+
             switch(tabName) {
-                case 'tab-dashboard':
-                    loadDashboardData();
-                    break;
-                case 'tab-reportes':
-                    loadReportsData();
-                    break;
-                case 'tab-reservas':
-                    loadReservations();
-                    break;
+                case 'tab-dashboard': loadDashboardData(); break;
+                case 'tab-laboratorios': loadLaboratorios(); break;
+                case 'tab-equipos': loadEquipos(); break;
+                case 'tab-usuarios': loadUsuarios(); break;
+                case 'tab-reservas': loadReservationsTab(); break;
             }
         }
 
@@ -2235,17 +2162,13 @@
             const userName = document.getElementById('userName');
             const userRole = document.getElementById('userRole');
             const userBadge = document.getElementById('userBadge');
-            
+
             if (currentUserMode === 'tecnico') {
-                userName.textContent = 'Ing. Wellington Espinoza';
-                userRole.textContent = 'Técnico Encargado - Laboratorio de Bromatología';
-                userBadge.textContent = 'TÉCNICO';
-                userBadge.style.background = 'rgba(8, 184, 157, 0.3)';
+                if (userRole) userRole.textContent = 'Técnico Encargado';
+                if (userBadge) { userBadge.textContent = 'TÉCNICO'; userBadge.style.background = 'rgba(8, 184, 157, 0.3)'; }
             } else {
-                userName.textContent = 'Administrador del Sistema';
-                userRole.textContent = 'Administrador Principal - Unidad de Desarrollo e Innovación (UDIV)';
-                userBadge.textContent = 'ADMINISTRADOR';
-                userBadge.style.background = 'rgba(203, 219, 42, 0.3)';
+                if (userRole) userRole.textContent = 'Administrador Principal - UDIV';
+                if (userBadge) { userBadge.textContent = 'ADMINISTRADOR'; userBadge.style.background = 'rgba(203, 219, 42, 0.3)'; }
             }
         }
 
@@ -2254,7 +2177,7 @@
         function generateReport(type) {
             let reportData = {};
             let fileName = '';
-            
+
             switch(type) {
                 case 'equipos':
                     reportData = {
@@ -2263,66 +2186,28 @@
                         data: EQUIPOS,
                         summary: {
                             total: EQUIPOS.length,
-                            disponibles: EQUIPOS.filter(e => e.estado === 'available').length,
-                            enUso: EQUIPOS.filter(e => e.estado === 'inuse').length,
-                            mantenimiento: EQUIPOS.filter(e => e.estado === 'maintenance').length
+                            disponibles: EQUIPOS.filter(e => e.estado === 'disponible' || e.estado === 'available').length,
+                            enUso: EQUIPOS.filter(e => e.estado === 'en_uso' || e.estado === 'inuse').length,
+                            mantenimiento: EQUIPOS.filter(e => e.estado === 'mantenimiento' || e.estado === 'maintenance').length
                         }
                     };
                     fileName = `reporte-equipos-${new Date().toISOString().split('T')[0]}.pdf`;
                     break;
-                    
-                case 'mantenimiento':
-                    reportData = {
-                        title: 'Reporte de Mantenimiento',
-                        date: new Date().toISOString(),
-                        data: getMaintenanceData(),
-                        summary: getMaintenanceSummary()
-                    };
-                    fileName = `reporte-mantenimiento-${new Date().toISOString().split('T')[0]}.pdf`;
-                    break;
-                    
                 case 'completo':
-                    reportData = generateCompleteReport();
+                    reportData = {
+                        title: 'Reporte Integral de Laboratorios ESPAM MFL',
+                        date: new Date().toISOString(),
+                        laboratorios: LABORATORIOS.length,
+                        equipos: EQUIPOS.length,
+                        usuarios: USUARIOS.length,
+                        reservas: reservasData.length
+                    };
                     fileName = `reporte-completo-${new Date().toISOString().split('T')[0]}.pdf`;
                     break;
             }
-            
-            // En producción, aquí se generaría el PDF real
-            showNotification(`Reporte ${type} generado exitosamente`, 'success');
-            console.log('📊 Reporte generado:', reportData);
-            
-            // Simular descarga
-            setTimeout(() => {
-                showNotification(`Descargando ${fileName}...`, 'info');
-            }, 500);
-        }
 
-        function generateCompleteReport() {
-            return {
-                title: 'Reporte Integral de Laboratorios ESPAM MFL',
-                institution: 'ESPAM MFL',
-                date: new Date().toISOString(),
-                sections: {
-                    laboratorios: {
-                        total: LABORATORIOS.length,
-                        porFacultad: groupByFacultad(LABORATORIOS),
-                        estado: groupByEstado(LABORATORIOS)
-                    },
-                    equipos: {
-                        total: EQUIPOS.length,
-                        porEstado: groupByEstadoEquipos(EQUIPOS),
-                        porCategoria: groupByCategoria(EQUIPOS),
-                        valorTotal: calcularValorTotal(EQUIPOS)
-                    },
-                    mantenimiento: getMaintenanceSummary(),
-                    inventario: getInventorySummary(),
-                    usuarios: {
-                        total: USUARIOS.length,
-                        porRol: groupByRol(USUARIOS)
-                    }
-                },
-                recomendaciones: generarRecomendaciones()
-            };
+            showNotification(`Reporte ${type} generado exitosamente`, 'success');
+            console.log('Reporte generado:', reportData);
         }
 
         // ===== FUNCIONES DE UTILIDAD =====
@@ -2330,41 +2215,29 @@
         function formatDate(dateString) {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
-            return date.toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
+            return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
         }
 
         function formatDateTime(dateTimeString) {
             if (!dateTimeString) return 'N/A';
             const date = new Date(dateTimeString);
-            return date.toLocaleString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            return date.toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
         function getFacultyName(facultyCode) {
             const facultades = {
-                'ingenieria': 'Ingeniería',
-                'ciencias': 'Ciencias Básicas',
-                'salud': 'Ciencias de la Salud',
-                'agropecuarias': 'Ciencias Agropecuarias'
+                'ingenieria': 'Ingeniería', 'ciencias': 'Ciencias Básicas',
+                'salud': 'Ciencias de la Salud', 'agropecuarias': 'Ciencias Agropecuarias'
             };
-            return facultades[facultyCode] || facultyCode;
+            return facultades[facultyCode] || facultyCode || 'N/A';
         }
 
         function getStatusBadgeClass(status) {
             const classes = {
-                'available': 'badge-available',
-                'inuse': 'badge-inuse',
-                'maintenance': 'badge-maintenance',
-                'reserved': 'badge-reserved'
+                'available': 'badge-available', 'disponible': 'badge-available',
+                'inuse': 'badge-inuse', 'en_uso': 'badge-inuse',
+                'maintenance': 'badge-maintenance', 'mantenimiento': 'badge-maintenance',
+                'reserved': 'badge-reserved', 'reservado': 'badge-reserved'
             };
             return classes[status] || 'badge-warning';
         }
@@ -2378,10 +2251,7 @@
                 <i class="fas fa-${getNotificationIcon(type)}"></i>
                 <span>${message}</span>
             `;
-            
             document.body.appendChild(notification);
-            
-            // Eliminar después de 4 segundos
             setTimeout(() => {
                 notification.style.opacity = '0';
                 notification.style.transform = 'translateX(100%)';
@@ -2390,12 +2260,7 @@
         }
 
         function getNotificationIcon(type) {
-            const icons = {
-                'success': 'check-circle',
-                'error': 'exclamation-circle',
-                'warning': 'exclamation-triangle',
-                'info': 'info-circle'
-            };
+            const icons = { 'success': 'check-circle', 'error': 'exclamation-circle', 'warning': 'exclamation-triangle', 'info': 'info-circle' };
             return icons[type] || 'info-circle';
         }
 
@@ -2406,7 +2271,6 @@
         }
 
         function openAddEquipmentModal() {
-            // Cargar laboratorios en el select
             const labSelect = document.getElementById('equipLab');
             if (labSelect) {
                 labSelect.innerHTML = '<option value="">Seleccionar laboratorio</option>' +
@@ -2421,118 +2285,106 @@
             });
         }
 
-        // ===== FUNCIONES DE DATOS (simuladas) =====
+        // ===== FUNCIONES DE DATOS =====
 
-        function loadInventoryData() {
-            // Simular carga de inventario
-            setTimeout(() => {
-                showNotification('Datos de inventario cargados', 'success');
-            }, 500);
-        }
+        function loadInventoryData() {}
+        function loadSubstancesData() {}
+        function loadMaintenanceData() {}
+        function loadReportsData() {}
 
-        function loadSubstancesData() {
-            // Simular carga de sustancias
-            setTimeout(() => {
-                showNotification('Datos de sustancias cargados', 'success');
-            }, 500);
-        }
-
-        function loadMaintenanceData() {
-            // Simular carga de mantenimiento
-            setTimeout(() => {
-                showNotification('Datos de mantenimiento cargados', 'success');
-            }, 500);
-        }
-
-        function loadReportsData() {
-            // Simular carga de reportes
-            setTimeout(() => {
-                showNotification('Datos para reportes cargados', 'success');
-            }, 500);
-        }
-
-        function loadReservations() {
-            // Simular carga de reservas
-            setTimeout(() => {
-                showNotification('Calendario de reservas cargado', 'success');
-            }, 500);
+        async function loadReservationsTab() {
+            try {
+                reservasData = await ReservasService.obtenerTodas() || [];
+                updateCalendar();
+            } catch (e) {
+                console.error('Error cargando reservas:', e);
+            }
         }
 
         // ===== FUNCIONES DE CALENDARIO =====
 
         function setupCalendar() {
-            const today = new Date();
-            selectedDate = today;
+            selectedDate = new Date();
             updateCalendar();
         }
 
         function updateCalendar() {
             const calendarElement = document.getElementById('calendar');
             if (!calendarElement) return;
-            
+
             const month = selectedDate.getMonth();
             const year = selectedDate.getFullYear();
-            
-            // Generar calendario básico
             let html = '<div class="calendar-grid">';
-            
-            // Días de la semana
             const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-            days.forEach(day => {
-                html += `<div class="calendar-day">${day}</div>`;
-            });
-            
-            // Días del mes
+            days.forEach(day => { html += `<div class="calendar-day">${day}</div>`; });
+
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            
-            // Espacios vacíos al inicio
-            for (let i = 0; i < firstDay; i++) {
-                html += '<div class="calendar-date"></div>';
-            }
-            
-            // Días del mes
+
+            for (let i = 0; i < firstDay; i++) { html += '<div class="calendar-date"></div>'; }
+
             for (let day = 1; day <= daysInMonth; day++) {
-                const hasEvent = Math.random() > 0.7; // Simular eventos
+                const fechaStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasEvent = reservasData.some(r => r.fecha === fechaStr);
                 const dateClass = hasEvent ? 'calendar-date has-event' : 'calendar-date';
                 html += `<div class="${dateClass}">${day}</div>`;
             }
-            
+
             html += '</div>';
             calendarElement.innerHTML = html;
         }
 
         // ===== FUNCIONES DE ALERTAS =====
 
-        function loadAlerts() {
-            const alerts = [
-                { type: 'warning', message: '3 equipos requieren mantenimiento urgente', time: 'Hace 2 horas' },
-                { type: 'danger', message: 'Nivel crítico en sustancias químicas', time: 'Hace 1 día' },
-                { type: 'info', message: 'Auditoría programada para el 30 de enero', time: 'Hace 2 días' }
-            ];
-            
+        async function loadAlerts() {
             const container = document.getElementById('alertsContainer');
             if (!container) return;
-            
+
+            const alerts = [];
+
+            // Equipos en mantenimiento
+            const eqMaint = EQUIPOS.filter(e => e.estado === 'mantenimiento' || e.estado === 'maintenance');
+            if (eqMaint.length > 0) {
+                alerts.push({ type: 'warning', message: `${eqMaint.length} equipo(s) en mantenimiento` });
+            }
+
+            // Sustancias críticas
+            try {
+                const criticas = await SustanciasService.obtenerCriticas();
+                if (criticas && criticas.length > 0) {
+                    alerts.push({ type: 'danger', message: `${criticas.length} sustancia(s) en nivel crítico` });
+                }
+            } catch (e) {}
+
+            // Reservas pendientes
+            const pendientes = reservasData.filter(r => r.estado === 'pendiente');
+            if (pendientes.length > 0) {
+                alerts.push({ type: 'info', message: `${pendientes.length} reserva(s) pendientes de aprobación` });
+            }
+
+            if (alerts.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#666;padding:20px;">Sin alertas activas</p>';
+                return;
+            }
+
             let html = '';
             alerts.forEach(alert => {
                 html += `
                     <div style="padding: 15px; margin-bottom: 10px; background: white; border-radius: 8px; border-left: 4px solid var(--espam-${alert.type}); box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <strong style="color: var(--espam-${alert.type});">${alert.message}</strong>
-                            <small style="color: #666;">${alert.time}</small>
                         </div>
                     </div>
                 `;
             });
-            
             container.innerHTML = html;
         }
+
+        function loadRecentActivity() {}
 
         // ===== INICIALIZACIÓN DE GRÁFICOS =====
 
         function initializeCharts() {
-            // Simular gráficos con HTML/CSS
             setTimeout(() => {
                 document.querySelectorAll('.chart-container').forEach(container => {
                     if (container.id === 'occupationChart') {
@@ -2545,33 +2397,63 @@
         }
 
         function createOccupationChart() {
+            if (LABORATORIOS.length === 0) {
+                return '<p style="text-align:center;color:#666;padding:20px;">Sin datos de laboratorios</p>';
+            }
+            const colors = ['var(--espam-primary)', 'var(--espam-secondary)', 'var(--espam-light)', 'var(--espam-accent)'];
+            let html = '<div style="height: 100%; display: flex; flex-direction: column; justify-content: center;">';
+
+            LABORATORIOS.forEach((lab, i) => {
+                const reservasLab = reservasData.filter(r => r.laboratorio_id === lab.id);
+                const totalSlots = 30; // aproximado mensual
+                const pct = totalSlots > 0 ? Math.min(Math.round((reservasLab.length / totalSlots) * 100), 100) : 0;
+                const color = colors[i % colors.length];
+                html += `
+                    <div style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>${lab.nombre}</span>
+                            <span style="font-weight: 600; color: ${color};">${pct}%</span>
+                        </div>
+                        <div style="height: 20px; background: #eee; border-radius: 10px; overflow: hidden;">
+                            <div style="width: ${pct}%; height: 100%; background: ${color}; transition: width 0.5s;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            return html;
+        }
+
+        function createEquipmentStatusChart() {
+            const disponibles = EQUIPOS.filter(e => e.estado === 'disponible' || e.estado === 'available').length;
+            const enUso = EQUIPOS.filter(e => e.estado === 'en_uso' || e.estado === 'inuse').length;
+            const maint = EQUIPOS.filter(e => e.estado === 'mantenimiento' || e.estado === 'maintenance').length;
+            const total = EQUIPOS.length || 1;
+
             return `
                 <div style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
                     <div style="margin-bottom: 10px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>Lab Bromatología</span>
-                            <span style="font-weight: 600; color: var(--espam-primary);">85%</span>
+                            <span>Disponibles</span><span style="font-weight:600;color:var(--espam-secondary);">${disponibles}</span>
                         </div>
-                        <div style="height: 20px; background: #eee; border-radius: 10px; overflow: hidden;">
-                            <div style="width: 85%; height: 100%; background: linear-gradient(90deg, var(--espam-primary), var(--espam-light));"></div>
+                        <div style="height:20px;background:#eee;border-radius:10px;overflow:hidden;">
+                            <div style="width:${(disponibles/total)*100}%;height:100%;background:var(--espam-secondary);"></div>
                         </div>
                     </div>
                     <div style="margin-bottom: 10px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>Lab Química</span>
-                            <span style="font-weight: 600; color: var(--espam-secondary);">72%</span>
+                            <span>En Uso</span><span style="font-weight:600;color:var(--espam-info);">${enUso}</span>
                         </div>
-                        <div style="height: 20px; background: #eee; border-radius: 10px; overflow: hidden;">
-                            <div style="width: 72%; height: 100%; background: linear-gradient(90deg, var(--espam-secondary), var(--espam-accent));"></div>
+                        <div style="height:20px;background:#eee;border-radius:10px;overflow:hidden;">
+                            <div style="width:${(enUso/total)*100}%;height:100%;background:var(--espam-info);"></div>
                         </div>
                     </div>
                     <div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>Lab Biología</span>
-                            <span style="font-weight: 600; color: var(--espam-light);">45%</span>
+                            <span>Mantenimiento</span><span style="font-weight:600;color:var(--espam-warning);">${maint}</span>
                         </div>
-                        <div style="height: 20px; background: #eee; border-radius: 10px; overflow: hidden;">
-                            <div style="width: 45%; height: 100%; background: linear-gradient(90deg, var(--espam-light), #08b89d);"></div>
+                        <div style="height:20px;background:#eee;border-radius:10px;overflow:hidden;">
+                            <div style="width:${(maint/total)*100}%;height:100%;background:var(--espam-warning);"></div>
                         </div>
                     </div>
                 </div>
@@ -2581,12 +2463,9 @@
         // ===== FUNCIONES DE EVENTOS =====
 
         function setupEventListeners() {
-            // Configurar filtros
             document.querySelectorAll('select, input').forEach(element => {
                 element.addEventListener('change', function() {
-                    if (this.id.includes('Filter')) {
-                        applyFilters();
-                    }
+                    if (this.id.includes('Filter')) applyFilters();
                 });
             });
         }
@@ -2597,14 +2476,56 @@
 
         // ===== FUNCIONES DE ACCIÓN =====
 
-        function saveLaboratory() {
-            showNotification('Laboratorio guardado exitosamente', 'success');
-            closeModal();
+        async function saveLaboratory() {
+            const nombre = document.getElementById('labName')?.value;
+            const codigo = document.getElementById('labCode')?.value;
+            if (!nombre || !codigo) {
+                showNotification('Complete los campos obligatorios', 'warning');
+                return;
+            }
+            try {
+                const { data, error } = await supabase.from('laboratorios').insert({
+                    nombre, codigo,
+                    ubicacion: document.getElementById('labLocation')?.value || '',
+                    capacidad: parseInt(document.getElementById('labCapacity')?.value) || 0,
+                    estado: 'activo'
+                }).select().single();
+                if (error) throw error;
+                showNotification('Laboratorio guardado exitosamente', 'success');
+                closeModal();
+                await cargarLaboratorios();
+                loadLaboratorios();
+                loadDashboardData();
+            } catch (e) {
+                console.error('Error guardando laboratorio:', e);
+                showNotification('Error al guardar laboratorio: ' + e.message, 'error');
+            }
         }
 
-        function saveEquipment() {
-            showNotification('Equipo registrado exitosamente', 'success');
-            closeModal();
+        async function saveEquipment() {
+            const nombre = document.getElementById('equipName')?.value;
+            const labId = document.getElementById('equipLab')?.value;
+            if (!nombre || !labId) {
+                showNotification('Complete los campos obligatorios', 'warning');
+                return;
+            }
+            try {
+                const { data, error } = await supabase.from('equipos').insert({
+                    nombre,
+                    laboratorio_id: labId,
+                    codigo: document.getElementById('equipSerial')?.value || '',
+                    estado: 'disponible'
+                }).select().single();
+                if (error) throw error;
+                showNotification('Equipo registrado exitosamente', 'success');
+                closeModal();
+                await cargarEquipos();
+                loadEquipos();
+                loadDashboardData();
+            } catch (e) {
+                console.error('Error guardando equipo:', e);
+                showNotification('Error al guardar equipo: ' + e.message, 'error');
+            }
         }
 
         function saveSystemConfig() {
@@ -2615,37 +2536,9 @@
             showNotification('Copia de seguridad iniciada...', 'info');
             setTimeout(() => {
                 showNotification('Copia de seguridad completada exitosamente', 'success');
-                document.getElementById('lastBackup').textContent = formatDateTime(new Date());
+                const el = document.getElementById('lastBackup');
+                if (el) el.textContent = formatDateTime(new Date());
             }, 2000);
-        }
-
-        // ===== FUNCIONES DE UTILIDAD DE DATOS =====
-
-        function groupByFacultad(laboratorios) {
-            return laboratorios.reduce((acc, lab) => {
-                acc[lab.facultad] = (acc[lab.facultad] || 0) + 1;
-                return acc;
-            }, {});
-        }
-
-        function groupByEstadoEquipos(equipos) {
-            return equipos.reduce((acc, equip) => {
-                acc[equip.estado] = (acc[equip.estado] || 0) + 1;
-                return acc;
-            }, {});
-        }
-
-        function calcularValorTotal(equipos) {
-            return equipos.reduce((sum, equip) => sum + (equip.valor || 0), 0);
-        }
-
-        function generarRecomendaciones() {
-            return [
-                "Programar mantenimiento preventivo para equipos con más de 6 meses sin revisión",
-                "Actualizar inventario de sustancias químicas críticas",
-                "Capacitar al personal en nuevos protocolos de seguridad",
-                "Optimizar horarios de laboratorios con alta demanda"
-            ];
         }
 
         // ===== FUNCIONES DE VISTA =====
@@ -2653,15 +2546,15 @@
         function viewLabDetails(id) {
             const lab = LABORATORIOS.find(l => l.id === id);
             if (lab) {
+                const numEquipos = EQUIPOS.filter(e => e.laboratorio === lab.id).length;
                 alert(`Detalles del Laboratorio:\n\n` +
                       `Código: ${lab.codigo}\n` +
                       `Nombre: ${lab.nombre}\n` +
-                      `Facultad: ${getFacultyName(lab.facultad)}\n` +
-                      `Responsable: ${lab.responsable}\n` +
-                      `Ubicación: ${lab.ubicacion}\n` +
+                      `Responsable: ${lab.responsable || 'N/A'}\n` +
+                      `Ubicación: ${lab.ubicacion || 'N/A'}\n` +
                       `Capacidad: ${lab.capacidad} personas\n` +
-                      `Equipos: ${lab.equipos}\n` +
-                      `Última Auditoría: ${formatDate(lab.ultimaAuditoria)}`);
+                      `Equipos: ${numEquipos}\n` +
+                      `Estado: ${lab.estado}`);
             }
         }
 
@@ -2671,12 +2564,19 @@
                 alert(`Detalles del Equipo:\n\n` +
                       `Nombre: ${equip.nombre}\n` +
                       `Serial: ${equip.serial}\n` +
-                      `Laboratorio: ${equip.laboratorio}\n` +
-                      `Valor: $${equip.valor.toFixed(2)}\n` +
-                      `Fecha Adquisición: ${formatDate(equip.fechaAdquisicion)}\n` +
-                      `Vida Útil: ${equip.vidaUtil} años\n` +
-                      `Último Mantenimiento: ${formatDate(equip.ultimoMantenimiento)}\n` +
-                      `Próximo Mantenimiento: ${formatDate(equip.proximoMantenimiento)}`);
+                      `Laboratorio: ${equip.laboratorio_nombre || 'N/A'}\n` +
+                      `Estado: ${equip.estado}\n` +
+                      `Descripción: ${equip.descripcion || 'N/A'}`);
+            }
+        }
+
+        function viewUser(id) {
+            const user = USUARIOS.find(u => u.id === id);
+            if (user) {
+                alert(`Detalles del Usuario:\n\n` +
+                      `Nombre: ${user.nombre}\n` +
+                      `Email: ${user.email}\n` +
+                      `Rol: ${user.rol}`);
             }
         }
 
@@ -2694,8 +2594,7 @@
         window.generateReport = generateReport;
         window.viewLabDetails = viewLabDetails;
         window.viewEquipment = viewEquipment;
-
-        console.log('✅ Sistema completamente inicializado y listo para usar');
+        window.viewUser = viewUser;
     </script>
 </body>
 </html>
