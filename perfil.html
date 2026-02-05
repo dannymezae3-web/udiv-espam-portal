@@ -1321,51 +1321,91 @@
     </div>
 
     <script>
-        // Datos del usuario (simulación)
-        const userData = {
-            firstName: "Carlos",
-            lastName: "Mendoza",
-            cedula: "1312345678",
-            birthDate: "1985-05-15",
-            gender: "masculino",
-            phone: "0987654321",
-            address: "",
-            userType: "docente",
-            career: "Ingeniería de la Producción",
-            emailInstitutional: "carlos.mendoza@espam.edu.ec",
-            emailPersonal: "carlos.mendoza.personal@gmail.com",
-            laboratory: "bromatologia",
-            healthConditions: "",
-            emergencyName: "",
-            emergencyPhone: "",
-            emergencyRelationship: ""
+        // Datos del usuario
+        let userData = {
+            firstName: "", lastName: "", cedula: "", birthDate: "", gender: "",
+            phone: "", address: "", userType: "", career: "",
+            emailInstitutional: "", emailPersonal: "", laboratory: "",
+            healthConditions: "", emergencyName: "", emergencyPhone: "", emergencyRelationship: ""
         };
+        let currentUserId = null;
 
         // Inicializar página
-        document.addEventListener('DOMContentLoaded', function() {
-            loadUserData();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadUserData();
             setupFormValidation();
             setupEventListeners();
         });
 
-        // Cargar datos del usuario
-        function loadUserData() {
-            // Cargar desde localStorage si existe
-            const savedData = localStorage.getItem('userProfileData');
-            if (savedData) {
-                Object.assign(userData, JSON.parse(savedData));
+        // Cargar datos del usuario desde Supabase
+        async function loadUserData() {
+            try {
+                const { session, perfil } = await AuthService.getSesion();
+                if (session && perfil) {
+                    currentUserId = perfil.id;
+                    const partes = (perfil.nombre || '').split(' ');
+                    userData.firstName = partes[0] || '';
+                    userData.lastName = partes.slice(1).join(' ') || '';
+                    userData.cedula = perfil.cedula || '';
+                    userData.birthDate = perfil.fecha_nacimiento || '';
+                    userData.gender = perfil.sexo || '';
+                    userData.phone = perfil.telefono || perfil.contacto || '';
+                    userData.userType = perfil.tipo || 'docente';
+                    userData.career = perfil.carrera_nombre || '';
+                    userData.emailInstitutional = perfil.email || '';
+                    userData.emailPersonal = perfil.email_personal || '';
+                    userData.laboratory = perfil.laboratorio_nombre || '';
+                    userData.healthConditions = perfil.discapacidad || '';
+                } else {
+                    // Fallback a localStorage
+                    const legacy = SessionHelper.obtenerSesionLegacy();
+                    if (legacy.nombre) {
+                        const partes = legacy.nombre.split(' ');
+                        userData.firstName = partes[0] || '';
+                        userData.lastName = partes.slice(1).join(' ') || '';
+                        userData.userType = legacy.tipo || 'docente';
+                        userData.career = legacy.carrera || '';
+                        userData.emailInstitutional = legacy.email || '';
+                    }
+                }
+            } catch (e) {
+                console.error('Error cargando perfil:', e);
+                const legacy = SessionHelper.obtenerSesionLegacy();
+                if (legacy.nombre) {
+                    const partes = legacy.nombre.split(' ');
+                    userData.firstName = partes[0] || '';
+                    userData.lastName = partes.slice(1).join(' ') || '';
+                    userData.userType = legacy.tipo || 'docente';
+                    userData.career = legacy.carrera || '';
+                }
             }
 
             // Actualizar formularios
             Object.keys(userData).forEach(key => {
                 const element = document.getElementById(key);
-                if (element) {
-                    element.value = userData[key];
-                }
+                if (element) element.value = userData[key];
             });
 
-            // Actualizar UI
+            // Cargar estadísticas reales
+            await loadStats();
             updateProfileUI();
+        }
+
+        // Cargar estadísticas de actividad
+        async function loadStats() {
+            try {
+                const reservas = await ReservasService.obtenerMisReservas();
+                const el = document.getElementById('statReservas');
+                if (el) el.textContent = reservas.length;
+
+                // Contar estudiantes
+                let totalEstudiantes = 0;
+                reservas.forEach(r => totalEstudiantes += (r.estudiantes_count || 0));
+                const elEst = document.getElementById('statEstudiantes');
+                if (elEst) elEst.textContent = totalEstudiantes;
+            } catch (e) {
+                console.error('Error cargando stats:', e);
+            }
         }
 
         // Actualizar interfaz con datos del usuario
@@ -1532,44 +1572,76 @@
         }
 
         // Guardar datos del formulario
-        function saveFormData(formId) {
-            let formData = {};
-            
+        async function saveFormData(formId) {
             switch(formId) {
                 case 'personalInfoForm':
-                    // Recoger datos del formulario de información personal
+                    // Recoger datos del formulario
                     Object.keys(userData).forEach(key => {
                         const element = document.getElementById(key);
                         if (element) {
                             userData[key] = element.value;
                         }
                     });
-                    formData = userData;
+
+                    if (currentUserId) {
+                        // Mapear campos del form a columnas de la BD
+                        const datos = {
+                            nombre: (userData.firstName + ' ' + userData.lastName).trim(),
+                            cedula: userData.cedula || null,
+                            fecha_nacimiento: userData.birthDate || null,
+                            sexo: userData.gender || null,
+                            telefono: userData.phone || null,
+                            email_personal: userData.emailPersonal || null,
+                            discapacidad: userData.healthConditions || null
+                        };
+
+                        const result = await UsuariosService.actualizarPerfil(currentUserId, datos);
+                        if (result.success) {
+                            alert('Perfil actualizado exitosamente');
+                        } else {
+                            alert('Error al guardar: ' + (result.error || 'Intente de nuevo'));
+                            return;
+                        }
+                    } else {
+                        // Fallback localStorage
+                        localStorage.setItem('userProfileData', JSON.stringify(userData));
+                        alert('Cambios guardados localmente');
+                    }
                     break;
-                    
+
                 case 'securityForm':
-                    // Cambiar contraseña
                     const currentPass = document.getElementById('currentPassword').value;
                     const newPass = document.getElementById('newPassword').value;
-                    
-                    // Aquí iría la lógica para cambiar contraseña en el servidor
-                    alert('Contraseña actualizada exitosamente');
+                    const confirmPass = document.getElementById('confirmPassword')?.value;
+
+                    if (!currentPass || !newPass) {
+                        alert('Complete todos los campos de contraseña');
+                        return;
+                    }
+                    if (confirmPass && newPass !== confirmPass) {
+                        alert('Las contraseñas no coinciden');
+                        return;
+                    }
+
+                    try {
+                        const { error } = await supabase.auth.updateUser({ password: newPass });
+                        if (error) throw error;
+                        alert('Contraseña actualizada exitosamente');
+                        document.getElementById('securityForm').reset();
+                    } catch (e) {
+                        console.error('Error cambiando contraseña:', e);
+                        alert('Error al cambiar contraseña: ' + e.message);
+                        return;
+                    }
                     break;
-                    
+
                 case 'notificationsForm':
                 case 'preferencesForm':
-                    // Estas preferencias se manejarían diferente
                     alert('Preferencias guardadas');
                     break;
             }
 
-            // Guardar en localStorage
-            localStorage.setItem('userProfileData', JSON.stringify(formData));
-            
-            // Actualizar UI
             updateProfileUI();
-            
-            alert('Cambios guardados exitosamente');
         }
 
         // Restablecer formulario
@@ -1594,19 +1666,7 @@
             }
         }
 
-        // Generar datos de ejemplo para estadísticas
-        function generateStats() {
-            // Estas estadísticas vendrían del servidor
-            const stats = {
-                reservas: Math.floor(Math.random() * 50) + 20,
-                estudiantes: Math.floor(Math.random() * 200) + 100,
-                rating: (Math.random() * 1 + 4).toFixed(1)
-            };
-            
-            document.getElementById('statReservas').textContent = stats.reservas;
-            document.getElementById('statEstudiantes').textContent = stats.estudiantes;
-            document.getElementById('statRating').textContent = stats.rating;
-        }
+        // Las estadísticas se cargan en loadStats() desde Supabase
 
         // Llamar a generar estadísticas al cargar
         generateStats();
