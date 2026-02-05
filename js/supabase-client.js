@@ -7,7 +7,7 @@ const SUPABASE_URL = 'https://qlxrpqfisjizqlffqbuh.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFseHJwcWZpc2ppenFsZmZxYnVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzMyMzcsImV4cCI6MjA4NTgwOTIzN30.ADGKG601SWlwexfOeArZ44t0iqAF6DZCNpJziMLOUAo';
 
 // Inicializar cliente Supabase
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================
 // SERVICIO DE AUTENTICACIÓN
@@ -17,7 +17,7 @@ const AuthService = {
     async registrar(email, password, datosUsuario) {
         try {
             // 1. Crear usuario en auth
-            const { data: authData, error: authError } = await supabase.auth.signUp({
+            const { data: authData, error: authError } = await supabaseClient.auth.signUp({
                 email: email,
                 password: password
             });
@@ -63,7 +63,7 @@ const AuthService = {
     // Iniciar sesión
     async login(email, password) {
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: email,
                 password: password
             });
@@ -89,7 +89,7 @@ const AuthService = {
     // Cerrar sesión
     async logout() {
         try {
-            const { error } = await supabase.auth.signOut();
+            const { error } = await supabaseClient.auth.signOut();
             if (error) throw error;
 
             // Limpiar storage legacy
@@ -108,7 +108,7 @@ const AuthService = {
     // Obtener sesión actual
     async getSesion() {
         try {
-            const { data: { session }, error } = await supabase.auth.getSession();
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
             if (error) throw error;
 
             if (session) {
@@ -126,7 +126,7 @@ const AuthService = {
     // Obtener usuario actual
     async getUsuarioActual() {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return null;
 
             const perfil = await UsuariosService.obtenerPerfil(user.id);
@@ -139,7 +139,7 @@ const AuthService = {
 
     // Escuchar cambios de sesión
     onAuthChange(callback) {
-        return supabase.auth.onAuthStateChange((event, session) => {
+        return supabaseClient.auth.onAuthStateChange((event, session) => {
             callback(event, session);
         });
     },
@@ -147,7 +147,7 @@ const AuthService = {
     // Recuperar contraseña
     async recuperarPassword(email) {
         try {
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
                 redirectTo: window.location.origin + '/login.html'
             });
             if (error) throw error;
@@ -201,7 +201,7 @@ const UsuariosService = {
     // Listar todos los usuarios (admin/tecnico)
     async listarUsuarios(filtros = {}) {
         try {
-            let query = supabase.from('usuarios').select('*');
+            let query = supabaseClient.from('usuarios').select('*');
 
             if (filtros.tipo) query = query.eq('tipo', filtros.tipo);
             if (filtros.carrera) query = query.eq('carrera_nombre', filtros.carrera);
@@ -299,7 +299,7 @@ const ReservasService = {
     // Crear reserva
     async crear(datosReserva) {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) throw new Error('No hay sesión activa');
 
             const { data, error } = await supabase
@@ -332,7 +332,7 @@ const ReservasService = {
     // Obtener reservas del usuario actual
     async obtenerMisReservas() {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return [];
 
             const { data, error } = await supabase
@@ -547,7 +547,7 @@ const PracticasService = {
     // Obtener prácticas del docente actual
     async obtenerMisPracticas() {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return [];
 
             const { data, error } = await supabase
@@ -570,7 +570,7 @@ const PracticasService = {
     // Obtener prácticas del estudiante
     async obtenerPracticasEstudiante() {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return [];
 
             const { data, error } = await supabase
@@ -620,7 +620,7 @@ const ReportesService = {
     // Estadísticas generales
     async obtenerEstadisticas(filtros = {}) {
         try {
-            let queryReservas = supabase.from('reservas').select('*', { count: 'exact', head: true });
+            let queryReservas = supabaseClient.from('reservas').select('*', { count: 'exact', head: true });
             if (filtros.fechaDesde) queryReservas = queryReservas.gte('fecha', filtros.fechaDesde);
             if (filtros.fechaHasta) queryReservas = queryReservas.lte('fecha', filtros.fechaHasta);
 
@@ -632,10 +632,10 @@ const ReportesService = {
                 { count: totalUsuarios }
             ] = await Promise.all([
                 queryReservas,
-                supabase.from('reservas').select('*', { count: 'exact', head: true }).eq('estado', 'pendiente'),
-                supabase.from('reservas').select('*', { count: 'exact', head: true }).eq('estado', 'confirmada'),
-                supabase.from('reservas').select('*', { count: 'exact', head: true }).eq('estado', 'completada'),
-                supabase.from('usuarios').select('*', { count: 'exact', head: true })
+                supabaseClient.from('reservas').select('*', { count: 'exact', head: true }).eq('estado', 'pendiente'),
+                supabaseClient.from('reservas').select('*', { count: 'exact', head: true }).eq('estado', 'confirmada'),
+                supabaseClient.from('reservas').select('*', { count: 'exact', head: true }).eq('estado', 'completada'),
+                supabaseClient.from('usuarios').select('*', { count: 'exact', head: true })
             ]);
 
             return {
@@ -691,7 +691,7 @@ const ReportesService = {
     // Reservas por carrera
     async reservasPorCarrera(filtros = {}) {
         try {
-            let query = supabase.from('reservas').select('carrera');
+            let query = supabaseClient.from('reservas').select('carrera');
 
             if (filtros.fechaDesde) query = query.gte('fecha', filtros.fechaDesde);
             if (filtros.fechaHasta) query = query.lte('fecha', filtros.fechaHasta);

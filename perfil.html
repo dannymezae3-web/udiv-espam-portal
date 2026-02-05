@@ -1624,7 +1624,7 @@
                     }
 
                     try {
-                        const { error } = await supabase.auth.updateUser({ password: newPass });
+                        const { error } = await supabaseClient.auth.updateUser({ password: newPass });
                         if (error) throw error;
                         alert('Contraseña actualizada exitosamente');
                         document.getElementById('securityForm').reset();

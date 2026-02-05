@@ -2484,7 +2484,7 @@
                 return;
             }
             try {
-                const { data, error } = await supabase.from('laboratorios').insert({
+                const { data, error } = await supabaseClient.from('laboratorios').insert({
                     nombre, codigo,
                     ubicacion: document.getElementById('labLocation')?.value || '',
                     capacidad: parseInt(document.getElementById('labCapacity')?.value) || 0,
@@ -2510,7 +2510,7 @@
                 return;
             }
             try {
-                const { data, error } = await supabase.from('equipos').insert({
+                const { data, error } = await supabaseClient.from('equipos').insert({
                     nombre,
                     laboratorio_id: labId,
                     codigo: document.getElementById('equipSerial')?.value || '',
